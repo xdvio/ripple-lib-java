@@ -72,6 +72,15 @@ public class FieldSymbolicsTest {
         for (int i = 0; i < txns.length(); i++) {
             JSONObject tx = txns.getJSONObject(i);
             String txName = tx.getString("name");
+            try {
+                java.lang.reflect.Field f = TxFormat.class.getField(txName);
+                assertTrue(java.lang.reflect.Modifier.isStatic(f.getModifiers()));
+            } catch (Exception e) {
+                throw new IllegalStateException(
+                        "TxFormat is missing named declaration: "
+                                + txName);
+            }
+
             if (!txName.isEmpty()) {
                 try {
                     TransactionType.valueOf(txName);
@@ -123,6 +132,20 @@ public class FieldSymbolicsTest {
         for (int i = 0; i < entries.length(); i++) {
             JSONObject entryJson = entries.getJSONObject(i);
             String name = entryJson.getString("name");
+
+            try {
+                java.lang.reflect.Field f = LEFormat.class.getField(name);
+                assertTrue(java.lang.reflect.Modifier.isStatic(f.getModifiers()));
+            } catch (Exception e) {
+                throw new IllegalStateException(
+                        "LEFormat is missing named declaration: "
+                                + name);
+            }
+
+            if (name.isEmpty()) {
+                throw new IllegalStateException("name is empty");
+            }
+
             if (!name.isEmpty()) {
                 try {
                     LedgerEntryType.valueOf(name);

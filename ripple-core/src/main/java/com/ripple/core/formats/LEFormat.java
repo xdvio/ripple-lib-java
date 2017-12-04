@@ -125,7 +125,7 @@ public class LEFormat extends Format {
             Field.HighQualityOut,      Requirement.OPTIONAL
     );
 
-    public static LEFormat SuspendedPayment = new LEFormat(
+    public static LEFormat Escrow = new LEFormat(
             LedgerEntryType.Escrow,
             Field.Account,             Requirement.REQUIRED,
             Field.Destination,         Requirement.REQUIRED,
