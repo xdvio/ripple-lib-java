@@ -15,7 +15,7 @@ public enum LedgerEntryType implements SerializedType{
     DirectoryNode('d'),
     // GeneratorMap ('g'),
     RippleState ('r'),
-    SuspendedPayment ('u'),
+    Escrow ('u'),
     // Nickname ('n'), // deprecated
     Offer ('o'),
     // Contract ('c'),

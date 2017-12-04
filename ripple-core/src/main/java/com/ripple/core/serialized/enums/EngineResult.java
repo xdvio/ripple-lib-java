@@ -22,6 +22,11 @@ public enum EngineResult implements SerializedType {
     telINSUF_FEE_P("Fee insufficient."),
     telNO_DST_PARTIAL("Partial payment to create account not allowed."),
     telCAN_NOT_QUEUE("Can not queue at this time."),
+    telCAN_NOT_QUEUE_BALANCE("Can not queue at this time: insufficient balance to pay all queued fees."),
+    telCAN_NOT_QUEUE_BLOCKS("Can not queue at this time: would block later queued transaction(s)."),
+    telCAN_NOT_QUEUE_BLOCKED("Can not queue at this time: blocking transaction in queue."),
+    telCAN_NOT_QUEUE_FEE("Can not queue at this time: fee insufficient to replace queued transaction."),
+    telCAN_NOT_QUEUE_FULL("Can not queue at this time: queue is full."),
 
     temMALFORMED(-299, "Malformed transaction."),
     temBAD_AMOUNT("Can only send positive amounts."),
@@ -41,7 +46,7 @@ public enum EngineResult implements SerializedType {
     temBAD_SEQUENCE("Malformed: Sequence is not in the past."),
     temBAD_SIGNATURE("Malformed: Bad signature."),
     temBAD_SRC_ACCOUNT("Malformed: Bad source account."),
-    temBAD_TRANSFER_RATE("Malformed: Transfer rate must be >= 1.0"),
+    temBAD_TRANSFER_RATE("Malformed: Transfer rate must be >= 1.0 and <= 2.0"),
     temDST_IS_SRC("Destination may not be source."),
     temDST_NEEDED("Destination not specified."),
     temINVALID("The transaction is ill-formed."),
@@ -65,7 +70,7 @@ public enum EngineResult implements SerializedType {
     tefEXCEPTION("Unexpected program state."),
     tefINTERNAL("Internal error."),
     tefNO_AUTH_REQUIRED("Auth is not required."),
-    tefPAST_SEQ("This sequence number has already past."),
+    tefPAST_SEQ("This sequence number has already passed."),
     tefWRONG_PRIOR("This previous transaction does not match."),
     tefMASTER_DISABLED("Master key is disabled."),
     tefMAX_LEDGER("Ledger sequence too high."),
@@ -73,6 +78,8 @@ public enum EngineResult implements SerializedType {
     tefBAD_QUORUM("Signatures provided do not meet the quorum."),
     tefNOT_MULTI_SIGNING("Account has no appropriate list of multi-signers."),
     tefBAD_AUTH_MASTER("Auth for unclaimed account needs correct master key."),
+    tefINVARIANT_FAILED("Fee claim violated invariants for the transaction."),
+
     terRETRY(-99, "Retry transaction."),
     terFUNDS_SPENT("Can't set password, password set funds already spent."),
     terINSUF_FEE_B("Account balance can't pay fee."),
@@ -118,8 +125,9 @@ public enum EngineResult implements SerializedType {
     tecDST_TAG_NEEDED(143, "A destination tag is required."),
     tecINTERNAL(144, "An internal error has occurred during processing."),
     tecOVERSIZE(145, "Object exceeded serialization limits."),
-    tecCRYPTOCONDITION_ERROR(146, "Malformed, invalid, or mismatched " +
-            "conditional or fulfillment.");
+    tecCRYPTOCONDITION_ERROR(146, "Malformed, invalid, or mismatched conditional or fulfillment."),
+    tecINVARIANT_FAILED(147, "One or more invariants for the transaction were not satisfied.");
+
 
     public int asInteger() {
         return ord;

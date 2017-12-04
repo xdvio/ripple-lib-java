@@ -57,6 +57,11 @@
 			"description" : "An internal error has occurred during processing.",
 			"ordinal" : 144
 		},
+		"tecINVARIANT_FAILED" : 
+		{
+			"description" : "One or more invariants for the transaction were not satisfied.",
+			"ordinal" : 147
+		},
 		"tecNEED_MASTER_KEY" : 
 		{
 			"description" : "The operation requires the use of the Master Key.",
@@ -217,6 +222,11 @@
 			"description" : "Internal error.",
 			"ordinal" : -192
 		},
+		"tefINVARIANT_FAILED" : 
+		{
+			"description" : "Fee claim violated invariants for the transaction.",
+			"ordinal" : -182
+		},
 		"tefMASTER_DISABLED" : 
 		{
 			"description" : "Master key is disabled.",
@@ -239,7 +249,7 @@
 		},
 		"tefPAST_SEQ" : 
 		{
-			"description" : "This sequence number has already past.",
+			"description" : "This sequence number has already passed.",
 			"ordinal" : -190
 		},
 		"tefWRONG_PRIOR" : 
@@ -266,6 +276,31 @@
 		{
 			"description" : "Can not queue at this time.",
 			"ordinal" : -392
+		},
+		"telCAN_NOT_QUEUE_BALANCE" : 
+		{
+			"description" : "Can not queue at this time: insufficient balance to pay all queued fees.",
+			"ordinal" : -391
+		},
+		"telCAN_NOT_QUEUE_BLOCKED" : 
+		{
+			"description" : "Can not queue at this time: blocking transaction in queue.",
+			"ordinal" : -389
+		},
+		"telCAN_NOT_QUEUE_BLOCKS" : 
+		{
+			"description" : "Can not queue at this time: would block later queued transaction(s).",
+			"ordinal" : -390
+		},
+		"telCAN_NOT_QUEUE_FEE" : 
+		{
+			"description" : "Can not queue at this time: fee insufficient to replace queued transaction.",
+			"ordinal" : -388
+		},
+		"telCAN_NOT_QUEUE_FULL" : 
+		{
+			"description" : "Can not queue at this time: queue is full.",
+			"ordinal" : -387
 		},
 		"telFAILED_PROCESSING" : 
 		{
@@ -389,7 +424,7 @@
 		},
 		"temBAD_TRANSFER_RATE" : 
 		{
-			"description" : "Malformed: Transfer rate must be >= 1.0",
+			"description" : "Malformed: Transfer rate must be >= 1.0 and <= 2.0",
 			"ordinal" : -281
 		},
 		"temBAD_WEIGHT" : 
@@ -914,6 +949,14 @@
 		{
 			"isBinary" : true,
 			"isSigningField" : true,
+			"name" : "DestinationNode",
+			"ordinal" : 9,
+			"type" : "UInt64"
+		},
+		
+		{
+			"isBinary" : true,
+			"isSigningField" : true,
 			"name" : "EmailHash",
 			"ordinal" : 1,
 			"type" : "Hash128"
@@ -1044,6 +1087,14 @@
 			"isSigningField" : true,
 			"name" : "Channel",
 			"ordinal" : 22,
+			"type" : "Hash256"
+		},
+		
+		{
+			"isBinary" : true,
+			"isSigningField" : true,
+			"name" : "ConsensusHash",
+			"ordinal" : 23,
 			"type" : "Hash256"
 		},
 		
@@ -1767,9 +1818,10 @@
 				[ "DestinationTag", "OPTIONAL" ],
 				[ "OwnerNode", "REQUIRED" ],
 				[ "PreviousTxnID", "REQUIRED" ],
-				[ "PreviousTxnLgrSeq", "REQUIRED" ]
+				[ "PreviousTxnLgrSeq", "REQUIRED" ],
+				[ "DestinationNode", "OPTIONAL" ]
 			],
-			"name" : "SuspendedPayment",
+			"name" : "Escrow",
 			"ordinal" : 117
 		},
 		
@@ -1853,7 +1905,7 @@
 				[ "FinishAfter", "OPTIONAL" ],
 				[ "DestinationTag", "OPTIONAL" ]
 			],
-			"name" : "SuspendedPaymentCreate",
+			"name" : "EscrowCreate",
 			"ordinal" : 1
 		},
 		
@@ -1879,7 +1931,7 @@
 				[ "Fulfillment", "OPTIONAL" ],
 				[ "Condition", "OPTIONAL" ]
 			],
-			"name" : "SuspendedPaymentFinish",
+			"name" : "EscrowFinish",
 			"ordinal" : 2
 		},
 		
@@ -1934,7 +1986,7 @@
 				[ "Owner", "REQUIRED" ],
 				[ "OfferSequence", "REQUIRED" ]
 			],
-			"name" : "SuspendedPaymentCancel",
+			"name" : "EscrowCancel",
 			"ordinal" : 4
 		},
 		

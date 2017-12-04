@@ -44,14 +44,14 @@ public class STObjectFormatter {
             case Payment:
                 constructed = new Payment();
                 break;
-            case SuspendedPaymentCreate:
+            case EscrowCreate:
                 break;
-            case SuspendedPaymentFinish:
+            case EscrowFinish:
                 break;
             case AccountSet:
                 constructed = new AccountSet();
                 break;
-            case SuspendedPaymentCancel:
+            case EscrowCancel:
                 break;
             case SetRegularKey:
                 break;

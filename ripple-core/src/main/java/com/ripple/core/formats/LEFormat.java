@@ -126,7 +126,7 @@ public class LEFormat extends Format {
     );
 
     public static LEFormat SuspendedPayment = new LEFormat(
-            LedgerEntryType.SuspendedPayment,
+            LedgerEntryType.Escrow,
             Field.Account,             Requirement.REQUIRED,
             Field.Destination,         Requirement.REQUIRED,
             Field.Amount,              Requirement.REQUIRED,
@@ -139,7 +139,8 @@ public class LEFormat extends Format {
             Field.CancelAfter,         Requirement.OPTIONAL,
             Field.FinishAfter,         Requirement.OPTIONAL,
             Field.SourceTag,           Requirement.OPTIONAL,
-            Field.DestinationTag,      Requirement.OPTIONAL
+            Field.DestinationTag,      Requirement.OPTIONAL,
+            Field.DestinationNode,      Requirement.OPTIONAL
     );
 
     public static LEFormat LedgerHashes = new LEFormat(

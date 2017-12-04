@@ -130,7 +130,7 @@ public class TxFormat extends Format<TxFormat> {
 
 
     static public TxFormat SuspendedPaymentCreate = new TxFormat(
-            TransactionType.SuspendedPaymentCreate,
+            TransactionType.EscrowCreate,
             Field.Destination,      Requirement.REQUIRED,
             Field.Amount,           Requirement.REQUIRED,
             Field.Condition,        Requirement.OPTIONAL,
@@ -139,14 +139,14 @@ public class TxFormat extends Format<TxFormat> {
             Field.DestinationTag,   Requirement.OPTIONAL);
 
     static public TxFormat SuspendedPaymentFinish = new TxFormat(
-            TransactionType.SuspendedPaymentFinish,
+            TransactionType.EscrowFinish,
             Field.Owner,            Requirement.REQUIRED,
             Field.OfferSequence,    Requirement.REQUIRED,
             Field.Fulfillment,      Requirement.OPTIONAL,
             Field.Condition,        Requirement.OPTIONAL);
 
     static public TxFormat SuspendedPaymentCancel = new TxFormat(
-            TransactionType.SuspendedPaymentCancel,
+            TransactionType.EscrowCancel,
             Field.Owner,          Requirement.REQUIRED,
             Field.OfferSequence,  Requirement.REQUIRED);
 

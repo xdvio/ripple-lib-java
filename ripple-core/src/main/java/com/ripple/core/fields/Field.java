@@ -61,6 +61,7 @@ public enum Field {
     ExchangeRate(6, Type.UInt64),
     LowNode(7, Type.UInt64),
     HighNode(8, Type.UInt64),
+    DestinationNode(9, Type.UInt64),
 
     EmailHash(1, Type.Hash128),
 
@@ -81,6 +82,7 @@ public enum Field {
     TicketID(20, Type.Hash256),
     Digest(21, Type.Hash256),
     Channel(22, Type.Hash256),
+    ConsensusHash(23, Type.Hash256),
 
     hash(257, Type.Hash256),
     index(258, Type.Hash256),
