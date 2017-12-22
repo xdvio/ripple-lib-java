@@ -54,6 +54,13 @@ public class Request extends Publisher<Request.events> {
     public int                id;
     public long         sendTime;
 
+    /**
+     * Set this to the client.connectionCount so that the request will only
+     * be sent if connected, rather than retried on connection drops, exceptions
+     * etc.
+     */
+    public long connectionAffinity = -1;
+
     public Request(Command command, int assignedId, Client client) {
         this.client = client;
         cmd         = command;
@@ -73,12 +80,7 @@ public class Request extends Publisher<Request.events> {
     }
 
     public void request() {
-        client.nowOrWhenConnected(new Client.OnConnected() {
-            @Override
-            public void called(final Client client_) {
-                client.sendRequest(Request.this);
-            }
-        });
+        client.nowOrWhenConnected(client_ -> client.sendRequest(Request.this));
     }
 
     public  void bumpSendTime() {

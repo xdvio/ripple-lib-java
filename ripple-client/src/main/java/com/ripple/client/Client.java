@@ -3,6 +3,7 @@ package com.ripple.client;
 import com.ripple.client.enums.Command;
 import com.ripple.client.enums.Message;
 import com.ripple.client.enums.RPCErr;
+import com.ripple.client.pubsub.CallbackContext;
 import com.ripple.client.pubsub.Publisher;
 import com.ripple.client.requests.Request;
 import com.ripple.client.responses.Response;
@@ -34,7 +35,6 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,6 +45,9 @@ import static com.ripple.client.requests.Request.VALIDATED_LEDGER;
 public class Client extends Publisher<Client.events> implements TransportEventHandler {
     // Logger
     public static final Logger logger = Logger.getLogger(Client.class.getName());
+
+    public boolean logMessages = false;
+    public long connectionCount = 0;
 
     // Events
     public interface events<T> extends Publisher.Callback<T> {}
@@ -88,7 +91,7 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
      * When this is non 0, we randomly disconnect when trying to send messages
      * See {@link Client#sendMessage}
      */
-    private double randomBugsFrequency = 0;
+    private double randomBugsFrequency = 0.0;
     Random randomBugs = new Random();
     // When this is set, all transactions will be routed first to this, which
     // will then notify the client
@@ -140,8 +143,11 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
         scheduleMaintenance();
 
         subscriptions.on(SubscriptionManager.OnSubscribed.class, subscription -> {
+            // On connection we will subscribe
             if (!connected)
                 return;
+            // Change subscription upon changes!
+            // There is no unsubscribe ...
             subscribe(subscription);
         });
     }
@@ -192,11 +198,14 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
     public Client connect(final String uri) {
         manuallyDisconnected = false;
 
+        // TODO: Why wait 50ms?
         schedule(50, () -> doConnect(uri));
         return this;
     }
 
     private void doConnect(String uri) {
+        if (connected) throw new IllegalStateException(
+                "tried to connect when already connected");
         log(Level.INFO, "Connecting to " + uri);
         previousUri = uri;
         ws.connect(URI.create(uri));
@@ -204,9 +213,13 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
 
     @SuppressWarnings("WeakerAccess")
     public void disconnect() {
+        if (!connected) throw new IllegalStateException(
+                "called disconnect when not connected");
         manuallyDisconnected = true;
+        /*
+         * This will call the doOnDisconnected method immediately
+         */
         ws.disconnect();
-        // our disconnect handler should do the rest
     }
 
     private void emitOnDisconnected() {
@@ -238,6 +251,7 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
                         }
                     }
                 }
+                addRandomDisconnects();
             } finally {
                 scheduleMaintenance();
             }
@@ -287,7 +301,9 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
     public void whenConnected(boolean nextTick, final OnConnected onConnected) {
         if (connected) {
             if (nextTick) {
-                schedule(0, () -> onConnected.called(Client.this));
+                schedule(0, () -> {
+                    onConnected.called(Client.this);
+                });
             } else {
                 onConnected.called(this);
             }
@@ -410,8 +426,16 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
 
         try {
             emit(OnMessage.class, msg);
-            if (logger.isLoggable(Level.FINER)) {
+            if (logger.isLoggable(Level.FINER) && logMessages) {
                 log(Level.FINER, "Receive `{0}`: {1}", type, prettyJSON(msg));
+            } else {
+                // Transactions are so common that we don't want to log them
+                if (type != Message.transaction) {
+                    log(Level.FINER,
+                            "Receive `{0}`: {1}",
+                            type,
+                            slice(msg.toString(), 0, 1000));
+                }
             }
 
             switch (type) {
@@ -445,6 +469,11 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
             emit(OnStateChange.class, this);
         }
     }
+
+    private String slice(String s, int i, int i1) {
+        return s.substring(i, Math.min(i1, s.length()));
+    }
+
     private void doOnDisconnected() {
         logger.entering(getClass().getName(), "doOnDisconnected");
         connected = false;
@@ -456,11 +485,13 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
             logger.fine("Currently disconnecting, so will not reconnect");
         }
 
-        logger.entering(getClass().getName(), "doOnDisconnected");
+        logger.exiting(getClass().getName(), "doOnDisconnected");
     }
 
     private void doOnConnected() {
         resetReconnectStatus();
+        connectionCount++;
+        log(Level.INFO, "connection count {0}", connectionCount);
 
         logger.entering(getClass().getName(), "doOnConnected");
         connected = true;
@@ -490,6 +521,8 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
                 .transaction_subscription_notification);
         if (tr.validated) {
             if (transactionSubscriptionManager != null) {
+                // It's the subscription managers job to call
+                // onTransactionResult
                 transactionSubscriptionManager.notifyTransactionResult(tr);
             } else {
                 onTransactionResult(tr);
@@ -498,7 +531,9 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
     }
 
     public void onTransactionResult(TransactionResult tr) {
-        log(Level.INFO, "Transaction {0} is validated", tr.hash);
+        if (logMessages) {
+            log(Level.INFO, "Transaction {0} is validated", tr.hash);
+        }
         Map<AccountID, STObject> affected = tr.modifiedRoots();
 
         if (affected != null) {
@@ -521,7 +556,9 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
             log(Level.INFO, "Found initiator {0}, notifying transactionManager", initator);
             initator.transactionManager().notifyTransactionResult(tr);
         } else {
-            log(Level.INFO, "Can't find initiating account!");
+            if (logMessages) {
+                log(Level.FINE, "Can't find initiating account!");
+            }
         }
         emit(OnValidatedTransaction.class, tr);
     }
@@ -532,11 +569,19 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
         }
         emit(OnSendMessage.class, object);
         ws.sendMessage(object);
+        // addRandomDisconnects();
+    }
 
+    private void addRandomDisconnects() {
+        if (!connected) {
+            return;
+        }
         if (randomBugsFrequency != 0) {
             if (randomBugs.nextDouble() > (1D - randomBugsFrequency)) {
                 disconnect();
-                connect(previousUri);
+                schedule(randomBugs.nextInt(2000),
+                        () -> connect(previousUri));
+
                 String msg = "I disconnected you, now I'm gonna throw, " +
                         "deal with it suckah! ;)";
                 logger.warning(msg);
@@ -612,6 +657,7 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
 
     private void subscribe(JSONObject subscription) {
         Request request = newRequest(Command.subscribe);
+        request.connectionAffinity = connectionCount;
 
         request.json(subscription);
         request.on(Request.OnSuccess.class, response -> {
@@ -638,6 +684,13 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
 
     public void sendRequest(final Request request) {
         Logger reqLog = Request.logger;
+        if (request.connectionAffinity != -1 &&
+                request.connectionAffinity != connectionCount) {
+            reqLog.log(Level.WARNING, "Discarding stale request");
+            request.clearAllListeners();
+            requests.remove(request.id);
+            return;
+        }
 
         try {
             requests.put(request.id, request);

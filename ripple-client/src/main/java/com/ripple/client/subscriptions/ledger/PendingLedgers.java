@@ -6,6 +6,7 @@ import com.ripple.client.requests.Request;
 import com.ripple.client.responses.Response;
 import com.ripple.core.types.known.tx.result.TransactionResult;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Set;
@@ -14,11 +15,11 @@ import java.util.TreeMap;
 import static com.ripple.client.pubsub.Publisher.Callback;
 
 public class PendingLedgers {
-    Client client;
-    TreeMap<Long, PendingLedger> ledgers = new TreeMap<Long, PendingLedger>();
-    ClearedLedgersSet clearedLedgers = new ClearedLedgersSet();
+    private Client client;
+    private TreeMap<Long, PendingLedger> ledgers = new TreeMap<Long, PendingLedger>();
+    private ClearedLedgersSet clearedLedgers = new ClearedLedgersSet();
 
-    public PendingLedgers(Client clientInstance) {
+    PendingLedgers(Client clientInstance) {
         client = clientInstance;
     }
 
@@ -39,7 +40,7 @@ public class PendingLedgers {
         return ledger;
     }
 
-    public void clearLedger(long ledger_index, String from) {
+    private void clearLedger(long ledger_index, String from) {
         // We are using this to test our logic wrt, to when it's safe to
         // to clear the `clearedLedgers` set.
         clearedLedgers.clear(ledger_index);
@@ -61,85 +62,75 @@ public class PendingLedgers {
 
         PendingLedger ledger = getOrAddLedger(key);
         ledger.notifyTransaction(tr);
+        if (ledger.expectedTxns == ledger.clearedTransactions) {
+            checkHeader(ledger);
+        }
     }
 
     private void requestLedger(final long ledger_index, final boolean onlyHeader, final Callback<Response> cb) {
-        Request request = client.newRequest(Command.ledger);
-        request.json("ledger_index", ledger_index);
-        if (!onlyHeader) {
-            request.json("transactions", true);
-            request.json("expand", true);
-        }
-
-        request.once(Request.OnResponse.class, new Request.OnResponse() {
+        client.requestLedger(ledger_index, new Request.Manager<JSONObject>() {
             @Override
-            public void called(Response response) {
-                if (response.succeeded) {
-                    cb.called(response);
-                } else {
-                    System.out.println("PendingLedgers.called");
-                    System.out.println(response.message);
-
-                    client.schedule(1000, new Runnable() {
-                        @Override
-                        public void run() {
-                            requestLedger(ledger_index, onlyHeader, cb);
-                        }
-                    });
+            public void beforeRequest(Request r) {
+                if (!onlyHeader) {
+                    r.json("transactions", true);
+                    r.json("expand", true);
                 }
             }
+
+            @Override
+            public boolean retryOnUnsuccessful(Response r) {
+                return true;
+            }
+
+            @Override
+            public void cb(Response response, JSONObject jsonObject) throws JSONException {
+                cb.called(response);
+            }
         });
-        request.request();
     }
 
     void checkHeader(final PendingLedger ledger) {
         final long ledger_index = ledger.ledger_index;
         ledger.setStatus(PendingLedger.Status.checkingHeader);
 
-        requestLedger(ledger_index, true, new Callback<Response>() {
-            @Override
-            public void called(Response response) {
-                JSONObject ledgerJSON = response.result.getJSONObject("ledger");
-                final String transaction_hash = ledgerJSON.getString("transaction_hash");
-                boolean correctHash = ledger.transactionHashEquals(transaction_hash);
-                if (correctHash) {
-                    clearLedger(ledger_index, "checkHeader");
-                } else {
-                    LedgerSubscriber.log("Missing transactions, need to fillInLedger: " + ledger);
-                    fillInLedger(ledger);
-                }
+        requestLedger(ledger_index, true, response -> {
+            JSONObject ledgerJSON = response.result.getJSONObject("ledger");
+            final String transaction_hash = ledgerJSON.getString("transaction_hash");
+            boolean correctHash = ledger.transactionHashEquals(transaction_hash);
+            if (correctHash) {
+                clearLedger(ledger_index, "checkHeader");
+            } else {
+                LedgerSubscriber.log("Missing transactions, need to fillInLedger: " + ledger);
+                fillInLedger(ledger);
             }
         });
     }
 
-    void fillInLedger(final PendingLedger ledger) {
+    private void fillInLedger(final PendingLedger ledger) {
         final long ledger_index = ledger.ledger_index;
         ledger.setStatus(PendingLedger.Status.fillingIn);
 
-        requestLedger(ledger_index, false, new Callback<Response>() {
-            @Override
-            public void called(Response response) {
-                JSONObject ledgerJSON = response.result.getJSONObject("ledger");
-                JSONArray transactions = ledgerJSON.getJSONArray("transactions");
+        requestLedger(ledger_index, false, response -> {
+            JSONObject ledgerJSON = response.result.getJSONObject("ledger");
+            JSONArray transactions = ledgerJSON.getJSONArray("transactions");
 
-                for (int i = 0; i < transactions.length(); i++) {
-                    JSONObject json = transactions.getJSONObject(i);
-                    // This is kind of nasty
-                    json.put("ledger_index", ledger_index);
-                    json.put("validated",    true);
-                    TransactionResult tr = TransactionResult.fromJSON(json);
-                    ledger.notifyTransaction(tr);
-                }
-
-                final String transaction_hash = ledgerJSON.getString("transaction_hash");
-                boolean correctHash = ledger.transactionHashEquals(transaction_hash);
-                if (!correctHash) throw new IllegalStateException("We don't handle invalid transactions yet");
-                clearLedger(ledger_index, "fillInLedger");
+            for (int i = 0; i < transactions.length(); i++) {
+                JSONObject json = transactions.getJSONObject(i);
+                // This is kind of nasty
+                json.put("ledger_index", ledger_index);
+                json.put("validated",    true);
+                TransactionResult tr = TransactionResult.fromJSON(json);
+                ledger.notifyTransaction(tr);
             }
+
+            final String transaction_hash = ledgerJSON.getString("transaction_hash");
+            boolean correctHash = ledger.transactionHashEquals(transaction_hash);
+            if (!correctHash) throw new IllegalStateException("We don't handle invalid transactions yet");
+            clearLedger(ledger_index, "fillInLedger");
         });
     }
 
-    public boolean alreadyPending(long j) {
+    private boolean alreadyPending(long j) {
         return ledgers.containsKey(j);
     }
 

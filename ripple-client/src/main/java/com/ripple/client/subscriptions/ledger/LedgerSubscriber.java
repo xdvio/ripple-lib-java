@@ -37,29 +37,23 @@ public class LedgerSubscriber implements TransactionSubscriptionManager {
     }
 
     private void bindLedgerCloseHandler() {
-        client.on(Client.OnLedgerClosed.class, new Client.OnLedgerClosed() {
-            @Override
-            public void called(final ServerInfo serverInfo) {
-                final long ledger_index = serverInfo.ledger_index;
+        client.onLedgerClosed(serverInfo -> {
+            final long ledger_index = serverInfo.ledger_index;
+            // We can see how many transactions are pending
+            ledgers.logPendingLedgers();
 
-                ledgers.trackMissingLedgersInClearedLedgerHistory();
-                ledgers.logPendingLedgers();
+            PendingLedger ledger = ledgers.getOrAddLedger(ledger_index);
+            ledger.expectedTxns = serverInfo.txn_count;
 
-                // We can see how many transactions are pending
-                PendingLedger ledger = ledgers.getOrAddLedger(ledger_index);
-                ledger.expectedTxns = serverInfo.txn_count;
+            ledgers.trackMissingLedgersInClearedLedgerHistory();
 
-                // We may already be tracking the ledger from below block
-                if (ledger.status == PendingLedger.Status.pending) {
-                    ledgers.checkHeader(ledger);
-                }
-
-                for (Long stalledOrGapLedger : ledgers.pendingLedgerIndexes()) {
-                    PendingLedger stalled = ledgers.getOrAddLedger(stalledOrGapLedger);
-                    if (stalled.status == PendingLedger.Status.pending) {
-                        ledgers.checkHeader(stalled);
-                        break;
-                    }
+            for (Long stalledOrGapLedger : ledgers.pendingLedgerIndexes()) {
+                PendingLedger stalled = ledgers.getOrAddLedger(stalledOrGapLedger);
+                if (stalled.status == PendingLedger.Status.pending
+                        // give the transaction stream a chance
+                        && stalled.ledger_index != ledger_index) {
+                    ledgers.checkHeader(stalled);
+                    break;
                 }
             }
         });

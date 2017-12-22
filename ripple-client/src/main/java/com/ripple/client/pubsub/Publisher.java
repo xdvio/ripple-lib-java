@@ -89,12 +89,7 @@ public class Publisher<CompatHack extends Publisher.Callback> {
         }
 
         public Runnable runnableWrappedCallback(final Object args) {
-            return new Runnable() {
-                @Override
-                public void run() {
-                    execute(args, ContextedCallback.this);
-                }
-            };
+            return () -> execute(args, ContextedCallback.this);
         }
     }
 
