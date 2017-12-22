@@ -3,7 +3,7 @@ package com.ripple.client.transport.impl;
 import com.ripple.client.transport.TransportEventHandler;
 import com.ripple.client.transport.WebSocketTransport;
 import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.drafts.Draft_17;
+import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONObject;
 
@@ -15,7 +15,7 @@ class WS extends WebSocketClient {
     WeakReference<TransportEventHandler> h;
 
     WS(URI serverURI) {
-        super(serverURI, new Draft_17());
+        super(serverURI, new Draft_6455());
     }
 
     public void muteEventHandler() {
