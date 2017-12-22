@@ -37,7 +37,7 @@ public class EDKeyPair implements IKeyPair {
 
     @Override
     public String canonicalPubHex() {
-        return B16.toString(canonicalPubBytes());
+        return B16.encode(canonicalPubBytes());
     }
 
     @Override
@@ -52,7 +52,7 @@ public class EDKeyPair implements IKeyPair {
 
     @Override
     public String privHex() {
-        return B16.toString(keySpec.geta());
+        return B16.encode(keySpec.geta());
     }
 
     @Override

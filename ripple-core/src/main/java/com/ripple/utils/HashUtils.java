@@ -1,6 +1,6 @@
 package com.ripple.utils;
 
-import org.ripple.bouncycastle.crypto.digests.RIPEMD160Digest;
+import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

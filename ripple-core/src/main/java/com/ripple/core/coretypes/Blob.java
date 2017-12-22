@@ -9,7 +9,7 @@ import com.ripple.core.serialized.BytesSink;
 import com.ripple.core.serialized.SerializedType;
 import com.ripple.core.serialized.TypeTranslator;
 import com.ripple.encodings.common.B16;
-import org.ripple.bouncycastle.util.encoders.Hex;
+import org.bouncycastle.util.encoders.Hex;
 
 public class Blob implements SerializedType {
     public Blob(byte[] bytes) {
@@ -63,7 +63,7 @@ public class Blob implements SerializedType {
 
         @Override
         public String toString(Blob obj) {
-            return B16.toString(obj.buffer);
+            return B16.encode(obj.buffer);
         }
 
         @Override

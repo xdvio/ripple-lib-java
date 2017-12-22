@@ -34,7 +34,7 @@ the basis for various clients/wallets.
     - Send XRP and IOUs
   - Inlined version of BouncyCastle 1.49
     - Provider name: "RBC"
-    - Package name: org.ripple.bouncycastle
+    - Package name: org.bouncycastle
   - CLI example
 
 ### Docs

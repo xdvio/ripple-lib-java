@@ -189,7 +189,7 @@ public enum EngineResult implements SerializedType {
 
     @Override
     public String toHex() {
-        return B16.toString(toBytes());
+        return B16.encode(toBytes());
     }
 
     public static class Translator extends TypeTranslator<EngineResult> {

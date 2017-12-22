@@ -19,7 +19,7 @@ abstract public class Hash<Subclass extends Hash> implements SerializedType, Com
 
     @Override
     public String toString() {
-        return B16.toString(hash);
+        return B16.encode(hash);
     }
 
     @Override
@@ -125,7 +125,7 @@ abstract public class Hash<Subclass extends Hash> implements SerializedType, Com
 
         @Override
         public Object toJSON(T obj) {
-            return B16.toString(obj.hash);
+            return B16.encode(obj.hash);
         }
 
         @Override

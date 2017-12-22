@@ -241,7 +241,7 @@ public class ShamapInnerNodeAnalysis {
             System.out.println("Prefixed keys used: " + prefixedIndexes.size());
             System.out.println("Prefix Histogram");
             for (Map.Entry<Integer, Integer> count : prefixIndexes.entrySet()) {
-                System.out.printf("%s : %s%n", B16.toString(prefixes.get(count.getKey())), count.getValue());
+                System.out.printf("%s : %s%n", B16.encode(prefixes.get(count.getKey())), count.getValue());
             }
         }
 

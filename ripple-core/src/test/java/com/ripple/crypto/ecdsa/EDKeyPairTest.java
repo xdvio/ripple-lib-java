@@ -51,7 +51,7 @@ public class EDKeyPairTest {
     public void testSigning() {
         byte[] bytes = edKeyPair.signMessage(message);
         assertEquals(fixtures.getString("expected_sig"),
-                B16.toString(bytes));
+                B16.encode(bytes));
     }
 
     @Test

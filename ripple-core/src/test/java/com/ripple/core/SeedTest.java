@@ -11,7 +11,7 @@ import net.i2p.crypto.eddsa.math.GroupElement;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
-import org.ripple.bouncycastle.util.Arrays;
+import org.bouncycastle.util.Arrays;
 
 import static org.junit.Assert.*;
 

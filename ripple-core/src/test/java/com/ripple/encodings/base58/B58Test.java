@@ -3,7 +3,7 @@ package com.ripple.encodings.base58;
 import com.ripple.config.Config;
 import com.ripple.encodings.common.B16;
 import org.junit.Test;
-import org.ripple.bouncycastle.util.Arrays;
+import org.bouncycastle.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
@@ -46,6 +46,6 @@ public class B58Test {
     }
 
     public void assertEncodesTo(String expected, byte[] actual) {
-        assertEquals(expected, B16.toString(actual));
+        assertEquals(expected, B16.encode(actual));
     }
 }

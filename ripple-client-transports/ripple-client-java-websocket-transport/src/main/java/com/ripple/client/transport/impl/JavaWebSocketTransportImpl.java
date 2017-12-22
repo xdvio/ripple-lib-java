@@ -14,7 +14,7 @@ class WS extends WebSocketClient {
 
     WeakReference<TransportEventHandler> h;
 
-    public WS(URI serverURI) {
+    WS(URI serverURI) {
         super(serverURI, new Draft_17());
     }
 
@@ -23,7 +23,7 @@ class WS extends WebSocketClient {
     }
 
     public void setEventHandler(TransportEventHandler eventHandler) {
-        h = new WeakReference<TransportEventHandler>(eventHandler);
+        h = new WeakReference<>(eventHandler);
     }
 
     @Override
@@ -60,13 +60,12 @@ class WS extends WebSocketClient {
 }
 
 public class JavaWebSocketTransportImpl implements WebSocketTransport {
-
-    WeakReference<TransportEventHandler> handler;
-    WS client = null;
+    private WeakReference<TransportEventHandler> handler;
+    private WS client = null;
 
     @Override
     public void setHandler(TransportEventHandler events) {
-        handler = new WeakReference<TransportEventHandler>(events);
+        handler = new WeakReference<>(events);
         if (client != null) {
             client.setEventHandler(events);
         }

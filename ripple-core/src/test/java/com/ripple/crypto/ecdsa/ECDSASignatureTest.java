@@ -4,7 +4,7 @@ import com.ripple.config.Config;
 import com.ripple.core.coretypes.AccountID;
 import com.ripple.encodings.common.B16;
 import org.junit.Test;
-import org.ripple.bouncycastle.util.Arrays;
+import org.bouncycastle.util.Arrays;
 
 import static org.junit.Assert.*;
 

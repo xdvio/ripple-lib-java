@@ -47,16 +47,16 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
     public static final Logger logger = Logger.getLogger(Client.class.getName());
 
     // Events
-    public static interface events<T> extends Publisher.Callback<T> {}
-    public static interface OnLedgerClosed extends events<ServerInfo> {}
-    public static interface OnConnected extends events<Client> {}
-    public static interface OnDisconnected extends events<Client> {}
-    public static interface OnSubscribed extends events<ServerInfo> {}
-    public static interface OnMessage extends events<JSONObject> {}
-    public static interface OnSendMessage extends events<JSONObject> {}
-    public static interface OnStateChange extends events<Client> {}
-    public static interface OnPathFind extends events<JSONObject> {}
-    public static interface OnValidatedTransaction extends events<TransactionResult> {}
+    public interface events<T> extends Publisher.Callback<T> {}
+    public interface OnLedgerClosed extends events<ServerInfo> {}
+    public interface OnConnected extends events<Client> {}
+    public interface OnStateChange extends events<Client> {}
+    public interface OnPathFind extends events<JSONObject> {}
+    public interface OnValidatedTransaction extends events<TransactionResult> {}
+    public interface OnDisconnected extends events<Client> {}
+    public interface OnSubscribed extends events<ServerInfo> {}
+    public interface OnMessage extends events<JSONObject> {}
+    public interface OnSendMessage extends events<JSONObject> {}
 
     // Fluent binders
     public Client onValidatedTransaction(OnValidatedTransaction cb) {
@@ -82,35 +82,37 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
 
     // ### Members
     // The implementation of the WebSocket
-    WebSocketTransport ws;
+    private WebSocketTransport ws;
 
     /**
      * When this is non 0, we randomly disconnect when trying to send messages
      * See {@link Client#sendMessage}
      */
-    public double randomBugsFrequency = 0;
+    private double randomBugsFrequency = 0;
     Random randomBugs = new Random();
     // When this is set, all transactions will be routed first to this, which
     // will then notify the client
     TransactionSubscriptionManager transactionSubscriptionManager;
 
     // This is in charge of executing code in the `clientThread`
+    @SuppressWarnings("WeakerAccess")
     protected ScheduledExecutorService service;
     // All code that use the Client api, must be run on this thread
 
     /**
      See {@link Client#run}
      */
+    @SuppressWarnings("WeakerAccess")
     protected Thread clientThread;
     protected TreeMap<Integer, Request> requests = new TreeMap<Integer, Request>();
 
     // Keeps track of the `id` doled out to Request objects
     private int cmdIDs;
     // The last uri we were connected to
-    String previousUri;
+    private String previousUri;
 
     // Every x ms, we clean up timed out requests
-    public long maintenanceSchedule = 10000; //ms
+    static private final long maintenanceSchedule = 10000; //ms
 
     // Are we currently connected?
     public boolean connected = false;
@@ -137,13 +139,10 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
         // requires executor, so call after prepareExecutor
         scheduleMaintenance();
 
-        subscriptions.on(SubscriptionManager.OnSubscribed.class, new SubscriptionManager.OnSubscribed() {
-            @Override
-            public void called(JSONObject subscription) {
-                if (!connected)
-                    return;
-                subscribe(subscription);
-            }
+        subscriptions.on(SubscriptionManager.OnSubscribed.class, subscription -> {
+            if (!connected)
+                return;
+            subscribe(subscription);
         });
     }
 
@@ -175,13 +174,9 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
         }
     }
 
-    public static String prettyJSON(JSONObject object) {
+    private static String prettyJSON(JSONObject object) {
         return object.toString(4);
     }
-    public static JSONObject parseJSON(String s) {
-        return new JSONObject(s);
-    }
-
 
     /* --------------------------- CONNECT / RECONNECT -------------------------- */
 
@@ -197,21 +192,17 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
     public Client connect(final String uri) {
         manuallyDisconnected = false;
 
-        schedule(50, new Runnable() {
-            @Override
-            public void run() {
-                doConnect(uri);
-            }
-        });
+        schedule(50, () -> doConnect(uri));
         return this;
     }
 
-    public void doConnect(String uri) {
+    private void doConnect(String uri) {
         log(Level.INFO, "Connecting to " + uri);
         previousUri = uri;
         ws.connect(URI.create(uri));
     }
 
+    @SuppressWarnings("WeakerAccess")
     public void disconnect() {
         manuallyDisconnected = true;
         ws.disconnect();
@@ -232,36 +223,34 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
      * This also
      */
     private void scheduleMaintenance() {
-        schedule(maintenanceSchedule, new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    manageTimedOutRequests();
-                    int defaultValue = -1;
+        schedule(maintenanceSchedule, () -> {
+            try {
+                manageTimedOutRequests();
+                int defaultValue = -1;
 
-                    if (!manuallyDisconnected) {
-                        if (connected && lastConnection != defaultValue) {
-                            long time = new Date().getTime();
-                            long msSince = time - lastConnection;
-                            if (msSince > reconnectDormantAfter) {
-                                lastConnection = defaultValue;
-                                reconnect();
-                            }
+                if (!manuallyDisconnected) {
+                    if (connected && lastConnection != defaultValue) {
+                        long time = new Date().getTime();
+                        long msSince = time - lastConnection;
+                        if (msSince > reconnectDormantAfter) {
+                            lastConnection = defaultValue;
+                            reconnect();
                         }
                     }
-                } finally {
-                    scheduleMaintenance();
                 }
+            } finally {
+                scheduleMaintenance();
             }
         });
     }
 
+    @SuppressWarnings("WeakerAccess")
     public void reconnect() {
         disconnect();
         connect(previousUri);
     }
 
-    void manageTimedOutRequests() {
+    private void manageTimedOutRequests() {
         long now = System.currentTimeMillis();
         ArrayList<Request> timedOut = new ArrayList<Request>();
 
@@ -282,32 +271,23 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
     // ### Handler binders binder
 
     public void connect(final String s, final OnConnected onConnected) {
-        run(new Runnable() {
-            public void run() {
-                connect(s);
-                once(OnConnected.class, onConnected);
-            }
+        run(() -> {
+            connect(s);
+            once(OnConnected.class, onConnected);
         });
     }
 
     public void disconnect(final OnDisconnected onDisconnected) {
-        run(new Runnable() {
-            public void run() {
-                Client.this.once(OnDisconnected.class, onDisconnected);
-                disconnect();
-            }
+        run(() -> {
+            Client.this.once(OnDisconnected.class, onDisconnected);
+            disconnect();
         });
     }
 
     public void whenConnected(boolean nextTick, final OnConnected onConnected) {
         if (connected) {
             if (nextTick) {
-                schedule(0, new Runnable() {
-                    @Override
-                    public void run() {
-                        onConnected.called(Client.this);
-                    }
-                });
+                schedule(0, () -> onConnected.called(Client.this));
             } else {
                 onConnected.called(this);
             }
@@ -348,12 +328,9 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
     }
 
     protected void prepareExecutor() {
-        service = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable r) {
-                clientThread = new Thread(r);
-                return clientThread;
-            }
+        service = new ScheduledThreadPoolExecutor(1, r -> {
+            clientThread = new Thread(r);
+            return clientThread;
         });
     }
 
@@ -371,19 +348,16 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
     }
 
     private Runnable errorHandling(final Runnable runnable) {
-        return new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    runnable.run();
-                } catch (Exception e) {
-                    onException(e);
-                }
+        return () -> {
+            try {
+                runnable.run();
+            } catch (Exception e) {
+                onException(e);
             }
         };
     }
 
-    protected void onException(Exception e) {
+    private void onException(Exception e) {
         e.printStackTrace(System.out);
         if (logger.isLoggable(Level.WARNING)) {
             log(Level.WARNING, "Exception {0}", e);
@@ -407,12 +381,7 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
     @Override
     public void onMessage(final JSONObject msg) {
         resetReconnectStatus();
-        run(new Runnable() {
-            @Override
-            public void run() {
-                onMessageInClientThread(msg);
-            }
-        });
+        run(() -> onMessageInClientThread(msg));
     }
 
     @Override
@@ -426,21 +395,12 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
 
     @Override
     public void onDisconnected(boolean willReconnect) {
-        run(new Runnable() {
-            @Override
-            public void run() {
-                doOnDisconnected();
-            }
-        });
+        run(this::doOnDisconnected);
     }
 
     @Override
     public void onConnected() {
-        run(new Runnable() {
-            public void run() {
-                doOnConnected();
-            }
-        });
+        run(this::doOnConnected);
     }
 
     /* ----------------------- CLIENT THREAD EVENT HANDLER ---------------------- */
@@ -491,12 +451,7 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
         emitOnDisconnected();
 
         if (!manuallyDisconnected) {
-            schedule(reconnectDelay(), new Runnable() {
-                @Override
-                public void run() {
-                    connect(previousUri);
-                }
-            });
+            schedule(reconnectDelay(), () -> connect(previousUri));
         } else {
             logger.fine("Currently disconnecting, so will not reconnect");
         }
@@ -659,13 +614,10 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
         Request request = newRequest(Command.subscribe);
 
         request.json(subscription);
-        request.on(Request.OnSuccess.class, new Request.OnSuccess() {
-            @Override
-            public void called(Response response) {
-                // TODO ... make sure this isn't just an account subscription
-                serverInfo.update(response.result);
-                emit(OnSubscribed.class, serverInfo);
-            }
+        request.on(Request.OnSuccess.class, response -> {
+            // TODO ... make sure this isn't just an account subscription
+            serverInfo.update(response.result);
+            emit(OnSubscribed.class, serverInfo);
         });
         request.request();
     }
@@ -696,12 +648,7 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
             if (reqLog.isLoggable(Level.WARNING)) {
                 reqLog.log(Level.WARNING, "Exception when trying to request: {0}", e);
             }
-            nextTickOrWhenConnected(new OnConnected() {
-                @Override
-                public void called(Client args) {
-                    sendRequest(request);
-                }
-            });
+            nextTickOrWhenConnected(args -> sendRequest(request));
         }
     }
 
@@ -710,42 +657,33 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
     public <T> Request makeManagedRequest(final Command cmd, final Manager<T> manager, final Request.Builder<T> builder) {
         final Request request = newRequest(cmd);
         final boolean[] responded = new boolean[]{false};
-        request.once(Request.OnTimeout.class, new Request.OnTimeout() {
-            @Override
-            public void called(Response args) {
-                if (!responded[0] && manager.retryOnUnsuccessful(null)) {
-                    logRetry(request, "Request timed out");
-                    request.clearAllListeners();
-                    queueRetry(50, cmd, manager, builder);
-                }
+        request.once(Request.OnTimeout.class, args -> {
+            if (!responded[0] && manager.retryOnUnsuccessful(null)) {
+                logRetry(request, "Request timed out");
+                request.clearAllListeners();
+                queueRetry(50, cmd, manager, builder);
             }
         });
-        final OnDisconnected cb = new OnDisconnected() {
-            @Override
-            public void called(Client c) {
-                if (!responded[0] && manager.retryOnUnsuccessful(null)) {
-                    logRetry(request, "Client disconnected");
-                    request.clearAllListeners();
-                    queueRetry(50, cmd, manager, builder);
-                }
+        final OnDisconnected cb = c -> {
+            if (!responded[0] && manager.retryOnUnsuccessful(null)) {
+                logRetry(request, "Client disconnected");
+                request.clearAllListeners();
+                queueRetry(50, cmd, manager, builder);
             }
         };
         once(OnDisconnected.class, cb);
-        request.once(Request.OnResponse.class, new Request.OnResponse() {
-            @Override
-            public void called(final Response response) {
-                responded[0] = true;
-                Client.this.removeListener(OnDisconnected.class, cb);
+        request.once(Request.OnResponse.class, response -> {
+            responded[0] = true;
+            Client.this.removeListener(OnDisconnected.class, cb);
 
-                if (response.succeeded) {
-                    final T t = builder.buildTypedResponse(response);
-                    manager.cb(response, t);
+            if (response.succeeded) {
+                final T t = builder.buildTypedResponse(response);
+                manager.cb(response, t);
+            } else {
+                if (manager.retryOnUnsuccessful(response)) {
+                    queueRetry(50, cmd, manager, builder);
                 } else {
-                    if (manager.retryOnUnsuccessful(response)) {
-                        queueRetry(50, cmd, manager, builder);
-                    } else {
-                        manager.cb(response, null);
-                    }
+                    manager.cb(response, null);
                 }
             }
         });
@@ -759,12 +697,7 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
                                 final Command cmd,
                                 final Manager<T> manager,
                                 final Request.Builder<T> builder) {
-        schedule(ms, new Runnable() {
-            @Override
-            public void run() {
-                makeManagedRequest(cmd, manager, builder);
-            }
-        });
+        schedule(ms, () -> makeManagedRequest(cmd, manager, builder));
     }
 
     private void logRetry(Request request, String reason) {

@@ -63,7 +63,7 @@ public enum LedgerEntryType implements SerializedType{
     }
     @Override
     public String toHex() {
-        return B16.toString(toBytes());
+        return B16.encode(toBytes());
     }
     @Override
     public void toBytesSink(BytesSink to) {

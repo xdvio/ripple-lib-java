@@ -234,7 +234,7 @@ abstract public class UInt<Subclass extends UInt> extends Number implements Seri
 
         @Override
         public String toString(T obj) {
-            return B16.toString(obj.toByteArray());
+            return B16.encode(obj.toByteArray());
         }
 
         @Override

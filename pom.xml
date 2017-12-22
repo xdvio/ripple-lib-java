@@ -16,8 +16,8 @@
                 <version>3.2</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -42,7 +42,6 @@
         <module>ripple-client</module>
         <module>ripple-client-transports</module>
         <module>ripple-examples</module>
-        <module>ripple-bouncycastle</module>
     </modules>
     <dependencies>
         <dependency>

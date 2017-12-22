@@ -232,7 +232,7 @@ public class MockPair {
         }
 
         public void respondSuccess(Request request, String result) {
-            respondSuccess(request, Client.parseJSON(result));
+            respondSuccess(request, new JSONObject(result));
         }
     }
 }

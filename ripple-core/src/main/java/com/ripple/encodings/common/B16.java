@@ -1,7 +1,7 @@
 package com.ripple.encodings.common;
 
 
-import static org.ripple.bouncycastle.util.encoders.Hex.toHexString;
+import static org.bouncycastle.util.encoders.Hex.toHexString;
 
 public class B16 {
     public static String toStringTrimmed(byte[] bytes) {
@@ -11,14 +11,10 @@ public class B16 {
         }
         return toHexString(bytes, offset, bytes.length - offset).toUpperCase();
     }
-    @Deprecated
-    public static String toString(byte[] bytes) {
-        return encode(bytes);
-    }
     public static String encode(byte[] bytes) {
         return toHexString(bytes).toUpperCase();
     }
     public static byte[] decode(String hex) {
-        return org.ripple.bouncycastle.util.encoders.Hex.decode(hex);
+        return org.bouncycastle.util.encoders.Hex.decode(hex);
     }
 }
