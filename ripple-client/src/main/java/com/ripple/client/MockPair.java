@@ -18,7 +18,7 @@ public class MockPair {
         private int ms = 0;
 
         public Scheduler() {
-            queue = new PriorityQueue<Callback>();
+            queue = new PriorityQueue<>();
         }
 
         public class Callback implements Comparable<Callback> {
@@ -64,22 +64,26 @@ public class MockPair {
     // TODO a mock ScheduledExecutorService?
     // TODO make client abstract?
     public class MockClient extends Client {
+        private class MockeInnerWebSocketHandler extends InnerWebSocketHandler {
+            @Override
+            public void onMessage(JSONObject msg) {
+                onMessageInClientThread(msg);
+            }
+        }
+
         public Scheduler scheduler;
 
         public MockClient(WebSocketTransport ws) {
             super(ws);
         }
         @Override
-        protected void prepareExecutor() {
-            service = null;
-        }
-        @Override
         public void run(Runnable runnable) {
             runnable.run();
         }
+
         @Override
-        public void onMessage(JSONObject msg) {
-            onMessageInClientThread(msg);
+        protected void prepareExecutor() {
+            service = null;
         }
 
         @Override

@@ -3,7 +3,6 @@ package com.ripple.client;
 import com.ripple.client.enums.Command;
 import com.ripple.client.enums.Message;
 import com.ripple.client.enums.RPCErr;
-import com.ripple.client.pubsub.CallbackContext;
 import com.ripple.client.pubsub.Publisher;
 import com.ripple.client.requests.Request;
 import com.ripple.client.responses.Response;
@@ -42,12 +41,46 @@ import java.util.logging.Logger;
 import static com.ripple.client.requests.Request.Manager;
 import static com.ripple.client.requests.Request.VALIDATED_LEDGER;
 
-public class Client extends Publisher<Client.events> implements TransportEventHandler {
-    // Logger
+public class Client extends Publisher<Client.events> {
+    /**
+     * Using an inner class so the methods aren't public.
+     * This is the easiest refactoring from the prior case where
+     * the Client implemented the TransportEventHandler directly
+     */
+    protected class InnerWebSocketHandler implements TransportEventHandler {
+        /**
+         * This is to ensure we run everything on {@link Client#clientThread}
+         */
+        @Override
+        public void onMessage(final JSONObject msg) {
+            resetReconnectStatus();
+            run(() -> onMessageInClientThread(msg));
+        }
+
+        @Override
+        public void onConnecting(int attempt) {
+        }
+
+        @Override
+        public void onError(Exception error) {
+            onException(error);
+        }
+
+        @Override
+        public void onDisconnected(boolean willReconnect) {
+            run(Client.this::doOnDisconnected);
+        }
+
+        @Override
+        public void onConnected() {
+            run(Client.this::doOnConnected);
+        }
+    }
+
     public static final Logger logger = Logger.getLogger(Client.class.getName());
 
-    public boolean logMessages = false;
-    public long connectionCount = 0;
+    private boolean logMessages = false;
+    private long connectionCount = 0;
 
     // Events
     public interface events<T> extends Publisher.Callback<T> {}
@@ -91,23 +124,24 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
      * When this is non 0, we randomly disconnect when trying to send messages
      * See {@link Client#sendMessage}
      */
+    @SuppressWarnings("FieldCanBeLocal")
     private double randomBugsFrequency = 0.0;
-    Random randomBugs = new Random();
+    private Random randomBugs = new Random();
     // When this is set, all transactions will be routed first to this, which
     // will then notify the client
-    TransactionSubscriptionManager transactionSubscriptionManager;
+    private TransactionSubscriptionManager transactionSubscriptionManager;
 
     // This is in charge of executing code in the `clientThread`
     @SuppressWarnings("WeakerAccess")
     protected ScheduledExecutorService service;
     // All code that use the Client api, must be run on this thread
-
     /**
      See {@link Client#run}
      */
     @SuppressWarnings("WeakerAccess")
     protected Thread clientThread;
-    protected TreeMap<Integer, Request> requests = new TreeMap<Integer, Request>();
+
+    protected TreeMap<Integer, Request> requests = new TreeMap<>();
 
     // Keeps track of the `id` doled out to Request objects
     private int cmdIDs;
@@ -129,14 +163,14 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
 
     // Tracks the serverInfo we are currently connected to
     public ServerInfo serverInfo = new ServerInfo();
-    private HashMap<AccountID, Account> accounts = new HashMap<AccountID, Account>();
+    private HashMap<AccountID, Account> accounts = new HashMap<>();
     // Handles [un]subscription requests, also on reconnect
     public SubscriptionManager subscriptions = new SubscriptionManager();
 
     // Constructor
-    public Client(WebSocketTransport ws) {
-        this.ws = ws;
-        ws.setHandler(this);
+    public Client(WebSocketTransport transport) {
+        ws = transport;
+        ws.setHandler(new InnerWebSocketHandler());
 
         prepareExecutor();
         // requires executor, so call after prepareExecutor
@@ -153,10 +187,10 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
     }
 
     // ### Getters
-
     private int reconnectDelay() {
         return 1000;
     }
+
     public boolean isManuallyDisconnected() {
         return manuallyDisconnected;
     }
@@ -174,7 +208,7 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
 
     // ### Helpers
 
-    public static void log(Level level, String fmt, Object... args) {
+    private static void log(Level level, String fmt, Object... args) {
         if (logger.isLoggable(level)) {
             logger.log(level, fmt, args);
         }
@@ -193,13 +227,12 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
      * Essentially, all ripple-lib-java api interaction
      * should happen on the one thread.
      *
-     * @see #onMessage(org.json.JSONObject)
+     * @see InnerWebSocketHandler#onMessage(org.json.JSONObject)
      */
     public Client connect(final String uri) {
         manuallyDisconnected = false;
 
-        // TODO: Why wait 50ms?
-        schedule(50, () -> doConnect(uri));
+        schedule(0, () -> doConnect(uri));
         return this;
     }
 
@@ -266,7 +299,7 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
 
     private void manageTimedOutRequests() {
         long now = System.currentTimeMillis();
-        ArrayList<Request> timedOut = new ArrayList<Request>();
+        ArrayList<Request> timedOut = new ArrayList<>();
 
         for (Request request : requests.values()) {
             if (request.sendTime != 0) {
@@ -340,7 +373,8 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
     }
 
     public boolean runningOnClientThread() {
-        return clientThread != null && Thread.currentThread().getId() == clientThread.getId();
+        return clientThread != null && Thread.currentThread().getId() ==
+                clientThread.getId();
     }
 
     protected void prepareExecutor() {
@@ -374,7 +408,7 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
     }
 
     private void onException(Exception e) {
-        e.printStackTrace(System.out);
+        e.printStackTrace(System.err);
         if (logger.isLoggable(Level.WARNING)) {
             log(Level.WARNING, "Exception {0}", e);
         }
@@ -391,33 +425,7 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
 
     /* ------------------------- TRANSPORT EVENT HANDLER ------------------------ */
 
-    /**
-     * This is to ensure we run everything on {@link Client#clientThread}
-     */
-    @Override
-    public void onMessage(final JSONObject msg) {
-        resetReconnectStatus();
-        run(() -> onMessageInClientThread(msg));
-    }
 
-    @Override
-    public void onConnecting(int attempt) {
-    }
-
-    @Override
-    public void onError(Exception error) {
-        onException(error);
-    }
-
-    @Override
-    public void onDisconnected(boolean willReconnect) {
-        run(this::doOnDisconnected);
-    }
-
-    @Override
-    public void onConnected() {
-        run(this::doOnConnected);
-    }
 
     /* ----------------------- CLIENT THREAD EVENT HANDLER ---------------------- */
 
@@ -501,11 +509,11 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
         logger.exiting(getClass().getName(), "doOnConnected");
     }
 
-    void unhandledMessage(JSONObject msg) {
+    private void unhandledMessage(JSONObject msg) {
         log(Level.WARNING, "Unhandled message: " + msg);
     }
 
-    void onResponse(JSONObject msg) {
+    private void onResponse(JSONObject msg) {
         Request request = requests.remove(msg.optInt("id", -1));
 
         if (request == null) {
@@ -515,7 +523,7 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
         request.handleResponse(msg);
     }
 
-    void onTransaction(JSONObject msg) {
+    private void onTransaction(JSONObject msg) {
         TransactionResult tr = new TransactionResult(msg, TransactionResult
                 .Source
                 .transaction_subscription_notification);
@@ -563,7 +571,7 @@ public class Client extends Publisher<Client.events> implements TransportEventHa
         emit(OnValidatedTransaction.class, tr);
     }
 
-    public void sendMessage(JSONObject object) {
+    private void sendMessage(JSONObject object) {
         if (logger.isLoggable(Level.FINER)) {
             logger.log(Level.FINER, "Send: {0}", prettyJSON(object));
         }
