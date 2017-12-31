@@ -1,5 +1,6 @@
 package com.ripple.core.coretypes;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ripple.core.coretypes.uint.UInt64;
 import com.ripple.core.fields.AmountField;
 import com.ripple.core.fields.Field;
@@ -498,6 +499,24 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
             String issuerString = jsonObject.getString("issuer");
             String currencyString = jsonObject.getString("currency");
             return new Amount(new BigDecimal(valueString), currencyString, issuerString);
+        }
+
+        @Override
+        public Amount fromJacksonObject(ObjectNode object) {
+            checkField(object, "value");
+            checkField(object, "issuer");
+            checkField(object, "currency");
+            String value = object.get("value").asText();
+            String issuer = object.get("issuer").asText();
+            String currency = object.get("currency").asText();
+            return new Amount(new BigDecimal(value), currency, issuer);
+        }
+
+        private void checkField(ObjectNode object, String value1) {
+            if (!object.has(value1)) {
+                throw new IllegalArgumentException(object + "is missing `" +
+                        value1 + "`");
+            }
         }
     }
     static public Translator translate = new Translator();

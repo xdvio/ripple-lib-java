@@ -28,7 +28,11 @@ public class PendingLedger {
         pending,
         checkingHeader,
         fillingIn,
-        cleared
+        cleared;
+
+        boolean waitingResponse() {
+            return this == checkingHeader || this == fillingIn;
+        }
     }
 
     public Status status;

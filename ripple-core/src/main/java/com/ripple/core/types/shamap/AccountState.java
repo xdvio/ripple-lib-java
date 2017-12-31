@@ -1,5 +1,11 @@
 package com.ripple.core.types.shamap;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ripple.core.coretypes.STObject;
 import com.ripple.core.coretypes.Vector256;
 import com.ripple.core.coretypes.hash.Hash256;
@@ -133,12 +139,7 @@ public class AccountState extends ShaMap {
 
     public void writeEntriesArray(final JSONWriter writer) {
         writer.array();
-        walkEntries(new LedgerEntryVisitor() {
-            @Override
-            public void onEntry(LedgerEntry entry) {
-                writer.value(entry.toJSON());
-            }
-        });
+        walkEntries(entry -> writer.value(entry.toJSON()));
         writer.endArray();
     }
 
@@ -272,12 +273,9 @@ public class AccountState extends ShaMap {
     }
 
     public void walkEntries(final LedgerEntryVisitor walker) {
-        walkLeaves(new LeafWalker() {
-            @Override
-            public void onLeaf(ShaMapLeaf leaf) {
-                LedgerEntryItem item = (LedgerEntryItem) leaf.item;
-                walker.onEntry(item.entry);
-            }
+        walkLeaves(leaf -> {
+            LedgerEntryItem item = (LedgerEntryItem) leaf.item;
+            walker.onEntry(item.entry);
         });
     }
 
@@ -293,26 +291,37 @@ public class AccountState extends ShaMap {
 
     public static AccountState loadFromLedgerDump(String filePath) throws IOException {
         FileReader reader = new FileReader(filePath);
-        JSONTokener tokenizer = new JSONTokener(reader);
-        JSONObject ledger = new JSONObject(tokenizer);
-        if (ledger.has("result")) {
-            ledger = ledger.getJSONObject("result");
+        JsonFactory jsonFactory = new JsonFactory();
+        JsonParser parser = jsonFactory.createParser(reader);
+        JsonToken jsonToken = parser.nextToken();
+        if (jsonToken != JsonToken.START_OBJECT) {
+            throw new AssertionError();
         }
-        if (ledger.has("ledger")) {
-            ledger = ledger.getJSONObject("ledger");
-        }
-        JSONArray array = ledger.getJSONArray("accountState");
-        reader.close();
-        return parseShaMap(array);
-    }
 
-    public static AccountState parseShaMap(JSONArray array) {
-        AccountState map = new AccountState();
-        for (int i = 0; i < array.length(); i++) {
-            JSONObject jsonItem = array.getJSONObject(i);
-            map.addLE((LedgerEntry) STObject.fromJSONObject(jsonItem));
-        }
-        return map;
-    }
+        String accountState = "accountState";
 
+        // TODO:
+        while (parser.nextToken() != null) {
+            String currentName = parser.getCurrentName();
+            if (currentName.equals(accountState)) {
+                break;
+            }
+        }
+
+        if (!parser.getCurrentName().equals("accountState")) {
+            throw new IllegalStateException("No `accountState` field found!");
+        }
+
+        AccountState state = new AccountState();
+        ObjectMapper mapper = new ObjectMapper();
+        if (parser.nextToken() != JsonToken.START_ARRAY) {
+            throw new AssertionError();
+        }
+
+        while (parser.nextToken() != JsonToken.END_ARRAY) {
+            TreeNode treeNode = mapper.readTree(parser);
+            state.addLE((LedgerEntry) STObject.fromJacksonObject((ObjectNode) treeNode));
+        }
+        return state;
+    }
 }

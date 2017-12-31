@@ -96,7 +96,7 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
         }
     }
 
-
+    // TODO: this is never cleared
     Set<Long> seenValidatedSequences = new TreeSet<Long>();
     public long sequence = 0;
 

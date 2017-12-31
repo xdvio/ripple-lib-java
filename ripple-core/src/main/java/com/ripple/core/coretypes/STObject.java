@@ -1,5 +1,7 @@
 package com.ripple.core.coretypes;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ripple.core.coretypes.hash.Hash128;
 import com.ripple.core.coretypes.hash.Hash160;
 import com.ripple.core.coretypes.hash.Hash256;
@@ -44,6 +46,9 @@ public class STObject implements SerializedType, Iterable<Field> {
     }
     public static STObject fromJSONObject(JSONObject json) {
         return translate.fromJSONObject(json);
+    }
+    public static STObject fromJacksonObject(ObjectNode object) {
+        return translate.fromJacksonObject(object);
     }
     public static STObject fromHex(String hex) {
         return STObject.translate.fromHex(hex);
@@ -284,12 +289,7 @@ public class STObject implements SerializedType, Iterable<Field> {
     }
     @Override
     public void toBytesSink(BytesSink to) {
-        toBytesSink(to, new FieldFilter() {
-            @Override
-            public boolean evaluate(Field field) {
-                return field.isSerialized();
-            }
-        });
+        toBytesSink(to, field -> field.isSerialized());
     }
 
     @Override
@@ -356,6 +356,23 @@ public class STObject implements SerializedType, Iterable<Field> {
             while (keys.hasNext()) {
                 String key = (String) keys.next();
                 Object value   = jsonObject.get(key);
+                Field fieldKey = Field.fromString(key);
+                if (fieldKey == null) {
+                    continue;
+                }
+                so.putTranslated(fieldKey, value);
+            }
+            return STObject.formatted(so);
+        }
+
+        @Override
+        public STObject fromJacksonObject(ObjectNode object) {
+            STObject so = new STObject();
+
+            Iterator<String> keys = object.fieldNames();
+            while (keys.hasNext()) {
+                String key =  keys.next();
+                JsonNode value  = object.get(key);
                 Field fieldKey = Field.fromString(key);
                 if (fieldKey == null) {
                     continue;

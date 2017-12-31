@@ -1,5 +1,6 @@
 package com.ripple.core.coretypes;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.ripple.core.coretypes.hash.Hash256;
 import com.ripple.core.fields.Field;
 import com.ripple.core.fields.Type;
@@ -96,6 +97,17 @@ public class Vector256 extends ArrayList<Hash256> implements SerializedType {
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 String hex = jsonArray.getString(i);
+                vector.add(new Hash256(B16.decode(hex)));
+            }
+
+            return vector;
+        }
+        @Override
+        public Vector256 fromJacksonArray(ArrayNode jsonArray) {
+            Vector256 vector = new Vector256();
+
+            for (int i = 0; i < jsonArray.size(); i++) {
+                String hex = jsonArray.get(i).asText();
                 vector.add(new Hash256(B16.decode(hex)));
             }
 

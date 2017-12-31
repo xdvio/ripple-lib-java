@@ -97,6 +97,7 @@ public class PendingLedgers {
             JSONObject ledgerJSON = response.result.getJSONObject("ledger");
             final String transaction_hash = ledgerJSON.getString("transaction_hash");
             boolean correctHash = ledger.transactionHashEquals(transaction_hash);
+            // TODO: set expectedTxns
             if (correctHash) {
                 clearLedger(ledger_index, "checkHeader");
             } else {
@@ -154,5 +155,10 @@ public class PendingLedgers {
         for (PendingLedger pendingLedger : ledgers.values()) {
             System.out.println(pendingLedger);
         }
+    }
+
+    public boolean anyAwaitingResponse() {
+        return ledgers.values().stream()
+                .anyMatch(l -> l.status.waitingResponse());
     }
 }

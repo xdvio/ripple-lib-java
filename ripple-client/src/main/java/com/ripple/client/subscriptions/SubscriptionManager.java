@@ -29,6 +29,7 @@ public class SubscriptionManager extends Publisher<SubscriptionManager.events> {
         server,
         ledger,
         transactions,
+        validations,
         transactions_propose
     }
 

@@ -30,4 +30,6 @@ public class TestFixtures {
 
     public static AccountID root_account = AccountID.fromKeyPair(Seed.fromBase58(master_seed).keyPair());
     public static AccountID bob_account = AccountID.fromKeyPair(Seed.fromBase58("shn6zJ8zzkaoFSfsEWvJLZf3V344C").keyPair());
+
+
 }

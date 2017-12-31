@@ -1,6 +1,9 @@
 
 package com.ripple.core.serialized;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ripple.core.runtime.Value;
 import com.ripple.encodings.common.B16;
 import org.json.JSONArray;
@@ -18,6 +21,34 @@ public abstract class TypeTranslator<T extends SerializedType> {
         switch (Value.typeOf(object)) {
             case STRING:
                 return fromString((String) object);
+            case JACKSON_ARRAY:
+                return fromJacksonArray((ArrayNode) object);
+            case JACKSON_BINARY:
+                throw new IllegalStateException("cant handle jackson binary");
+            case JACKSON_BOOLEAN:
+                return fromBoolean(((JsonNode) object).asBoolean());
+            case JACKSON_MISSING:
+                throw new IllegalStateException("cant create from missing");
+            case JACKSON_NULL:
+                throw new IllegalStateException("cant create from null");
+            case JACKSON_NUMBER:
+                JsonNode object1 = (JsonNode) object;
+                if (object1.isLong()) {
+                    return fromLong(object1.asLong());
+                } else if (object1.isInt()) {
+                    return fromInteger(object1.asInt());
+                } else if (object1.isDouble()) {
+                    return fromDouble(object1.asDouble());
+                } else if (object1.isFloat()) {
+                    return fromDouble(object1.floatValue());
+                }
+                throw new IllegalStateException("cant create from null");
+            case JACKSON_OBJECT:
+                return fromJacksonObject((ObjectNode) object);
+            case JACKSON_POJO:
+                throw new IllegalStateException("cant handle POJO");
+            case JACKSON_STRING:
+                return fromString(((JsonNode) object).asText());
             case DOUBLE:
                 return fromDouble((Double) object);
             case INTEGER:
@@ -36,6 +67,15 @@ public abstract class TypeTranslator<T extends SerializedType> {
             default:
                 return (T) object;
         }
+
+    }
+
+    public T fromJacksonObject(ObjectNode object) {
+        throw new UnsupportedOperationException();
+    }
+
+    public T fromJacksonArray(ArrayNode node) {
+        throw new UnsupportedOperationException();
     }
 
     public boolean toBoolean(T obj) {

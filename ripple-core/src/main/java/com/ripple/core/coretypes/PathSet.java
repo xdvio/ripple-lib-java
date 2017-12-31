@@ -1,5 +1,7 @@
 package com.ripple.core.coretypes;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ripple.core.fields.Field;
 import com.ripple.core.fields.PathSetField;
 import com.ripple.core.fields.Type;
@@ -82,6 +84,24 @@ public class PathSet extends ArrayList<PathSet.Path> implements SerializedType {
             if (hasCurrency()) object.put("currency", currency.toJSON());
             return object;
         }
+
+        public static Hop fromJacksonObject(ObjectNode json) {
+            Hop hop = new Hop();
+            if (json.has("account")) {
+                hop.account = AccountID.fromAddress(json.get("account").asText());
+            }
+            if (json.has("issuer")) {
+                hop.issuer = AccountID.fromAddress(json.get("issuer").asText());
+            }
+            if (json.has("currency")) {
+                hop.currency = Currency.fromString(json.get("currency").asText());
+            }
+            if (json.has("type")) {
+                hop.type = json.get("type").asInt();
+            }
+            return hop;
+
+        }
     }
     public static class Path extends ArrayList<Hop> {
         static public Path fromJSONArray(JSONArray array) {
@@ -92,6 +112,15 @@ public class PathSet extends ArrayList<PathSet.Path> implements SerializedType {
                 path.add(Hop.fromJSONObject(hop));
             }
 
+            return path;
+        }
+        static public Path fromJacksonArray(ArrayNode array) {
+            Path path = new Path();
+            int nHops = array.size();
+            for (int i = 0; i < nHops; i++) {
+                ObjectNode hop = (ObjectNode) array.get(i);
+                path.add(Hop.fromJacksonObject(hop));
+            }
             return path;
         }
         public JSONArray toJSONArray() {
@@ -201,6 +230,20 @@ public class PathSet extends ArrayList<PathSet.Path> implements SerializedType {
             for (int i = 0; i < nPaths; i++) {
                 JSONArray path = array.getJSONArray(i);
                 paths.add(Path.fromJSONArray(path));
+            }
+            return paths;
+
+        }
+
+        @Override
+        public PathSet fromJacksonArray(ArrayNode array) {
+            PathSet paths = new PathSet();
+
+            int nPaths = array.size();
+
+            for (int i = 0; i < nPaths; i++) {
+                ArrayNode path = (ArrayNode) array.get(i);
+                paths.add(Path.fromJacksonArray(path));
             }
 
             return paths;

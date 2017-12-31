@@ -1,7 +1,6 @@
 package com.ripple.client.subscriptions.ledger;
 
 import com.ripple.client.Client;
-import com.ripple.client.subscriptions.ServerInfo;
 import com.ripple.client.subscriptions.SubscriptionManager;
 import com.ripple.client.subscriptions.TransactionSubscriptionManager;
 import com.ripple.core.types.known.tx.result.TransactionResult;
@@ -18,8 +17,8 @@ public class LedgerSubscriber implements TransactionSubscriptionManager {
         logger.log(Level.FINE, fmt, args);
     }
 
-    Client client;
-    PendingLedgers ledgers;
+    private Client client;
+    private PendingLedgers ledgers;
 
     public void notifyTransactionResult(TransactionResult tr) {
         ledgers.notifyTransactionResult(tr);
@@ -47,12 +46,19 @@ public class LedgerSubscriber implements TransactionSubscriptionManager {
 
             ledgers.trackMissingLedgersInClearedLedgerHistory();
 
+            // TODO: perhaps limit to n many requests ... 
+            if (ledgers.anyAwaitingResponse()) {
+                // We don't want to flood the server upon reconnection
+                return;
+            }
+
             for (Long stalledOrGapLedger : ledgers.pendingLedgerIndexes()) {
                 PendingLedger stalled = ledgers.getOrAddLedger(stalledOrGapLedger);
                 if (stalled.status == PendingLedger.Status.pending
                         // give the transaction stream a chance
                         && stalled.ledger_index != ledger_index) {
                     ledgers.checkHeader(stalled);
+                    // only get one at a time
                     break;
                 }
             }

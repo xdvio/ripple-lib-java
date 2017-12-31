@@ -45,24 +45,14 @@ public class Transaction extends STObject {
 
     public Hash256 signingHash() {
         HalfSha512 signing = HalfSha512.prefixed256(HashPrefix.txSign);
-        toBytesSink(signing, new FieldFilter() {
-            @Override
-            public boolean evaluate(Field a) {
-                return a.isSigningField();
-            }
-        });
+        toBytesSink(signing, Field::isSigningField);
         return signing.finish();
     }
 
     public byte[] signingData() {
         BytesList bl = new BytesList();
         bl.add(HashPrefix.txSign.bytes);
-        toBytesSink(bl, new FieldFilter() {
-            @Override
-            public boolean evaluate(Field a) {
-                return a.isSigningField();
-            }
-        });
+        toBytesSink(bl, Field::isSigningField);
         return bl.bytes();
     }
 
@@ -102,6 +92,12 @@ public class Transaction extends STObject {
 
     public Hash256 hash() {
         return get(Hash256.hash);
+    }
+
+    public Hash256 createHash() {
+        HalfSha512 id = HalfSha512.prefixed256(HashPrefix.transactionID);
+        toBytesSink(id);
+        return id.finish();
     }
 
     public AccountID signingKey() {

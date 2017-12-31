@@ -1,5 +1,8 @@
 package com.ripple.core.coretypes;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ripple.core.fields.Field;
 import com.ripple.core.fields.STArrayField;
 import com.ripple.core.fields.Type;
@@ -80,6 +83,17 @@ public class STArray extends ArrayList<STObject> implements SerializedType {
             for (int i = 0; i < jsonArray.length(); i++) {
                 Object o = jsonArray.get(i);
                 arr.add(STObject.fromJSONObject((JSONObject) o));
+            }
+
+            return arr;
+        }
+        @Override
+        public STArray fromJacksonArray(ArrayNode jsonArray) {
+            STArray arr = new STArray();
+
+            for (int i = 0; i < jsonArray.size(); i++) {
+                ObjectNode object = (ObjectNode) jsonArray.get(i);
+                arr.add(STObject.translate.fromJacksonObject(object));
             }
 
             return arr;
