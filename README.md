@@ -16,26 +16,18 @@ the basis for various clients/wallets.
 
 ### Current status
   
-  - sjcl.json aes/ccm for (wallet) blob decryption
   - Binary serialization/parsing/shamap
   - Crude implementation of a high level client
     - Single threaded
     - High level helper classes
-      - AccountTransactionsRequester (wraps account_tx)
+      - AccountTxPager (wraps account_tx)
       - PaymentFlow (wraps path_find)
     - Automatic transaction resubmission
       - Resubmits transactions in manner resilient to poor network conditions
-  - Api client choice of websocket transport
+  - Api client choice of WebSocket transport
   - Test suite for core types
   - Signing / Verification
   - KeyPair creation
-  - Android example
-    - Multi threaded
-    - Send XRP and IOUs
-  - Inlined version of BouncyCastle 1.49
-    - Provider name: "RBC"
-    - Package name: org.bouncycastle
-  - CLI example
 
 ### Docs
 
