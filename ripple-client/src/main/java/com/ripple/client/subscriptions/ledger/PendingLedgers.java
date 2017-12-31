@@ -56,7 +56,6 @@ public class PendingLedgers {
     public void notifyTransactionResult(TransactionResult tr) {
         long key = tr.ledgerIndex.longValue();
         if (clearedLedgers.contains(key)) {
-            System.out.println("warning");
             return;
         }
 

@@ -8,6 +8,7 @@ import com.ripple.core.coretypes.Amount;
 import com.ripple.core.coretypes.STObject;
 import com.ripple.core.types.known.sle.entries.Offer;
 import com.ripple.core.types.known.tx.result.TransactionResult;
+import com.ripple.java8.utils.ProcessHelper;
 
 import java.util.logging.Level;
 
@@ -19,7 +20,7 @@ import static com.ripple.java8.utils.Print.print;
  */
 public class OffersExecuted {
     public static void main(String[] args) {
-        Client.logger.setLevel(Level.OFF);
+        print("pid={0}", ProcessHelper.getPID());
         new Client(new JavaWebSocketTransportImpl())
             .connect("wss://s-east.ripple.com",
                     OffersExecuted::onceConnected);
@@ -51,9 +52,10 @@ public class OffersExecuted {
 
         // Only print trades that executed
         if (!takerGot.isZero()) {
+            Amount takerPaid = executed.get(Amount.TakerPays);
             print("In {0} tx: {1}, Offer owner {2}, was paid: {3}, gave: {4} ",
                   tr.transactionType(), tr.hash, before.account(),
-                    executed.get(Amount.TakerPays), takerGot);
+                    takerPaid.toTextFull(), takerGot.toTextFull());
         }
     }
 }

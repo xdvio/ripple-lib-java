@@ -9,34 +9,44 @@ import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.net.URI;
+import java.util.Date;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 class WS extends WebSocketClient {
+    Logger logger = Logger.getLogger(WS.class.getName());
 
-    WeakReference<TransportEventHandler> h;
+    TransportEventHandler h2;
 
     WS(URI serverURI) {
         super(serverURI, new Draft_6455());
     }
 
     public void muteEventHandler() {
-        h.clear();
+        logger.log(Level.FINE,"muting handler!");
+        h2 = null;
     }
 
     public void setEventHandler(TransportEventHandler eventHandler) {
-        h = new WeakReference<>(eventHandler);
+        h2 = eventHandler;
     }
 
     @Override
     public void onOpen(ServerHandshake handshakedata) {
-        TransportEventHandler handler = h.get();
+        TransportEventHandler handler = getHandler();
         if (handler != null) {
             handler.onConnected();
         }
     }
 
+    private TransportEventHandler getHandler() {
+        return h2;
+    }
+
     @Override
     public void onMessage(String message) {
-        TransportEventHandler handler = h.get();
+        TransportEventHandler handler = getHandler();
         if (handler != null) {
             handler.onMessage(new JSONObject(message));
         }
@@ -44,15 +54,23 @@ class WS extends WebSocketClient {
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
-        TransportEventHandler handler = h.get();
+        logger.log(Level.FINE, "code = [" + code + "], reason = [" + reason + "], remote = [" + remote + "]" + getTime());
+        TransportEventHandler handler = getHandler();
         if (handler != null) {
-            handler.onDisconnected(false);
+            handler.onDisconnected();
+        } else {
+            logger.log(Level.FINE,"handler is null!");
         }
+    }
+
+    private String getTime() {
+        return " @  " + new Date().toGMTString();
     }
 
     @Override
     public void onError(Exception ex) {
-        TransportEventHandler handler = h.get();
+        logger.log(Level.FINE, "ex = [" + ex + "]" + getTime());
+        TransportEventHandler handler = getHandler();
         if (handler != null) {
             handler.onError(ex);
         }
@@ -86,19 +104,13 @@ public class JavaWebSocketTransportImpl implements WebSocketTransport {
         client = new WS(uri);
 
         client.setEventHandler(curHandler);
-        curHandler.onConnecting(1);
+        curHandler.onConnecting();
         client.connect();
     }
 
     @Override
     public void disconnect() {
         if (client != null) {
-            TransportEventHandler handler = this.handler.get();
-            // Before we mute the handler, call disconnect
-            // otherwise we will never get the onDisconnected callback
-            if (handler != null) {
-                handler.onDisconnected(false);
-            }
             client.muteEventHandler();
             client.close();
             client = null;

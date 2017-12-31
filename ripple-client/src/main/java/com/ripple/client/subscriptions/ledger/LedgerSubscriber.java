@@ -46,7 +46,7 @@ public class LedgerSubscriber implements TransactionSubscriptionManager {
 
             ledgers.trackMissingLedgersInClearedLedgerHistory();
 
-            // TODO: perhaps limit to n many requests ... 
+            // TODO: perhaps limit to n many requests ...
             if (ledgers.anyAwaitingResponse()) {
                 // We don't want to flood the server upon reconnection
                 return;

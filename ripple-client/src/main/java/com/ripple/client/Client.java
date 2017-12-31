@@ -59,16 +59,18 @@ public class Client extends Publisher<Client.events> {
         }
 
         @Override
-        public void onConnecting(int attempt) {
+        public void onConnecting() {
+            log(Level.FINE, "socket.onConnecting");
         }
 
         @Override
         public void onError(Exception error) {
+            log(Level.WARNING, "error {0}", error);
             onException(error);
         }
 
         @Override
-        public void onDisconnected(boolean willReconnect) {
+        public void onDisconnected() {
             run(Client.this::doOnDisconnected);
         }
 
@@ -268,6 +270,7 @@ public class Client extends Publisher<Client.events> {
                     "called disconnect when not connected");
         }
         manuallyDisconnected = true;
+        doOnDisconnected();
         /*
          * This will call the doOnDisconnected method immediately
          */
@@ -299,7 +302,9 @@ public class Client extends Publisher<Client.events> {
                         long msSince = time - lastConnection;
                         if (msSince > reconnectDormantAfter) {
                             lastConnection = defaultValue;
-                            reconnect();
+                            if (!reconnecting) {
+                                reconnect();
+                            }
                         }
                     }
                 }
@@ -312,9 +317,12 @@ public class Client extends Publisher<Client.events> {
 
     @SuppressWarnings("WeakerAccess")
     public void reconnect() {
-        reconnecting = true;
+        if (reconnecting) {
+            log(Level.WARNING, "already reconnecting!");
+            return;
+        }
         disconnect();
-        connect(previousUri, (c) -> reconnecting = false);
+        connect(previousUri);
     }
 
     private void manageTimedOutRequests() {
@@ -404,6 +412,7 @@ public class Client extends Publisher<Client.events> {
     protected void prepareExecutor() {
         service = new ScheduledThreadPoolExecutor(1, r -> {
             clientThread = new Thread(r);
+            clientThread.setName(name + "-thread");
             return clientThread;
         });
     }
@@ -432,7 +441,7 @@ public class Client extends Publisher<Client.events> {
     }
 
     private void onException(Exception e) {
-        e.printStackTrace(System.err);
+        //e.printStackTrace(System.err);
         if (logger.isLoggable(Level.WARNING)) {
             log(Level.WARNING, "Exception {0}", e);
         }
@@ -442,14 +451,9 @@ public class Client extends Publisher<Client.events> {
         lastConnection = new Date().getTime();
     }
 
-
     private void updateServerInfo(JSONObject msg) {
         serverInfo.update(msg);
     }
-
-    /* ------------------------- TRANSPORT EVENT HANDLER ------------------------ */
-
-
 
     /* ----------------------- CLIENT THREAD EVENT HANDLER ---------------------- */
 
@@ -510,19 +514,23 @@ public class Client extends Publisher<Client.events> {
         logger.entering(getClass().getName(), "doOnDisconnected");
         connected = false;
         emitOnDisconnected();
+        maybeScheduleReconnect();
 
-        if (!manuallyDisconnected & !reconnecting) {
+        logger.exiting(getClass().getName(), "doOnDisconnected");
+    }
+
+    private void maybeScheduleReconnect() {
+        if (!manuallyDisconnected && !reconnecting) {
             reconnecting = true;
             schedule(reconnectDelay(), () -> {
-                 if (!manuallyDisconnected && !reconnecting) {
-                    connect(previousUri, (c) -> reconnecting = false);
-                 }
+                if (!manuallyDisconnected) {
+                    connect(previousUri);
+                }
+                reconnecting = false;
             });
         } else {
             logger.fine("Currently disconnecting, so will not reconnect");
         }
-
-        logger.exiting(getClass().getName(), "doOnDisconnected");
     }
 
     private void doOnConnected() {

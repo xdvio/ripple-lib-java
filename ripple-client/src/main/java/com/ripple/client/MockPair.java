@@ -157,13 +157,13 @@ public class MockPair {
             }
 
             @Override
-            public void onConnecting(int attempt) {
-                handler.onConnecting(attempt);
+            public void onConnecting() {
+                handler.onConnecting();
             }
 
             @Override
-            public void onDisconnected(boolean willReconnect) {
-                handler.onDisconnected(willReconnect);
+            public void onDisconnected() {
+                handler.onDisconnected();
             }
 
             @Override
@@ -187,13 +187,13 @@ public class MockPair {
 
         public void connect() {
             if (ws.connected) {
-                ws.onConnecting(0);
+                ws.onConnecting();
                 ws.onConnected();
             }
         }
         public void disconnect() {
             if (ws.connected) {
-                ws.onDisconnected(false);
+                ws.onDisconnected();
             }
         }
         public void sendMessage(JSONObject json) {
