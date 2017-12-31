@@ -17,10 +17,11 @@ import java.security.PrivateKey;
 
 public class EDKeyPair implements IKeyPair {
 
-    public final EdDSAPrivateKeySpec keySpec;
-    public static final EdDSANamedCurveSpec ed25519 = EdDSANamedCurveTable.getByName("ed25519-sha-512");
+    private final EdDSAPrivateKeySpec keySpec;
+    private static final EdDSANamedCurveSpec ed25519 = EdDSANamedCurveTable
+                                .getByName("Ed25519");
 
-    public EDKeyPair(EdDSAPrivateKeySpec keySpec) {
+    private EDKeyPair(EdDSAPrivateKeySpec keySpec) {
         this.keySpec = keySpec;
     }
 

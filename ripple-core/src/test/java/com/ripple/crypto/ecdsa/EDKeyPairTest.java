@@ -16,7 +16,7 @@ public class EDKeyPairTest {
         Config.initBouncy();
     }
 
-    String fixturesJson = "{ " +
+    private String fixturesJson = "{ " +
             "  \"tx_json\": {" +
             "    \"Account\": \"rJZdUusLDtY9NEsGea7ijqhVrXv98rYBYN\"," +
             "    \"Amount\": \"1000\"," +
@@ -30,11 +30,11 @@ public class EDKeyPairTest {
             "  \"expected_sig\": \"C3646313B08EED6AF4392261A31B961F10C66CB733DB7F6CD9EAB079857834C8B0334270A2C037E63CDCCC1932E0832882B7B7066ECD2FAEDEB4A83DF8AE6303\"" +
             "}";
 
-    EDKeyPair edKeyPair;
-    JSONObject fixtures = new JSONObject(fixturesJson);
+    private EDKeyPair edKeyPair;
+    private JSONObject fixtures = new JSONObject(fixturesJson);
     private final String expectedSig = fixtures.getString("expected_sig");
-    Transaction tx = (Transaction) STObject.fromJSONObject(fixtures.getJSONObject("tx_json"));
-    byte[] message = tx.signingData();
+    private Transaction tx = (Transaction) STObject.fromJSONObject(fixtures.getJSONObject("tx_json"));
+    private byte[] message = tx.signingData();
 
     {
         byte[] seedBytes = Seed.passPhraseToSeedBytes("niq");
