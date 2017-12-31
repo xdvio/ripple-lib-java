@@ -194,6 +194,12 @@ public class Offer extends ThreadedLedgerEntry {
         return new Hash256[]{bookNodeDirectoryIndex(), ownerNodeDirectoryIndex()};
     }
 
+    @Override
+    public void setDefaults() {
+        super.setDefaults();
+        setOfferDefaults();
+    }
+
     public void setOfferDefaults() {
         if (bookNode() == null) {
             bookNode(UInt64.ZERO);

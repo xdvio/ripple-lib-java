@@ -20,9 +20,9 @@ public class AccountStateBuilder {
     private Hash256 targetAccountHash;
     public long totalTransactions = 0;
 
-    private TreeSet<Hash256> directoriesModifiedMoreThanOnceByTransaction = new TreeSet<Hash256>();
-    private TreeSet<Hash256> directoriesModifiedByTransaction = new TreeSet<Hash256>();
-    public TreeSet<Hash256> modifiedEntries = new TreeSet<Hash256>();
+    private TreeSet<Hash256> directoriesModifiedMoreThanOnceByTransaction = new TreeSet<>();
+    private TreeSet<Hash256> directoriesModifiedByTransaction = new TreeSet<>();
+    public TreeSet<Hash256> modifiedEntries = new TreeSet<>();
 
     public void resetModified() {
         modifiedEntries.clear();
@@ -51,11 +51,11 @@ public class AccountStateBuilder {
         if (tr.ledgerIndex.longValue() != targetLedgerIndex + 1) throw new AssertionError(String.format("%d != %d", tr.ledgerIndex.longValue(), targetLedgerIndex + 1));
         nextTransactionIndex++;
         totalTransactions++;
-        directoriesModifiedByTransaction = new TreeSet<Hash256>();
+        directoriesModifiedByTransaction = new TreeSet<>();
 
         for (AffectedNode an : sortedAffectedNodes(tr)) {
             Hash256 id = an.ledgerIndex();
-            LedgerEntry le = (LedgerEntry) an.nodeAsFinal();
+            LedgerEntry le = an.nodeAsFinal();
             if (an.isCreatedNode()) {
                 modifiedEntries.add(id);
                 le.setDefaults();
@@ -189,34 +189,29 @@ public class AccountStateBuilder {
     }
 
     public static <E> Collection<E> makeCollection(Iterable<E> iter) {
-        Collection<E> list = new ArrayList<E>();
+        Collection<E> list = new ArrayList<>();
         for (E item : iter) {
             list.add(item);
         }
         return list;
     }
     private ArrayList<AffectedNode> sortedAffectedNodes(TransactionResult tr) {
-        ArrayList<AffectedNode> sorted = new ArrayList<AffectedNode>(makeCollection(tr.meta.affectedNodes()));
-        Collections.sort(sorted, new Comparator<AffectedNode>() {
-            @Override
-            public int compare(AffectedNode o1, AffectedNode o2) {
-                return ord(o1) - ord(o2);
-            }
-
-            private int ord(AffectedNode o1) {
-                switch (o1.ledgerEntryType()) {
-                    case DirectoryNode:
-                        return 1;
-                    case RippleState:
-                        return 2;
-                    case Offer:
-                        return 3;
-                    default:
-                        return 4;
-                }
-            }
-        });
+        ArrayList<AffectedNode> sorted = new ArrayList<>(makeCollection(tr.meta.affectedNodes()));
+        sorted.sort(Comparator.comparingInt(this::ord));
         return sorted;
+    }
+
+    private int ord(AffectedNode o1) {
+        switch (o1.ledgerEntryType()) {
+            case DirectoryNode:
+                return 1;
+            case RippleState:
+                return 2;
+            case Offer:
+                return 3;
+            default:
+                return 4;
+        }
     }
 
     private void onDirectoryModified(DirectoryNode dn) {
@@ -265,7 +260,7 @@ public class AccountStateBuilder {
     }
 
     public TreeSet<Hash256> directoriesWithIndexesOutOfOrder() {
-        TreeSet<Hash256> ret = new TreeSet<Hash256>();
+        TreeSet<Hash256> ret = new TreeSet<>();
         for (Hash256 hash256 : directoriesModifiedMoreThanOnceByTransaction) {
             DirectoryNode dn = state.getDirectoryNode(hash256);
             if (dn.owner() != null) {
