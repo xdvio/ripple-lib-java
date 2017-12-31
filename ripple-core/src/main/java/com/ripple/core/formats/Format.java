@@ -8,7 +8,7 @@ abstract public class Format<Subclass extends Format> {
     protected Format() {
     }
 
-    public void addCommonFields(){}
+    protected void addCommonFields(){}
 
     EnumMap<Field, Requirement> requirementEnumMap = new EnumMap<Field, Requirement>(Field.class);
 

@@ -42,7 +42,7 @@ public class LEFormat extends Format {
     }
 
     @Override
-    public void addCommonFields() {
+    protected void addCommonFields() {
         put(Field.LedgerIndex,             Requirement.OPTIONAL);
         put(Field.LedgerEntryType,         Requirement.REQUIRED);
         put(Field.Flags,                   Requirement.REQUIRED);

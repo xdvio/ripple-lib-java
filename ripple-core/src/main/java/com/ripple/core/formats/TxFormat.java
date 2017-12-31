@@ -17,17 +17,6 @@ public class TxFormat extends Format<TxFormat> {
         return getTxFormat(TransactionType.fromNumber(ord));
     }
 
-    static public TxFormat fromValue(Object o) {
-        if (o instanceof Number) {
-            return fromNumber(((Number) o).intValue());
-        } else if (o instanceof String){
-            return fromString((String) o);
-        }
-        else {
-            return null;
-        }
-    }
-
     private static TxFormat getTxFormat(TransactionType key) {
         if (key == null) return null;
         return formats.get(key);
@@ -47,7 +36,7 @@ public class TxFormat extends Format<TxFormat> {
     }
 
     @Override
-    public void addCommonFields() {
+    protected void addCommonFields() {
         put(Field.TransactionType,     Requirement.REQUIRED);
         put(Field.Account,             Requirement.REQUIRED);
         put(Field.Sequence,            Requirement.REQUIRED);
