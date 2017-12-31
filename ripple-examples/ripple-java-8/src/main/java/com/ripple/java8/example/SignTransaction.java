@@ -32,12 +32,10 @@ public class SignTransaction {
         if (signed.txn == payment)
             throw new AssertionError();
 
-        // MessageFormat which does the heavy lifting for print gets confused
-        // by the `{` and `}` in the json.
         print("The original transaction:");
-        print("{0}", payment.prettyJSON());
+        print(payment.prettyJSON());
         print("The signed transaction, with SigningPubKey and TxnSignature:");
-        print("{0}", signed.txn.prettyJSON());
+        print(signed.txn.prettyJSON());
         print("The transaction id: {0}", signed.hash);
         print("The blob to submit to rippled:");
         print(signed.tx_blob);

@@ -39,7 +39,7 @@ public class AccountTx {
     private void onError(Response response) {
         printErr("Oh noes! We had an error");
         // MessageFormat gets confused by the json `{`
-        printErr("{0}", response.message.toString(2));
+        printErr(response.message.toString(2));
         System.exit(1);
     }
 

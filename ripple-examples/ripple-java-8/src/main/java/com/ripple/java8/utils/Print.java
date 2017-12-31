@@ -36,8 +36,11 @@ public class Print {
             Object[] fmtArgs = new Object[args.length - 1];
             if (fmtArgs.length > 0) {
                 System.arraycopy(args, 1, fmtArgs, 0, fmtArgs.length);
+                to.print(MessageFormat.format(fmt, fmtArgs));
+            } else {
+                to.print(fmt);
             }
-            to.print(MessageFormat.format(fmt, fmtArgs));
+
         }
     }
 }

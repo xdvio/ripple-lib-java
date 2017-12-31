@@ -457,7 +457,7 @@ public class Client extends Publisher<Client.events> {
 
     /* ----------------------- CLIENT THREAD EVENT HANDLER ---------------------- */
 
-    public void onMessageInClientThread(JSONObject msg) {
+    void onMessageInClientThread(JSONObject msg) {
         Message type = Message.valueOf(msg.optString("type", null));
 
         try {
