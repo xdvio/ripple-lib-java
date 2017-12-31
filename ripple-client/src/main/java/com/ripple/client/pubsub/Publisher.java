@@ -156,7 +156,9 @@ public class Publisher<CompatHack extends Publisher.Callback> {
         return listFor(key).remove(cb);
     }
 
-    public void clearAllListeners() {
+    public int clearAllListeners() {
+        int size = cbs.size();
         cbs.clear();
+        return size;
     }
 }

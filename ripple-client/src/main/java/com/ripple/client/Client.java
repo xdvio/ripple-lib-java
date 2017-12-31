@@ -143,6 +143,9 @@ public class Client extends Publisher<Client.events> {
 
     protected TreeMap<Integer, Request> requests = new TreeMap<>();
 
+    // Give the client a name for debugging purposes
+    private String name = "client";
+
     // Keeps track of the `id` doled out to Request objects
     private int cmdIDs;
     // The last uri we were connected to
@@ -153,6 +156,9 @@ public class Client extends Publisher<Client.events> {
 
     // Are we currently connected?
     public boolean connected = false;
+    // Are we currently reconnecting?
+    private boolean reconnecting = false;
+
     // If we haven't received any message from the server after x many
     // milliseconds, disconnect and reconnect again.
     private long reconnectDormantAfter = 20000; // ms
@@ -236,18 +242,30 @@ public class Client extends Publisher<Client.events> {
         return this;
     }
 
+    public String name() {
+        return name;
+    }
+
+    public Client name(String name) {
+        this.name = name;
+        return this;
+    }
+
+
     private void doConnect(String uri) {
         if (connected) throw new IllegalStateException(
                 "tried to connect when already connected");
-        log(Level.INFO, "Connecting to " + uri);
+        log(Level.INFO, "{0} Connecting to {1}", name(), uri);
         previousUri = uri;
         ws.connect(URI.create(uri));
     }
 
     @SuppressWarnings("WeakerAccess")
     public void disconnect() {
-        if (!connected) throw new IllegalStateException(
-                "called disconnect when not connected");
+        if (!connected) {
+            log(Level.WARNING,
+                    "called disconnect when not connected");
+        }
         manuallyDisconnected = true;
         /*
          * This will call the doOnDisconnected method immediately
@@ -293,8 +311,9 @@ public class Client extends Publisher<Client.events> {
 
     @SuppressWarnings("WeakerAccess")
     public void reconnect() {
+        reconnecting = true;
         disconnect();
-        connect(previousUri);
+        connect(previousUri, (c) -> reconnecting = false);
     }
 
     private void manageTimedOutRequests() {
@@ -354,6 +373,10 @@ public class Client extends Publisher<Client.events> {
     }
 
     public void dispose() {
+        int nListeners = clearAllListeners();
+        List<Runnable> runnables = service.shutdownNow();
+        log(Level.WARNING, "disposing {0} listeners and {1} queued tasks",
+                nListeners, runnables.size());
         ws = null;
     }
 
@@ -487,8 +510,13 @@ public class Client extends Publisher<Client.events> {
         connected = false;
         emitOnDisconnected();
 
-        if (!manuallyDisconnected) {
-            schedule(reconnectDelay(), () -> connect(previousUri));
+        if (!manuallyDisconnected & !reconnecting) {
+            reconnecting = true;
+            schedule(reconnectDelay(), () -> {
+                 if (!manuallyDisconnected && !reconnecting) {
+                    connect(previousUri, (c) -> reconnecting = false);
+                 }
+            });
         } else {
             logger.fine("Currently disconnecting, so will not reconnect");
         }
