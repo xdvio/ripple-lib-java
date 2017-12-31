@@ -13,6 +13,8 @@ import java.util.logging.Logger;
  */
 public class LedgerSubscriber implements TransactionSubscriptionManager {
     public static final Logger logger = Logger.getLogger(LedgerSubscriber.class.getName());
+    private static final long MAX_GAP_LEDGERS_FILLED_PER_CLOSE = 5;
+
     public static void log(String fmt, Object... args) {
         logger.log(Level.FINE, fmt, args);
     }
@@ -39,29 +41,29 @@ public class LedgerSubscriber implements TransactionSubscriptionManager {
         client.onLedgerClosed(serverInfo -> {
             final long ledger_index = serverInfo.ledger_index;
             // We can see how many transactions are pending
-            ledgers.logPendingLedgers();
 
             PendingLedger ledger = ledgers.getOrAddLedger(ledger_index);
             ledger.expectedTxns = serverInfo.txn_count;
 
             ledgers.trackMissingLedgersInClearedLedgerHistory();
 
-            // TODO: perhaps limit to n many requests ...
-            if (ledgers.anyAwaitingResponse()) {
-                // We don't want to flood the server upon reconnection
-                return;
-            }
 
             for (Long stalledOrGapLedger : ledgers.pendingLedgerIndexes()) {
                 PendingLedger stalled = ledgers.getOrAddLedger(stalledOrGapLedger);
                 if (stalled.status == PendingLedger.Status.pending
                         // give the transaction stream a chance
                         && stalled.ledger_index != ledger_index) {
-                    ledgers.checkHeader(stalled);
+
                     // only get one at a time
-                    break;
+                    if (ledgers.numAwaitingResponse() < MAX_GAP_LEDGERS_FILLED_PER_CLOSE) {
+                        ledgers.checkHeader(stalled);
+                    } else {
+                        break;
+                    }
                 }
             }
+
+            ledgers.logPendingLedgers();
         });
     }
 }

@@ -4,13 +4,16 @@ import com.ripple.client.Client;
 import com.ripple.client.enums.Command;
 import com.ripple.client.requests.Request;
 import com.ripple.client.responses.Response;
+import com.ripple.core.serialized.BinaryParser;
 import com.ripple.core.types.known.tx.result.TransactionResult;
+import com.ripple.core.types.ledger.LedgerHeader;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collector;
 
 import static com.ripple.client.pubsub.Publisher.Callback;
 
@@ -72,6 +75,7 @@ public class PendingLedgers {
             public void beforeRequest(Request r) {
                 if (!onlyHeader) {
                     r.json("transactions", true);
+                    r.json("binary", true);
                     r.json("expand", true);
                 }
             }
@@ -123,7 +127,10 @@ public class PendingLedgers {
                 ledger.notifyTransaction(tr);
             }
 
-            final String transaction_hash = ledgerJSON.getString("transaction_hash");
+            LedgerHeader header =
+                    LedgerHeader.fromHex(
+                            ledgerJSON.getString("ledger_data"));
+            final String transaction_hash = header.transactionHash.toHex();
             boolean correctHash = ledger.transactionHashEquals(transaction_hash);
             if (!correctHash) throw new IllegalStateException("We don't handle invalid transactions yet");
             clearLedger(ledger_index, "fillInLedger");
@@ -156,8 +163,10 @@ public class PendingLedgers {
         }
     }
 
-    public boolean anyAwaitingResponse() {
-        return ledgers.values().stream()
-                .anyMatch(l -> l.status.waitingResponse());
+    public long numAwaitingResponse() {
+        return ledgers.values()
+                .stream()
+                .mapToInt(l -> l.status.waitingResponse() ? 1 : 0)
+                .sum();
     }
 }

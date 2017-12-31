@@ -89,4 +89,8 @@ public class LedgerHeader {
         writer.key("close_flags");
         writer.value(closeFlags.toJSON());
     }
+
+    public static LedgerHeader fromHex(String ledger_data) {
+        return LedgerHeader.fromParser(new BinaryParser(ledger_data));
+    }
 }

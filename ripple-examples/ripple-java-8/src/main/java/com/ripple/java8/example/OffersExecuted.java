@@ -3,6 +3,7 @@ package com.ripple.java8.example;
 import com.ripple.client.Client;
 import com.ripple.client.subscriptions.ServerInfo;
 import com.ripple.client.subscriptions.SubscriptionManager;
+import com.ripple.client.subscriptions.ledger.LedgerSubscriber;
 import com.ripple.client.transport.impl.JavaWebSocketTransportImpl;
 import com.ripple.core.coretypes.Amount;
 import com.ripple.core.coretypes.STObject;
@@ -28,6 +29,7 @@ public class OffersExecuted {
 
     private static void onceConnected(Client c) {
         c.subscriptions.addStream(SubscriptionManager.Stream.transactions);
+        c.transactionSubscriptionManager(new LedgerSubscriber(c));
         c.onLedgerClosed(OffersExecuted::onLedgerClosed)
          .onValidatedTransaction((tr) -> tr.meta.affectedNodes().forEach((an) -> {
              if (an.isOffer() && an.wasPreviousNode()) {

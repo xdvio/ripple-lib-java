@@ -762,13 +762,15 @@ public class Client extends Publisher<Client.events> {
                 queueRetry(50, cmd, manager, builder);
             }
         });
-        final OnDisconnected cb = c -> {
+
+
+        final OnDisconnected cb = c -> nowOrWhenConnected((c2) -> {
             if (!responded[0] && manager.retryOnUnsuccessful(null)) {
                 logRetry(request, "Client disconnected");
                 request.clearAllListeners();
                 queueRetry(50, cmd, manager, builder);
             }
-        };
+        });
         once(OnDisconnected.class, cb);
         request.once(Request.OnResponse.class, response -> {
             responded[0] = true;
@@ -801,7 +803,7 @@ public class Client extends Publisher<Client.events> {
     private void logRetry(Request request, String reason) {
         if (logger.isLoggable(Level.WARNING)) {
             log(Level.WARNING, previousUri + ": " + reason + ", muting listeners " +
-                    "for " + request.json() + "and trying again");
+                    "for `" + request.json() + "` and trying again");
         }
     }
 
