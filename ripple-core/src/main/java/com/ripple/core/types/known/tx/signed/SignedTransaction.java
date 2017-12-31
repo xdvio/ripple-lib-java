@@ -22,9 +22,7 @@ public class SignedTransaction {
         txn = (Transaction) STObject.translate.fromBytes(of.toBytes());
     }
 
-    // This will eventually be private
-    @Deprecated
-    public SignedTransaction() {}
+    protected SignedTransaction() {}
 
     public Transaction txn;
     public Hash256 hash;

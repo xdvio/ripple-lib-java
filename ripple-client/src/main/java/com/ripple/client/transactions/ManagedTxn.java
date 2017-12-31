@@ -25,52 +25,45 @@ public class ManagedTxn extends SignedTransaction {
     public TransactionResult result;
 
     public ManagedTxn onValidated(final Callback<ManagedTxn> handler) {
-        on(OnTransactionValidated.class, new OnTransactionValidated() {
-            @Override
-            public void called(TransactionResult args) {
-                result = args;
-                handler.called(ManagedTxn.this);
-            }
+        on(OnTransactionValidated.class, args -> {
+            result = args;
+            handler.called(ManagedTxn.this);
         });
         return this;
     }
 
     public ManagedTxn onError(final Callback<ManagedTxn> cb) {
-        on(OnSubmitFailure.class, new OnSubmitFailure() {
-            @Override
-            public void called(Response args) {
-                cb.called(ManagedTxn.this);
-            }
-        });
-        on(OnSubmitError.class, new OnSubmitError() {
-            @Override
-            public void called(Response args) {
-                cb.called(ManagedTxn.this);
-            }
-        });
+        on(OnSubmitFailure.class, args -> cb.called(ManagedTxn.this));
+        on(OnSubmitError.class, args -> cb.called(ManagedTxn.this));
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends events> boolean removeListener(Class<T> key, Callback cb) {
         return publisher.removeListener(key, cb);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends events> int emit(Class<T> key, Object args) {
         return publisher.emit(key, args);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends events> void once(Class<T> key, CallbackContext executor, T cb) {
         publisher.once(key, executor, cb);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends events> void once(Class<T> key, T cb) {
         publisher.once(key, cb);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends events> void on(Class<T> key, CallbackContext executor, T cb) {
         publisher.on(key, executor, cb);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends events> void on(Class<T> key, T cb) {
         publisher.on(key, cb);
     }
@@ -103,7 +96,7 @@ public class ManagedTxn extends SignedTransaction {
     public ManagedTxn(Transaction txn) {
         this.txn = txn;
     }
-    private final Publisher<events> publisher = new Publisher<events>();
+    private final Publisher<events> publisher = new Publisher<>();
 //    private final MyTransaction publisher = new MyTransaction();
     private boolean finalized = false;
 
@@ -117,7 +110,7 @@ public class ManagedTxn extends SignedTransaction {
         return isFinalized() || !responseWasToLastSubmission(res);
     }
 
-    public ArrayList<Submission> submissions = new ArrayList<Submission>();
+    public ArrayList<Submission> submissions = new ArrayList<>();
 
     public Submission lastSubmission() {
         if (submissions.isEmpty()) {
@@ -126,7 +119,7 @@ public class ManagedTxn extends SignedTransaction {
             return submissions.get(submissions.size() - 1);
         }
     }
-    private TreeSet<Hash256> submittedIDs = new TreeSet<Hash256>();
+    private TreeSet<Hash256> submittedIDs = new TreeSet<>();
 
     public boolean isFinalized() {
         return finalized;

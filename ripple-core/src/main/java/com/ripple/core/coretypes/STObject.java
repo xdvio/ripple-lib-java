@@ -82,7 +82,7 @@ public class STObject implements SerializedType, Iterable<Field> {
     }
 
     public void checkFormat() {
-        Format fmt = getFormat();
+        Format<?> fmt = getFormat();
         EnumMap<Field, Format.Requirement> requirements = fmt.requirements();
         for (Field field : this) {
             if (!requirements.containsKey(field)) {

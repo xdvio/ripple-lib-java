@@ -12,7 +12,6 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.*;
 
@@ -20,7 +19,7 @@ import static org.junit.Assert.*;
 
 public class FieldSymbolicsTest {
     @Test
-    public void CheckProtocolDefinitions() throws FileNotFoundException {
+    public void CheckProtocolDefinitions() {
         FileReader reader = TestHelpers.getResourceReader("protocol.json");
         JSONObject o = new JSONObject(new JSONTokener(reader));
 
@@ -95,7 +94,7 @@ public class FieldSymbolicsTest {
         }
     }
 
-    private void checkFormat(JSONObject obj, Format format) {
+    private void checkFormat(JSONObject obj, Format<?> format) {
         String txName = obj.getString("name");
 
         if (format == null) {
