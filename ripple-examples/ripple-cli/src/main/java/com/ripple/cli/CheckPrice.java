@@ -1,6 +1,7 @@
 package com.ripple.cli;
 
 import com.ripple.client.Client;
+import com.ripple.client.enums.Command;
 import com.ripple.client.requests.Request;
 import com.ripple.client.responses.Response;
 import com.ripple.client.transport.impl.JavaWebSocketTransportImpl;
@@ -75,30 +76,34 @@ public class CheckPrice {
                 Issue getIssue  = getAsks ? first  : second,
                       payIssue  = getAsks ? second : first;
 
-                Request request = client.requestBookOffers(getIssue, payIssue);
-                request.once(Request.OnResponse.class, new Request.OnResponse() {
-                    @Override
-                    public void called(Response response) {
-                        if (response.succeeded) {
-                            JSONArray offersJSON = response.result.optJSONArray("offers");
-                            STArray offers = STArray.translate.fromJSONArray(offersJSON);
-                            if (getBids) bids = offers;
-                            else         asks = offers;
+                Request request = requestBookOffers(client, getIssue, payIssue);
+                request.once(Request.OnResponse.class, response -> {
+                    if (response.succeeded) {
+                        JSONArray offersJSON = response.result.optJSONArray("offers");
+                        STArray offers = STArray.translate.fromJSONArray(offersJSON);
+                        if (getBids) bids = offers;
+                        else         asks = offers;
 
-                            if (retrievedBothBooks()) {
-                                if (!isEmpty()) {
-                                    calculateStats();
-                                }
-                                callback.onUpdate(OrderBookPair.this);
+                        if (retrievedBothBooks()) {
+                            if (!isEmpty()) {
+                                calculateStats();
                             }
-                        } else {
-                            System.out.println("There was an error: " + response.message);
+                            callback.onUpdate(OrderBookPair.this);
                         }
+                    } else {
+                        System.out.println("There was an error: " + response.message);
                     }
                 });
                 request.request();
             }
 
+        }
+
+        private Request requestBookOffers(Client client, Issue get, Issue pay) {
+            Request request = client.newRequest(Command.book_offers);
+            request.json("taker_gets", get.toJSON());
+            request.json("taker_pays", pay.toJSON());
+            return request;
         }
 
         public String currencyPair() {

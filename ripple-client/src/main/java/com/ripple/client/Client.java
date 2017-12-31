@@ -42,6 +42,7 @@ import static com.ripple.client.requests.Request.Manager;
 import static com.ripple.client.requests.Request.VALIDATED_LEDGER;
 
 public class Client extends Publisher<Client.events> {
+    private static int clients = 0;
     /**
      * Using an inner class so the methods aren't public.
      * This is the easiest refactoring from the prior case where
@@ -144,7 +145,7 @@ public class Client extends Publisher<Client.events> {
     protected TreeMap<Integer, Request> requests = new TreeMap<>();
 
     // Give the client a name for debugging purposes
-    private String name = "client";
+    private String name = "client-" + clients++;
 
     // Keeps track of the `id` doled out to Request objects
     private int cmdIDs;
@@ -238,7 +239,7 @@ public class Client extends Publisher<Client.events> {
     public Client connect(final String uri) {
         manuallyDisconnected = false;
 
-        schedule(0, () -> doConnect(uri));
+        run(() -> doConnect(uri));
         return this;
     }
 
@@ -967,77 +968,5 @@ public class Client extends Publisher<Client.events> {
                 return new TransactionResult(response.result, TransactionResult.Source.request_tx_binary);
             }
         });
-    }
-
-    // TODO: some nice way of using lambdas for the common case
-    // sending null, is one way of indicating `some` kind of error
-    // but that's kind of lame.
-    @Deprecated // before it even got started
-    public void requestTransaction(final Hash256 hash, final Callback<TransactionResult> cb) {
-        requestTransaction(hash, new Manager<TransactionResult>() {
-            @Override
-            public void cb(Response response, TransactionResult transactionResult) throws JSONException {
-                if (response.succeeded) {
-                    cb.called(transactionResult);
-                } else {
-                    throw new RuntimeException("Failed" + response.message);
-                }
-            }
-        });
-    }
-
-    // ### Request builders
-    // These all return Request
-
-    public Request submit(String tx_blob, boolean fail_hard) {
-        Request req = newRequest(Command.submit);
-        req.json("tx_blob", tx_blob);
-        req.json("fail_hard", fail_hard);
-        return req;
-    }
-
-    public Request accountLines(AccountID account) {
-        Request req = newRequest(Command.account_lines);
-        req.json("account", account.address);
-        return req;
-
-    }
-
-    public Request accountInfo(AccountID account) {
-        Request req = newRequest(Command.account_info);
-        req.json("account", account.address);
-        return req;
-    }
-
-    public Request ping() {
-        return newRequest(Command.ping);
-    }
-
-    public Request subscribeAccount(AccountID... accounts) {
-        Request request = newRequest(Command.subscribe);
-        JSONArray accounts_arr = new JSONArray();
-        for (AccountID acc : accounts) {
-            accounts_arr.put(acc);
-        }
-        request.json("accounts", accounts_arr);
-        return request;
-    }
-
-    public Request subscribeBookOffers(Issue get, Issue pay) {
-        Request request = newRequest(Command.subscribe);
-        JSONObject book = new JSONObject();
-        JSONArray books = new JSONArray(new Object[] { book });
-        book.put("snapshot", true);
-        book.put("taker_gets", get.toJSON());
-        book.put("taker_pays", pay.toJSON());
-        request.json("books", books);
-        return request;
-    }
-
-    public Request requestBookOffers(Issue get, Issue pay) {
-        Request request = newRequest(Command.book_offers);
-        request.json("taker_gets", get.toJSON());
-        request.json("taker_pays", pay.toJSON());
-        return request;
     }
 }
