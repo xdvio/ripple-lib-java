@@ -11,6 +11,7 @@ public class LedgerFlag {
     DisableMaster = 0x00100000,   // True, force regular key
     NoFreeze         = 0x00200000,   // True, cannot freeze ripple states
     GlobalFreeze     = 0x00400000,   // True, all assets frozen
+    DefaultRipple     = 0x00800000,   // True, all assets frozen
 
     // ltOFFER
     Passive = 0x00010000,
