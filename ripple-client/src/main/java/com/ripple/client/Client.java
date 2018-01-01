@@ -43,6 +43,7 @@ import static com.ripple.client.requests.Request.VALIDATED_LEDGER;
 
 public class Client extends Publisher<Client.events> {
     private static int clients = 0;
+
     /**
      * Using an inner class so the methods aren't public.
      * This is the easiest refactoring from the prior case where
@@ -108,6 +109,11 @@ public class Client extends Publisher<Client.events> {
         return this;
     }
 
+    public Client onceLedgerClosed(OnLedgerClosed cb) {
+        once(OnLedgerClosed.class, cb);
+        return this;
+    }
+
     public Client onConnected(OnConnected onConnected) {
         this.on(OnConnected.class, onConnected);
         return this;
@@ -116,6 +122,59 @@ public class Client extends Publisher<Client.events> {
     // Event handler sugar
     public Client onDisconnected(OnDisconnected cb) {
         on(OnDisconnected.class, cb);
+        return this;
+    }
+
+    public Client onceConnected(OnConnected onConnected) {
+        once(OnConnected.class, onConnected);
+        return this;
+    }
+    public Client onPathFind(OnPathFind onPathFind) {
+        on(OnPathFind.class, onPathFind);
+        return this;
+    }
+    public Client oncePathFind(OnPathFind onPathFind) {
+        once(OnPathFind.class, onPathFind);
+        return this;
+    }
+    public Client onMessage(OnMessage onMessage) {
+        on(OnMessage.class, onMessage);
+        return this;
+    }
+    public Client onceMessage(OnMessage onMessage) {
+        once(OnMessage.class, onMessage);
+        return this;
+    }
+    public Client onSendMessage(OnSendMessage onSendMessage) {
+        on(OnSendMessage.class, onSendMessage);
+        return this;
+    }
+    public Client onceSendMessage(OnSendMessage onSendMessage) {
+        once(OnSendMessage.class, onSendMessage);
+        return this;
+    }
+    public Client onSubscribed(OnSubscribed onSubscribed) {
+        on(OnSubscribed.class, onSubscribed);
+        return this;
+    }
+    public Client onceSubscribed(OnSubscribed onSubscribed) {
+        once(OnSubscribed.class, onSubscribed);
+        return this;
+    }
+    public Client onceValidatedTransaction(OnValidatedTransaction onValidatedTransaction) {
+        once(OnValidatedTransaction.class, onValidatedTransaction);
+        return this;
+    }
+    public Client onStateChange(OnStateChange onStateChange) {
+        on(OnStateChange.class, onStateChange);
+        return this;
+    }
+    public Client onceStateChange(OnStateChange onStateChange) {
+        once(OnStateChange.class, onStateChange);
+        return this;
+    }
+    public Client onceDisconnected(OnDisconnected onDisconnected) {
+        once(OnDisconnected.class, onDisconnected);
         return this;
     }
 
@@ -359,7 +418,7 @@ public class Client extends Publisher<Client.events> {
         });
     }
 
-    public void whenConnected(boolean nextTick, final OnConnected onConnected) {
+    private void whenConnected(boolean nextTick, final OnConnected onConnected) {
         if (connected) {
             if (nextTick) {
                 schedule(0, () -> {
@@ -755,15 +814,6 @@ public class Client extends Publisher<Client.events> {
     public <T> Request makeManagedRequest(final Command cmd, final Manager<T> manager, final Request.Builder<T> builder) {
         final Request request = newRequest(cmd);
         final boolean[] responded = new boolean[]{false};
-        request.once(Request.OnTimeout.class, args -> {
-            if (!responded[0] && manager.retryOnUnsuccessful(null)) {
-                logRetry(request, "Request timed out");
-                request.clearAllListeners();
-                queueRetry(50, cmd, manager, builder);
-            }
-        });
-
-
         final OnDisconnected cb = c -> nowOrWhenConnected((c2) -> {
             if (!responded[0] && manager.retryOnUnsuccessful(null)) {
                 logRetry(request, "Client disconnected");
@@ -771,8 +821,8 @@ public class Client extends Publisher<Client.events> {
                 queueRetry(50, cmd, manager, builder);
             }
         });
-        once(OnDisconnected.class, cb);
-        request.once(Request.OnResponse.class, response -> {
+        onceDisconnected(cb);
+        request.onceResponse(response -> {
             responded[0] = true;
             Client.this.removeListener(OnDisconnected.class, cb);
 
@@ -785,6 +835,12 @@ public class Client extends Publisher<Client.events> {
                 } else {
                     manager.cb(response, null);
                 }
+            }
+        }).onceTimeout(args -> {
+            if (!responded[0] && manager.retryOnUnsuccessful(null)) {
+                logRetry(request, "Request timed out");
+                request.clearAllListeners();
+                queueRetry(50, cmd, manager, builder);
             }
         });
         builder.beforeRequest(request);

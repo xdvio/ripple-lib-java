@@ -16,11 +16,44 @@ import org.json.JSONObject;
 import java.math.BigDecimal;
 
 public class PaymentFlow extends Publisher<PaymentFlow.events> {
-    public static interface events<T> extends Publisher.Callback<T> {}
-    public static interface OnDestInfo extends events<STObject>{}
-    public static interface OnAlternatives extends events<Alternatives> {}
-    public static interface OnAlternativesStale extends events<Alternatives> {}
-    public static interface OnPathFind extends events<Request> {}
+    public interface events<T> extends Publisher.Callback<T> {}
+    public interface OnDestInfo extends events<STObject>{}
+    public interface OnAlternatives extends events<Alternatives> {}
+    public interface OnAlternativesStale extends events<Alternatives> {}
+    public interface OnPathFind extends events<Request> {}
+
+    public PaymentFlow onPathFind(OnPathFind onPathFind) {
+        on(OnPathFind.class, onPathFind);
+        return this;
+    }
+    public PaymentFlow oncePathFind(OnPathFind onPathFind) {
+        once(OnPathFind.class, onPathFind);
+        return this;
+    }
+    public PaymentFlow onAlternativesStale(OnAlternativesStale onAlternativesStale) {
+        on(OnAlternativesStale.class, onAlternativesStale);
+        return this;
+    }
+    public PaymentFlow onceAlternativesStale(OnAlternativesStale onAlternativesStale) {
+        once(OnAlternativesStale.class, onAlternativesStale);
+        return this;
+    }
+    public PaymentFlow onceAlternatives(OnAlternatives onAlternatives) {
+        once(OnAlternatives.class, onAlternatives);
+        return this;
+    }
+    public PaymentFlow onDestInfo(OnDestInfo onDestInfo) {
+        on(OnDestInfo.class, onDestInfo);
+        return this;
+    }
+    public PaymentFlow onceDestInfo(OnDestInfo onDestInfo) {
+        once(OnDestInfo.class, onDestInfo);
+        return this;
+    }
+    public PaymentFlow onAlternatives(OnAlternatives handler) {
+        on(OnAlternatives.class, handler);
+        return this;
+    }
 
     Client client;
 
@@ -45,16 +78,9 @@ public class PaymentFlow extends Publisher<PaymentFlow.events> {
 
     public PaymentFlow(final Client client) {
         this.client = client;
-
-        client.on(Client.OnConnected.class, onConnected);
-        client.on(Client.OnPathFind.class,  onPathFind);
-
-        on(OnAlternatives.class, new OnAlternatives() {
-            @Override
-            public void called(Alternatives alts) {
-                alternatives = alts;
-            }
-        });
+        client.onConnected(onConnected);
+        client.onPathFind(onPathFind);
+        onAlternatives(alts -> alternatives = alts);
     }
 
     public void unsubscribeFromClientEvents() {
@@ -272,11 +298,6 @@ public class PaymentFlow extends Publisher<PaymentFlow.events> {
         Request request = client.newRequest(Command.path_find);
         request.json("subcommand", "close");
         request.request();
-    }
-
-    public PaymentFlow onAlternatives(OnAlternatives handler) {
-        on(OnAlternatives.class, handler);
-        return this;
     }
 
 }

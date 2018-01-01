@@ -33,11 +33,44 @@ public class Request extends Publisher<Request.events> {
     }
 
     // Base events class and aliases
-    public static interface events<T>  extends Publisher.Callback<T> {}
-    public static interface OnSuccess  extends events<Response> {}
-    public static interface OnError    extends events<Response> {}
-    public static interface OnResponse extends events<Response> {}
-    public static interface OnTimeout   extends events<Response> {}
+    public interface events<T>  extends Publisher.Callback<T> {}
+    public interface OnSuccess  extends events<Response> {}
+    public interface OnError    extends events<Response> {}
+    public interface OnResponse extends events<Response> {}
+    public interface OnTimeout   extends events<Response> {}
+
+    public Request onResponse(OnResponse onResponse) {
+        on(OnResponse.class, onResponse);
+        return this;
+    }
+    public Request onceResponse(OnResponse onResponse) {
+        once(OnResponse.class, onResponse);
+        return this;
+    }
+    public Request onSuccess(OnSuccess onSuccess) {
+        on(OnSuccess.class, onSuccess);
+        return this;
+    }
+    public Request onceSuccess(OnSuccess onSuccess) {
+        once(OnSuccess.class, onSuccess);
+        return this;
+    }
+    public Request onTimeout(OnTimeout onTimeout) {
+        on(OnTimeout.class, onTimeout);
+        return this;
+    }
+    public Request onceTimeout(OnTimeout onTimeout) {
+        once(OnTimeout.class, onTimeout);
+        return this;
+    }
+    public Request onError(OnError onError) {
+        on(OnError.class, onError);
+        return this;
+    }
+    public Request onceError(OnError onError) {
+        once(OnError.class, onError);
+        return this;
+    }
 
     public static abstract class Manager<T> {
         abstract public void cb(Response response, T t) throws JSONException;
