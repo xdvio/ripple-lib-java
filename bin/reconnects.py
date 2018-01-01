@@ -6,7 +6,6 @@ import subprocess
 i = 0
 while True:
     i += 1
-
     direction = 'up' if i % 2 == 0 else 'down'
     print('setting connection', direction)
     subprocess.run(['ifconfig', 'en0', direction])
@@ -28,4 +27,4 @@ while True:
             time.sleep(0.2)
         except KeyboardInterrupt as e:
             raise e
-    
+

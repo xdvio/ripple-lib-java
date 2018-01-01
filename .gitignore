@@ -54,3 +54,4 @@ build/
 # gradle folder
 .gradle
 local.properties
+*/out
