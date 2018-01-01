@@ -1,0 +1,11 @@
+rootProject.name = 'ripple-lib-java'
+
+include ':ripple-core'
+include ':ripple-client'
+include 'ripple-client-java-websocket-transport'
+include ':ripple-java-8'
+
+project(':ripple-core').projectDir = "$rootDir/ripple-core" as File
+project(':ripple-client').projectDir = "$rootDir/ripple-client" as File
+project(':ripple-client-java-websocket-transport').projectDir = "$rootDir/ripple-client-transports/ripple-client-java-websocket-transport" as File
+project(':ripple-java-8').projectDir = "$rootDir/ripple-examples/ripple-java-8" as File

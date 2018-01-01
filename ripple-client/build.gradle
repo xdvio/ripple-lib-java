@@ -1,0 +1,14 @@
+apply plugin: 'java'
+
+description = 'ripple-client'
+
+version = '0.0.1-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile project(':ripple-core')
+
+    testCompile 'junit:junit:4.12'
+}

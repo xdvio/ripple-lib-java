@@ -1,0 +1,42 @@
+buildscript {
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        google()
+        jcenter()
+    }
+
+    // dependencies {
+    //     classpath 'com.android.tools.build:gradle:3.0.1'
+    // }
+}
+
+allprojects {
+    group = 'com.ripple'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        google()
+        jcenter()
+    }
+}
+
+
+subprojects {
+
+    apply plugin: 'idea'
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        google()
+        jcenter()
+    }
+
+}

@@ -1,0 +1,17 @@
+apply plugin: 'java'
+
+description = 'ripple-core'
+
+version = '0.0.1-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile 'net.i2p.crypto:eddsa:0.2.0'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.58'
+    compile 'org.json:json:20171018'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
+    compile group: 'org.reflections', name: 'reflections', version: '0.9.10'
+    testCompile 'junit:junit:4.12'
+}

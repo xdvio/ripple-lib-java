@@ -1,0 +1,15 @@
+apply plugin: 'java'
+
+description = 'ripple-java-8'
+
+version = '0.0.1-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile project(':ripple-client')
+    compile project(':ripple-client-java-websocket-transport')
+
+    testCompile 'junit:junit:4.12'
+}

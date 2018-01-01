@@ -19,4 +19,4 @@ jobs:
       - checkout
 
       # run tests!
-      - run: mvn integration-test
+      - run: ./gradlew test

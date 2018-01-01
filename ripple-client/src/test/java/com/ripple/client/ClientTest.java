@@ -56,11 +56,9 @@ public class ClientTest {
 
 
         final boolean[] successRan = new boolean[]{false};
-        subscribeRequest.on(Request.OnSuccess.class, new Request.OnSuccess() {
-            public void called(Response response) {
-                successRan[0] = true; // yee old python 2.x trick
-                assertEquals(random_seed, response.result.optString("random"));
-            }
+        subscribeRequest.on(Request.OnSuccess.class, response -> {
+            successRan[0] = true; // yee old python 2.x trick
+            assertEquals(random_seed, response.result.optString("random"));
         });
 
         // Then we can actually respond to that Request object with a message result
