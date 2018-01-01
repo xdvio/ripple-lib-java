@@ -29,7 +29,7 @@ abstract public class ShaMapNode {
         }
         return hash;
     }
-    public Hash256 createHash() {
+    private Hash256 createHash() {
         HalfSha512 half = HalfSha512.prefixed256(hashPrefix());
         toBytesSink(half);
         return half.finish();

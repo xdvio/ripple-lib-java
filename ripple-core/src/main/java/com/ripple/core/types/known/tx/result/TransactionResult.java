@@ -10,12 +10,15 @@ import com.ripple.core.fields.Field;
 import com.ripple.core.serialized.enums.EngineResult;
 import com.ripple.core.serialized.enums.LedgerEntryType;
 import com.ripple.core.serialized.enums.TransactionType;
+import com.ripple.core.types.known.sle.LedgerEntry;
+import com.ripple.core.types.known.sle.entries.AccountRoot;
 import com.ripple.core.types.known.tx.Transaction;
 import com.ripple.encodings.common.B16;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class TransactionResult implements Comparable<TransactionResult>{
     // The json formatting of transaction results is a MESS
@@ -87,24 +90,15 @@ public class TransactionResult implements Comparable<TransactionResult>{
         return null;
     }
 
-    public Map<AccountID, STObject> modifiedRoots() {
-        HashMap<AccountID, STObject> accounts = null;
+    public Map<AccountID, AccountRoot> modifiedRoots() {
+        TreeMap<AccountID, AccountRoot> accounts = null;
 
         if (meta.has(Field.AffectedNodes)) {
-            accounts = new HashMap<AccountID, STObject>();
-            STArray affected = meta.get(STArray.AffectedNodes);
-            for (STObject node : affected) {
-                if (node.has(Field.ModifiedNode)) {
-                    node = node.get(STObject.ModifiedNode);
-                    if (STObject.ledgerEntryType(node) == LedgerEntryType.AccountRoot) {
-                        STObject finalFields = node.get(STObject.FinalFields);
-                        AccountID key;
-
-                        if (finalFields != null) {
-                            key = finalFields.get(AccountID.Account);
-                            accounts.put(key, node);
-                        }
-                    }
+            accounts = new TreeMap<>();
+            for (AffectedNode fields : meta.affectedNodes()) {
+                if (fields.wasPreviousNode() && fields.isAccountRoot()) {
+                    AccountRoot root = (AccountRoot) fields.nodeAsFinal();
+                    accounts.put(root.account(), root);
                 }
             }
         }

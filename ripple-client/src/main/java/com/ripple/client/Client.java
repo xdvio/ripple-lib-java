@@ -638,13 +638,13 @@ public class Client extends Publisher<Client.events> {
         if (logMessages) {
             log(Level.INFO, "Transaction {0} is validated", tr.hash);
         }
-        Map<AccountID, STObject> affected = tr.modifiedRoots();
+        Map<AccountID, AccountRoot> affected = tr.modifiedRoots();
 
         if (affected != null) {
             Hash256 transactionHash = tr.hash;
             UInt32 transactionLedgerIndex = tr.ledgerIndex;
 
-            for (Map.Entry<AccountID, STObject> entry : affected.entrySet()) {
+            for (Map.Entry<AccountID, AccountRoot> entry : affected.entrySet()) {
                 Account account = accounts.get(entry.getKey());
                 if (account != null) {
                     STObject rootUpdates = entry.getValue();

@@ -65,6 +65,7 @@ public class Offer extends ThreadedLedgerEntry {
                takerPays().currencyString();
     }
 
+    // TODO: create an OfferExecution object for this
     public STObject executed(STObject finalFields) {
         // where `this` is an AffectedNode nodeAsPrevious
         STObject executed = new STObject();
@@ -134,12 +135,7 @@ public class Offer extends ThreadedLedgerEntry {
         return has(Field.taker_pays_funded) ? get(Amount.taker_pays_funded) : takerPays();
     }
 
-    public static Comparator<Offer> qualityAscending = new Comparator<Offer>() {
-        @Override
-        public int compare(Offer lhs, Offer rhs) {
-            return lhs.directoryAskQuality().compareTo(rhs.directoryAskQuality());
-        }
-    };
+    public static Comparator<Offer> qualityAscending = Comparator.comparing(Offer::directoryAskQuality);
 
     public static Iterator<Offer> iterateCollection(Collection<STObject> offers) {
         final Iterator<STObject> iterator = offers.iterator();

@@ -33,6 +33,10 @@ public class LedgerHeader {
     public static LedgerHeader fromParser(BinaryParser parser) {
         return fromReader(new STReader(parser));
     }
+    public static LedgerHeader fromHex(String ledger_data) {
+        return LedgerHeader.fromParser(new BinaryParser(ledger_data));
+    }
+
     public static LedgerHeader fromReader(STReader reader) {
         LedgerHeader ledger = new LedgerHeader();
 
@@ -82,15 +86,14 @@ public class LedgerHeader {
         writer.value(stateHash.toJSON());
         writer.key("close_time");
         writer.value(closeTime.toJSON());
+        writer.key("close_time_human");
+        // TODO
+        writer.value(RippleDate.fromSecondsSinceRippleEpoch(closeTime).toGMTString());
         writer.key("parent_close_time");
         writer.value(parentCloseTime.toJSON());
         writer.key("close_time_resolution");
         writer.value(closeResolution.toJSON());
         writer.key("close_flags");
         writer.value(closeFlags.toJSON());
-    }
-
-    public static LedgerHeader fromHex(String ledger_data) {
-        return LedgerHeader.fromParser(new BinaryParser(ledger_data));
     }
 }
