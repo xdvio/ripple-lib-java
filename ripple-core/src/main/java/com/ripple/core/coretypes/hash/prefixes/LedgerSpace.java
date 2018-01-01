@@ -13,9 +13,12 @@ public enum LedgerSpace implements Prefix {
     bookDir('B'),  // Directory of order books.
     contract('c'),
     skipList('s'),
+    escrow('u'),
     amendment('f'),
     fee('e'),
     ticket('T'),
+    signerList('S'),
+    paymentChannel('x'),
 
     // no longer used
     nickname('n'),;
