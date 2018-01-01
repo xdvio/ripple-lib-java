@@ -18,10 +18,28 @@ public class SubscriptionManager extends Publisher<SubscriptionManager.events> {
         paused = false;
     }
 
-    public static interface events<T>      extends Publisher.Callback<T> {}
+    public interface events<T>      extends Publisher.Callback<T> {}
 
-    public static interface OnSubscribed extends events<JSONObject> {}
-    public static interface OnUnSubscribed extends events<JSONObject> {}
+    public interface OnSubscribed extends events<JSONObject> {}
+    public interface OnUnSubscribed extends events<JSONObject> {}
+
+    public SubscriptionManager onSubscribed(OnSubscribed onSubscribed) {
+        on(OnSubscribed.class, onSubscribed);
+        return this;
+    }
+    public SubscriptionManager onceSubscribed(OnSubscribed onSubscribed) {
+        once(OnSubscribed.class, onSubscribed);
+        return this;
+    }
+    public SubscriptionManager onUnSubscribed(OnUnSubscribed onUnSubscribed) {
+        on(OnUnSubscribed.class, onUnSubscribed);
+        return this;
+    }
+    public SubscriptionManager onceUnSubscribed(OnUnSubscribed onUnSubscribed) {
+        once(OnUnSubscribed.class, onUnSubscribed);
+        return this;
+    }
+
 
     public boolean paused = false;
 

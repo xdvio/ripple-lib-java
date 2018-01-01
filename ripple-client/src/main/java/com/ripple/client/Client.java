@@ -244,7 +244,7 @@ public class Client extends Publisher<Client.events> {
         // requires executor, so call after prepareExecutor
         scheduleMaintenance();
 
-        subscriptions.on(SubscriptionManager.OnSubscribed.class, subscription -> {
+        subscriptions.onSubscribed(subscription -> {
             // On connection we will subscribe
             if (!connected)
                 return;
@@ -407,13 +407,13 @@ public class Client extends Publisher<Client.events> {
     public void connect(final String s, final OnConnected onConnected) {
         run(() -> {
             connect(s);
-            once(OnConnected.class, onConnected);
+            onceConnected(onConnected);
         });
     }
 
     public void disconnect(final OnDisconnected onDisconnected) {
         run(() -> {
-            Client.this.once(OnDisconnected.class, onDisconnected);
+            onceDisconnected(onDisconnected);
             disconnect();
         });
     }
@@ -764,7 +764,7 @@ public class Client extends Publisher<Client.events> {
         request.connectionAffinity = connectionCount;
 
         request.json(subscription);
-        request.on(Request.OnSuccess.class, response -> {
+        request.onSuccess(response -> {
             // TODO ... make sure this isn't just an account subscription
             serverInfo.update(response.result);
             emit(OnSubscribed.class, serverInfo);
