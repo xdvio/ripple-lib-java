@@ -13,7 +13,7 @@ dependencies {
     compile project(':ripple-client-java-websocket-transport')
 
     testCompile 'junit:junit:4.12'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 buildscript {
     ext.kotlin_version = '1.2.10'
@@ -36,4 +36,9 @@ compileTestKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+}
+
+task getDeps(type: Copy) {
+    from configurations.compile
+    into "$rootDir/jars/"
 }
