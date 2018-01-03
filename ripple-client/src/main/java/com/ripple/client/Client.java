@@ -35,6 +35,7 @@ import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,7 +43,7 @@ import static com.ripple.client.requests.Request.Manager;
 import static com.ripple.client.requests.Request.VALIDATED_LEDGER;
 
 public class Client extends Publisher<Client.events> {
-    private static int clients = 0;
+    private static AtomicInteger clients = new AtomicInteger();
 
     /**
      * Using an inner class so the methods aren't public.
@@ -206,7 +207,7 @@ public class Client extends Publisher<Client.events> {
     protected TreeMap<Integer, Request> requests = new TreeMap<>();
 
     // Give the client a name for debugging purposes
-    private String name = "client-" + clients++;
+    private String name = "client-" + clients.incrementAndGet();
 
     // Keeps track of the `id` doled out to Request objects
     private int cmdIDs;
@@ -329,11 +330,9 @@ public class Client extends Publisher<Client.events> {
                     "called disconnect when not connected");
         }
         manuallyDisconnected = true;
-        doOnDisconnected();
-        /*
-         * This will call the doOnDisconnected method immediately
-         */
+        // Emit events, maybe reschedule connects etc
         ws.disconnect();
+        doOnDisconnected();
     }
 
     private void emitOnDisconnected() {
@@ -500,7 +499,7 @@ public class Client extends Publisher<Client.events> {
     }
 
     private void onException(Exception e) {
-        //e.printStackTrace(System.err);
+        e.printStackTrace(System.err);
         if (logger.isLoggable(Level.WARNING)) {
             log(Level.WARNING, "Exception {0}", e);
         }
