@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
+import java.io.Reader;
 
 public class JSON {
     public static class ParseError extends RuntimeException {
@@ -22,7 +23,19 @@ public class JSON {
         }
     }
 
+    public static JsonNode parse(Reader reader) {
+        try {
+            return mapper.readTree(reader);
+        } catch (IOException e) {
+            throw new ParseError(e);
+        }
+    }
+
     public static ObjectNode parseObject(String json) {
+        return (ObjectNode) parse(json);
+    }
+
+    public static ObjectNode parseObject(Reader json) {
         return (ObjectNode) parse(json);
     }
 }

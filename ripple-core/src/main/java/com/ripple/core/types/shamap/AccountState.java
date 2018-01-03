@@ -23,6 +23,7 @@ import org.json.JSONWriter;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Iterator;
 
 public class AccountState extends ShaMap {
@@ -291,6 +292,10 @@ public class AccountState extends ShaMap {
 
     public static AccountState loadFromLedgerDump(String filePath) throws IOException {
         FileReader reader = new FileReader(filePath);
+        return loadFromLedgerDump(reader);
+    }
+
+    public static AccountState loadFromLedgerDump(Reader reader) throws IOException {
         JsonFactory jsonFactory = new JsonFactory();
         JsonParser parser = jsonFactory.createParser(reader);
         JsonToken jsonToken = parser.nextToken();
