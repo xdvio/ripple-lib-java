@@ -49,10 +49,18 @@ class AccountStateTest {
             val obj = it as ObjectNode
             obj["ledger_index"] = dump["ledger_index"]
             val result = TransactionResult.fromJSON(obj)
+            // TODO: Stopgap: This will exercise the API
+            exerciseAPI(result)
             tree.addTransactionResult(result)
         }
         assertEquals(dump["transaction_hash"].asText(),
                 tree.hash().toHex())
+    }
+
+    private fun exerciseAPI(result: TransactionResult) {
+        result.createdAccount()
+        result.initiatingAccount()
+        result.modifiedRoots()
     }
 
     private fun createTest(ledger: String, expectedHash: String) {

@@ -97,9 +97,24 @@ public class TransactionResult implements Comparable<TransactionResult>{
         if (meta.has(Field.AffectedNodes)) {
             accounts = new TreeMap<>();
             for (AffectedNode fields : meta.affectedNodes()) {
-                if (fields.wasPreviousNode() && fields.isAccountRoot()) {
+                if (fields.isModifiedNode() && fields.isAccountRoot()) {
                     AccountRoot root = (AccountRoot) fields.nodeAsFinal();
-                    accounts.put(root.account(), root);
+                    //noinspection StatementWithEmptyBody
+                    if (root.account() != null) {
+                        accounts.put(root.account(), root);
+                    } else {
+                        // TODO: Remember why these modified nodes have no
+                        // FinalFields or NewFields
+                        /*
+                        {"ModifiedNode": {
+                            "LedgerIndex": "2C6F7594FB7471F4983C2BC691AAC2F25F8DB88D455985B4181E053D7AB23006",
+                            "PreviousTxnLgrSeq": 35561097,
+                            "LedgerEntryType": "AccountRoot",
+                            "index": "2C6F7594FB7471F4983C2BC691AAC2F25F8DB88D455985B4181E053D7AB23006",
+                            "PreviousTxnID": "67EE84E892FBEDF5FD52D511FF1E833870A2B8104CA5FF9BA89867A528A5D3ED"
+                        }}
+                        * */
+                    }
                 }
             }
         }
