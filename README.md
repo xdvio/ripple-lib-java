@@ -1,6 +1,8 @@
 The Ripple Java Library [![CircleCI](https://circleci.com/gh/sublimator/ripple-lib-java.svg?style=svg)](https://circleci.com/gh/sublimator/ripple-lib-java) [![codecov](https://codecov.io/gh/sublimator/ripple-lib-java/branch/master/graph/badge.svg)](https://codecov.io/gh/sublimator/ripple-lib-java)
 ===============
 
+# THIS LIBRARY HAS NOT BEEN USED IN PRODUCTION FOR PROCESSING REAL MONEY. DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING.
+
 Java version of ripple-lib (alpha work in progress)
 
 Currently looking for java/android developers to help evolve this library/api.
