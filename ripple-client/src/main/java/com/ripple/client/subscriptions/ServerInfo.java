@@ -74,5 +74,16 @@ public class ServerInfo {
     public boolean primed() {
         return updated;
     }
+
+    @Override
+    public String toString() {
+        return "ServerInfo{" +
+                "ledger_index=" + ledger_index +
+                ", load_base=" + load_base +
+                ", load_factor=" + load_factor +
+                ", server_status='" + server_status + '\'' +
+                ", validated_ledgers='" + validated_ledgers + '\'' +
+                '}';
+    }
 }
 
