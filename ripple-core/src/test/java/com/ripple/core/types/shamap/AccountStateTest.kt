@@ -1,23 +1,18 @@
 package com.ripple.core.types.shamap
 
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ripple.core.types.known.tx.result.TransactionResult
 import com.ripple.encodings.json.JSON
 import com.ripple.utils.TestHelpers
-import jdk.nashorn.internal.ir.ObjectNode
-import org.json.JSONObject
-import org.junit.Test
-
-import java.io.File
-import java.io.IOException
-import java.util.Date
-
 import org.junit.Assert.assertEquals
+import org.junit.Test
+import java.io.File
+import java.util.*
 
 class AccountStateTest {
 
-    @Test
-    @Throws(IOException::class)
+    // @Test
     fun loadFromLedgerDump() {
         val file = File("/Users/ndudfield/ripple/rippled/ledger.json")
 
@@ -51,9 +46,9 @@ class AccountStateTest {
         val transactions = dump.get("transactions") as ArrayNode
         val tree = TransactionTree()
         transactions.forEach {
-            val oldJsonApi = JSONObject(it.toString())
-            oldJsonApi.put("ledger_index", dump["ledger_index"].asLong())
-            val result = TransactionResult.fromJSON(oldJsonApi)
+            val obj = it as ObjectNode
+            obj["ledger_index"] = dump["ledger_index"]
+            val result = TransactionResult.fromJSON(obj)
             tree.addTransactionResult(result)
         }
         assertEquals(dump["transaction_hash"].asText(),
@@ -61,9 +56,14 @@ class AccountStateTest {
     }
 
     private fun createTest(ledger: String, expectedHash: String) {
+        val parsed =
+                JSON.parseObject(TestHelpers.getResourceReader(ledger))
         val resourceReader =
                 TestHelpers.getResourceReader(ledger)
+
         val accountState = AccountState.loadFromLedgerDump(resourceReader)
+        assertEquals(expectedHash,
+                parsed["account_hash"].asText())
         assertEquals(expectedHash,
                 accountState.hash().toHex())
     }

@@ -1,5 +1,6 @@
 package com.ripple.core.types.known.tx.result;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ripple.core.coretypes.AccountID;
 import com.ripple.core.coretypes.STArray;
 import com.ripple.core.coretypes.STObject;
@@ -118,6 +119,11 @@ public class TransactionResult implements Comparable<TransactionResult>{
             return o1.meta.transactionIndex()
                         .compareTo(o2.meta.transactionIndex());
         }
+    }
+
+    public static TransactionResult fromJSON(ObjectNode json) {
+        // TODO: obviously ...
+        return fromJSON(new JSONObject(json.toString()));
     }
 
     public static TransactionResult fromJSON(JSONObject json) {
