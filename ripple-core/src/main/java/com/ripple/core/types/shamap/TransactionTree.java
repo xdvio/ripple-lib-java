@@ -2,6 +2,8 @@ package com.ripple.core.types.shamap;
 
 import com.ripple.core.types.known.tx.result.TransactionResult;
 
+import java.util.TreeSet;
+
 public class TransactionTree extends ShaMap {
     public TransactionTree() {
         super();
@@ -27,12 +29,15 @@ public class TransactionTree extends ShaMap {
     }
 
     public void walkTransactions(final TransactionResultVisitor walker) {
-        walkLeaves(new LeafWalker() {
-            @Override
-            public void onLeaf(ShaMapLeaf leaf) {
-                TransactionResultItem item = (TransactionResultItem) leaf.item;
-                walker.onTransaction(item.result);
-            }
+        walkLeaves(leaf -> {
+            TransactionResultItem item = (TransactionResultItem) leaf.item;
+            walker.onTransaction(item.result);
         });
+    }
+
+    public TreeSet<TransactionResult> toTreeSet() {
+        TreeSet<TransactionResult> result = new TreeSet<>();
+        walkTransactions(result::add);
+        return result;
     }
 }

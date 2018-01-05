@@ -10,6 +10,7 @@ import com.ripple.core.coretypes.uint.UInt64;
 import com.ripple.core.coretypes.uint.UInt8;
 import com.ripple.core.serialized.BinaryParser;
 import com.ripple.core.serialized.BytesSink;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 
 import java.util.Date;
@@ -95,5 +96,14 @@ public class LedgerHeader {
         writer.value(closeResolution.toJSON());
         writer.key("close_flags");
         writer.value(closeFlags.toJSON());
+    }
+
+    public JSONObject toJSON() {
+        StringBuilder builder = new StringBuilder();
+        JSONWriter jsonWriter = new JSONWriter(builder);
+        jsonWriter.object();
+        toJSONWriter(jsonWriter);
+        jsonWriter.endObject();
+        return new JSONObject(builder.toString());
     }
 }

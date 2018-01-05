@@ -32,7 +32,7 @@ public class LedgerEntry extends STObject {
     public void ledgerIndex(Hash256 val) {put(Field.LedgerIndex, val);}
 
     public TreeSet<AccountID> owners() {
-        TreeSet<AccountID> owners = new TreeSet<AccountID>();
+        TreeSet<AccountID> owners = new TreeSet<>();
 
         if (has(Field.LowLimit)) {
             owners.add(get(Amount.LowLimit).issuer());

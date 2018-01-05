@@ -7,9 +7,9 @@ import java.util.TreeSet;
 public class ShaMapDiff {
     public ShaMap one, two;
 
-    public TreeSet<Hash256> modified = new TreeSet<Hash256>();
-    public TreeSet<Hash256> deleted = new TreeSet<Hash256>();
-    public TreeSet<Hash256> added = new TreeSet<Hash256>();
+    public TreeSet<Hash256> modified = new TreeSet<>();
+    public TreeSet<Hash256> deleted = new TreeSet<>();
+    public TreeSet<Hash256> added = new TreeSet<>();
 
     public ShaMapDiff(ShaMap one, ShaMap two) {
         this.one = one;
@@ -17,10 +17,11 @@ public class ShaMapDiff {
     }
 
     // Find what's added, modified and deleted in `two`
-    public void find() {
+    public ShaMapDiff find() {
         one.hash();
         two.hash();
         compare(one, two);
+        return this;
     }
 
     public ShaMapDiff inverted() {
@@ -77,6 +78,7 @@ public class ShaMapDiff {
                     ShaMapInner ib = (ShaMapInner) bChild;
                     trackAdded(ib);
 
+                    //noinspection Duplicates
                     if (ib.hasLeaf(la.index)) {
                         // because trackAdded would have added it
                         added.remove(la.index);
@@ -92,6 +94,7 @@ public class ShaMapDiff {
                     ShaMapInner ia = (ShaMapInner) aChild;
                     trackRemoved(ia);
 
+                    //noinspection Duplicates
                     if (ia.hasLeaf(lb.index)) {
                         // because trackRemoved would have deleted it
                         deleted.remove(lb.index);
@@ -108,20 +111,12 @@ public class ShaMapDiff {
             }
         }
     }
+
     private void trackRemoved(ShaMapNode child) {
-        child.walkAnyLeaves(new LeafWalker() {
-            @Override
-            public void onLeaf(ShaMapLeaf leaf) {
-                deleted.add(leaf.index);
-            }
-        });
+        child.walkAnyLeaves(leaf -> deleted.add(leaf.index));
     }
+
     private void trackAdded(ShaMapNode child) {
-        child.walkAnyLeaves(new LeafWalker() {
-            @Override
-            public void onLeaf(ShaMapLeaf leaf) {
-                added.add(leaf.index);
-            }
-        });
+        child.walkAnyLeaves(leaf -> added.add(leaf.index));
     }
 }

@@ -162,12 +162,7 @@ public class ShaMapDiffTest {
 
                 @Override
                 public Prefix hashPrefix() {
-                    return new Prefix() {
-                        @Override
-                        public byte[] bytes() {
-                            return new byte[0];
-                        }
-                    };
+                    return () -> new byte[0];
                 }
             });
         }

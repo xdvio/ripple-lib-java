@@ -19,7 +19,7 @@ jobs:
       - checkout
 
       # run tests!
-      - run: ./gradlew --console=plain check
-      - run: ./gradlew --console=plain codeCoverageReport
+      - run: ./gradlew --console=plain --info check
+      - run: ./gradlew --console=plain --info codeCoverageReport
       - run: bash <(curl -s https://codecov.io/bash)
 

@@ -3,6 +3,7 @@ package com.ripple.core.types.shamap;
 import com.ripple.core.coretypes.STObject;
 import com.ripple.core.coretypes.hash.prefixes.HashPrefix;
 import com.ripple.core.coretypes.hash.prefixes.Prefix;
+import com.ripple.core.fields.Field;
 import com.ripple.core.serialized.BytesSink;
 import com.ripple.core.types.known.sle.LedgerEntry;
 

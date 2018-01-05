@@ -2,7 +2,9 @@ package com.ripple.core.types.shamap
 
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.ripple.core.coretypes.Amount
 import com.ripple.core.types.known.tx.result.TransactionResult
+import com.ripple.core.types.known.tx.txns.Payment
 import com.ripple.encodings.json.JSON
 import com.ripple.utils.TestHelpers
 import org.junit.Assert.assertEquals

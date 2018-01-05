@@ -22,10 +22,12 @@ public class AccountStateBuilder {
 
     private TreeSet<Hash256> directoriesModifiedMoreThanOnceByTransaction = new TreeSet<>();
     private TreeSet<Hash256> directoriesModifiedByTransaction = new TreeSet<>();
-    public TreeSet<Hash256> modifiedEntries = new TreeSet<>();
+    public TreeSet<Hash256> ledgerModifiedEntries = new TreeSet<>();
+    public TreeSet<Hash256> ledgerDeletedEntries = new TreeSet<>();
 
     public void resetModified() {
-        modifiedEntries.clear();
+        ledgerModifiedEntries.clear();
+        ledgerDeletedEntries.clear();
         directoriesModifiedMoreThanOnceByTransaction.clear();
     }
 
@@ -57,7 +59,8 @@ public class AccountStateBuilder {
             Hash256 id = an.ledgerIndex();
             LedgerEntry le = an.nodeAsFinal();
             if (an.isCreatedNode()) {
-                modifiedEntries.add(id);
+                ledgerModifiedEntries.add(id);
+                ledgerDeletedEntries.remove(id);
                 le.setDefaults();
                 state.addLE(le);
 
@@ -84,7 +87,8 @@ public class AccountStateBuilder {
                     tle.previousTxnLgrSeq(tr.ledgerIndex);
                 }
             } else if (an.isDeletedNode()) {
-                modifiedEntries.remove(id);
+                ledgerModifiedEntries.remove(id);
+                ledgerDeletedEntries.add(id);
                 directoriesModifiedMoreThanOnceByTransaction.remove(id);
                 state.removeLeaf(id);
                 if (le instanceof Offer) {
@@ -118,7 +122,7 @@ public class AccountStateBuilder {
                     }
                 }
             } else if (an.isModifiedNode()) {
-                modifiedEntries.add(id);
+                ledgerModifiedEntries.add(id);
                 ShaMapLeaf leaf = state.getLeafForUpdating(id);
                 LedgerEntryItem item = (LedgerEntryItem) leaf.item;
                 LedgerEntry leModded = item.entry;
