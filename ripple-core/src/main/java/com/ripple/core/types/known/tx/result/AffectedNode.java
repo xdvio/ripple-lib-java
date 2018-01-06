@@ -106,7 +106,8 @@ public class AffectedNode extends STObject {
         if (layerPrevious && wrapped.has(Field.PreviousFields)) {
             STObject previous = wrapped.get(STObject.PreviousFields);
             STObject changed = new STObject();
-            mixed.put(Field.FinalFields, changed);
+            // TODO: use an auxiliary non serialized field
+            // mixed.put(Field.FinalFields, changed);
 
             for (Field field : previous) {
                 mixed.put(field, previous.get(field));
@@ -138,5 +139,12 @@ public class AffectedNode extends STObject {
                 source.has(DeletedNode) ||
                 source.has(CreatedNode) ||
                 source.has(ModifiedNode)));
+    }
+
+    public boolean removedField(Field field) {
+        return nested.has(Field.PreviousFields) &&
+                nested.get(STObject.PreviousFields).has(field) &&
+                nested.has(Field.FinalFields) &&
+                !nested.get(STObject.FinalFields).has(field);
     }
 }
