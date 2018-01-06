@@ -23,13 +23,14 @@ public class OffersExecuted {
     public static void main(String[] args) {
         print("pid={0}", ProcessHelper.getPID());
         new Client(new JavaWebSocketTransportImpl())
-            .connect("wss://s-east.ripple.com",
+            .connect(/*"ws://localhost:6006"*/
+                    "wss://s1.ripple.com",
                     OffersExecuted::onceConnected);
     }
 
     private static void onceConnected(Client c) {
         c.subscriptions.addStream(SubscriptionManager.Stream.transactions);
-        c.transactionSubscriptionManager(new LedgerSubscriber(c));
+         c.transactionSubscriptionManager(new LedgerSubscriber(c));
         c.onLedgerClosed(OffersExecuted::onLedgerClosed)
          .onValidatedTransaction((tr) -> tr.meta.affectedNodes().forEach((an) -> {
              if (an.isOffer() && an.wasPreviousNode()) {
@@ -40,9 +41,9 @@ public class OffersExecuted {
     }
 
     private static void onLedgerClosed(ServerInfo serverInfo) {
-        print("Ledger {0} closed @ {1} with {2} transactions",
+        print("Ledger {0} closed @ {1} with {2} transactions. Server: {3}",
               serverInfo.ledger_index, serverInfo.date(),
-                    serverInfo.txn_count);
+                    serverInfo.txn_count, serverInfo);
     }
 
     private static void printTrade(TransactionResult tr,
