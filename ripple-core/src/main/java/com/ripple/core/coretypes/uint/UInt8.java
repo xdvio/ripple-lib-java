@@ -68,6 +68,7 @@ public class UInt8 extends UInt<UInt8> {
     static public UInt8Field CloseResolution = int8Field(Field.CloseResolution);
     static public UInt8Field Method = int8Field(Field.Method);
     static public UInt8Field TransactionResult = int8Field(Field.TransactionResult);
+    static public UInt8Field TickSize = int8Field(Field.TickSize);
 
     @Override
     public Object toJSON() {

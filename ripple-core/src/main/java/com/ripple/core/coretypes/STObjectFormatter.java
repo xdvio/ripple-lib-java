@@ -10,6 +10,8 @@ import com.ripple.core.types.known.tx.Transaction;
 import com.ripple.core.types.known.tx.result.AffectedNode;
 import com.ripple.core.types.known.tx.result.TransactionMeta;
 import com.ripple.core.types.known.tx.txns.*;
+import com.ripple.core.types.known.tx.txns.pseudo.EnableAmendment;
+import com.ripple.core.types.known.tx.txns.pseudo.SetFee;
 
 public class STObjectFormatter {
     public static STObject doFormatted(STObject source) {
@@ -45,15 +47,19 @@ public class STObjectFormatter {
                 constructed = new Payment();
                 break;
             case EscrowCreate:
+                constructed = new EscrowCreate();
                 break;
             case EscrowFinish:
+                constructed = new EscrowFinish();
                 break;
             case AccountSet:
                 constructed = new AccountSet();
                 break;
             case EscrowCancel:
+                constructed = new EscrowCancel();
                 break;
             case SetRegularKey:
+                constructed = new SetRegularKey();
                 break;
             case OfferCreate:
                 constructed = new OfferCreate();
@@ -68,18 +74,26 @@ public class STObjectFormatter {
                 constructed = new TicketCancel();
                 break;
             case SignerListSet:
+                constructed = new SignerListSet();
+                break;
+            case PaymentChannelCreate:
+                constructed = new PaymentChannelCreate();
+                break;
+            case PaymentChannelFund:
+                constructed = new PaymentChannelFund();
+                break;
+            case PaymentChannelClaim:
+                constructed = new PaymentChannelClaim();
                 break;
             case TrustSet:
                 constructed = new TrustSet();
                 break;
             case EnableAmendment:
+                constructed = new EnableAmendment();
                 break;
             case SetFee:
+                constructed = new SetFee();
                 break;
-
-        }
-        if (constructed == null) {
-            constructed = new Transaction(transactionType);
         }
 
         constructed.fields = source.fields;

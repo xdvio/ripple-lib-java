@@ -1,9 +1,6 @@
 package com.ripple.core.types.known.tx;
 
-import com.ripple.core.coretypes.AccountID;
-import com.ripple.core.coretypes.Amount;
-import com.ripple.core.coretypes.Blob;
-import com.ripple.core.coretypes.STObject;
+import com.ripple.core.coretypes.*;
 import com.ripple.core.coretypes.hash.HalfSha512;
 import com.ripple.core.coretypes.hash.Hash256;
 import com.ripple.core.coretypes.hash.prefixes.HashPrefix;
@@ -84,6 +81,7 @@ public class Transaction extends STObject {
     public Blob signingPubKey() {return get(Blob.SigningPubKey);}
     public Blob txnSignature() {return get(Blob.TxnSignature);}
     public AccountID account() {return get(AccountID.Account);}
+
     public void transactionType(UInt16 val) {put(Field.TransactionType, val);}
     public void flags(UInt32 val) {put(Field.Flags, val);}
     public void sourceTag(UInt32 val) {put(Field.SourceTag, val);}
@@ -96,6 +94,16 @@ public class Transaction extends STObject {
     public void signingPubKey(Blob val) {put(Field.SigningPubKey, val);}
     public void txnSignature(Blob val) {put(Field.TxnSignature, val);}
     public void account(AccountID val) {put(Field.Account, val);}
+
+    public boolean hasFlags() {return has(UInt32.Flags);}
+    public boolean hasSourceTag() {return has(UInt32.SourceTag);}
+    public boolean hasLastLedgerSequence() {return has(UInt32.LastLedgerSequence);}
+    public boolean hasOperationLimit() {return has(UInt32.OperationLimit);}
+    public boolean hasPreviousTxnID() {return has(Hash256.PreviousTxnID);}
+    public boolean hasAccountTxnID() {return has(Hash256.AccountTxnID);}
+    public boolean hasTxnSignature() {return has(Blob.TxnSignature);}
+    public boolean hasSigners() {return has(STArray.Signers);}
+    public boolean hasMemos() {return has(STArray.Memos);}
 
     public Hash256 hash() {
         return get(Hash256.hash);

@@ -19,12 +19,21 @@ public class Payment extends Transaction {
     public Amount amount() {return get(Amount.Amount);}
     public Amount sendMax() {return get(Amount.SendMax);}
     public AccountID destination() {return get(AccountID.Destination);}
+
     public PathSet paths() {return get(PathSet.Paths);}
+    public Amount deliverMin() {return get(Amount.DeliverMin);}
+
     public void destinationTag(UInt32 val) {put(Field.DestinationTag, val);}
     public void invoiceID(Hash256 val) {put(Field.InvoiceID, val);}
+    public void deliverMin(Amount val) { put(Amount.DeliverMin, val);}
     public void amount(Amount val) {put(Field.Amount, val);}
     public void sendMax(Amount val) {put(Field.SendMax, val);}
     public void destination(AccountID val) {put(Field.Destination, val);}
     public void paths(PathSet val) {put(Field.Paths, val);}
+
+    public boolean hasDestinationTag() {return has(UInt32.DestinationTag);}
+    public boolean hasInvoiceID() {return has(Hash256.InvoiceID);}
+    public boolean hasSendMax() {return has(Amount.SendMax);}
+    public boolean hasDeliverMin() {return has(Amount.DeliverMin);}
 
 }

@@ -17,4 +17,9 @@ public class TrustSet extends Transaction {
     public void qualityIn(UInt32 val) {put(Field.QualityIn, val);}
     public void qualityOut(UInt32 val) {put(Field.QualityOut, val);}
     public void limitAmount(Amount val) {put(Field.LimitAmount, val);}
+
+    public boolean hasQualityIn() {return has(UInt32.QualityIn);}
+    public boolean hasQualityOut() {return has(UInt32.QualityOut);}
+    public boolean hasLimitAmount() {return has(Amount.LimitAmount);}
+
 }

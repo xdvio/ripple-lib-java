@@ -38,7 +38,8 @@ class EDKeyPairTest {
     private var edKeyPair: EDKeyPair
     private val fixtures = JSONObject(fixturesJson)
     private val expectedSig = fixtures.getString("expected_sig")
-    private val tx = STObject.fromJSONObject(fixtures.getJSONObject("tx_json")) as Transaction
+    private val txJson = fixtures.getJSONObject("tx_json")
+    private val tx = STObject.fromJSONObject(txJson) as Transaction
 
     private val message = tx.signingData()
 

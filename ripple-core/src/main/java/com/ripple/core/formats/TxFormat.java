@@ -6,7 +6,25 @@ import com.ripple.core.serialized.enums.TransactionType;
 import java.util.EnumMap;
 
 public class TxFormat extends Format<TxFormat> {
-    static public EnumMap<TransactionType, TxFormat> formats = new EnumMap<TransactionType, TxFormat>(TransactionType.class);
+    static public EnumMap<TransactionType, TxFormat> formats = new EnumMap<>(TransactionType.class);
+    {
+        common.put(Field.TransactionType,     Requirement.REQUIRED);
+        common.put(Field.Account,             Requirement.REQUIRED);
+        common.put(Field.Sequence,            Requirement.REQUIRED);
+        common.put(Field.Fee,                 Requirement.REQUIRED);
+        common.put(Field.SigningPubKey,       Requirement.REQUIRED);
+
+        common.put(Field.Flags,               Requirement.OPTIONAL);
+        common.put(Field.SourceTag,           Requirement.OPTIONAL);
+        common.put(Field.PreviousTxnID,       Requirement.OPTIONAL);
+        common.put(Field.OperationLimit,      Requirement.OPTIONAL);
+        common.put(Field.TxnSignature,        Requirement.OPTIONAL);
+        common.put(Field.AccountTxnID,        Requirement.OPTIONAL);
+        common.put(Field.LastLedgerSequence,  Requirement.OPTIONAL);
+        common.put(Field.Memos,               Requirement.OPTIONAL);
+        common.put(Field.Signers,             Requirement.OPTIONAL);
+
+    }
     public final TransactionType transactionType;
 
     static public TxFormat fromString(String name) {
@@ -37,21 +55,7 @@ public class TxFormat extends Format<TxFormat> {
 
     @Override
     protected void addCommonFields() {
-        put(Field.TransactionType,     Requirement.REQUIRED);
-        put(Field.Account,             Requirement.REQUIRED);
-        put(Field.Sequence,            Requirement.REQUIRED);
-        put(Field.Fee,                 Requirement.REQUIRED);
-        put(Field.SigningPubKey,       Requirement.REQUIRED);
-
-        put(Field.Flags,               Requirement.OPTIONAL);
-        put(Field.SourceTag,           Requirement.OPTIONAL);
-        put(Field.PreviousTxnID,       Requirement.OPTIONAL);
-        put(Field.OperationLimit,      Requirement.OPTIONAL);
-        put(Field.TxnSignature,        Requirement.OPTIONAL);
-        put(Field.AccountTxnID,        Requirement.OPTIONAL);
-        put(Field.LastLedgerSequence,  Requirement.OPTIONAL);
-        put(Field.Memos,               Requirement.OPTIONAL);
-        put(Field.Signers,             Requirement.OPTIONAL);
+        requirementEnumMap.putAll(common);
     }
 
     @Override

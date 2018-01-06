@@ -106,4 +106,6 @@ public class Blob implements SerializedType {
     static public BlobField MemoType = blobField(Field.MemoType);
     static public BlobField MemoData = blobField(Field.MemoData);
     static public BlobField MemoFormat = blobField(Field.MemoFormat);
+    static public BlobField Condition = blobField(Field.Condition);
+    static public BlobField Fulfillment = blobField(Field.Fulfillment);
 }

@@ -732,6 +732,7 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
     static public AmountField HighLimit = amountField(Field.HighLimit);
     static public AmountField Fee = amountField(Field.Fee);
     static public AmountField SendMax = amountField(Field.SendMax);
+    static public AmountField DeliverMin = amountField(Field.DeliverMin);
     static public AmountField MinimumOffer = amountField(Field.MinimumOffer);
     static public AmountField RippleEscrow = amountField(Field.RippleEscrow);
     static public AmountField taker_gets_funded = amountField(Field.taker_gets_funded);

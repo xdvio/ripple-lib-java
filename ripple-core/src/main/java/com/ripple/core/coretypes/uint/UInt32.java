@@ -23,7 +23,6 @@ public class UInt32 extends UInt<UInt32> {
         }
     };
 
-
     public UInt32(byte[] bytes) {
         super(bytes);
     }
@@ -98,6 +97,9 @@ public class UInt32 extends UInt<UInt32> {
     static public UInt32Field ClearFlag = int32Field(Field.ClearFlag);
     static public UInt32Field SignerQuorum = int32Field(Field.SignerQuorum);
     public static UInt32Field SignerListID = int32Field(Field.SignerListID);
+    public static UInt32Field CancelAfter = int32Field(Field.CancelAfter);
+    public static UInt32Field FinishAfter = int32Field(Field.FinishAfter);
+    public static UInt32Field SettleDelay = int32Field(Field.SettleDelay);
 
     @Override
     public Object toJSON() {

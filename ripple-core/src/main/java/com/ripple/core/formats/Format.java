@@ -10,7 +10,8 @@ abstract public class Format<Subclass extends Format> {
 
     protected void addCommonFields(){}
 
-    EnumMap<Field, Requirement> requirementEnumMap = new EnumMap<Field, Requirement>(Field.class);
+    EnumMap<Field, Requirement> requirementEnumMap = new EnumMap<>(Field.class);
+    EnumMap<Field, Requirement> common = new EnumMap<>(Field.class);
 
     public EnumMap<Field, Requirement> requirements() {
         return requirementEnumMap;
@@ -44,6 +45,10 @@ abstract public class Format<Subclass extends Format> {
     protected Subclass nonDefault(Field f) {
         put(f, Requirement.DEFAULT);
         return (Subclass) this;
+    }
+
+    public boolean isCommon(Field field) {
+        return common.containsKey(field);
     }
 
     public static enum Requirement {

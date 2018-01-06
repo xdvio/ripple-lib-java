@@ -6,6 +6,13 @@ import com.ripple.core.formats.TxFormat;
 import com.ripple.core.serialized.enums.EngineResult;
 import com.ripple.core.serialized.enums.LedgerEntryType;
 import com.ripple.core.serialized.enums.TransactionType;
+import com.ripple.core.types.known.tx.txns.EscrowCreate;
+import com.ripple.core.types.known.tx.txns.EscrowCancel;
+import com.ripple.core.types.known.tx.txns.SetRegularKey;
+import com.ripple.core.types.known.tx.Transaction;
+import com.ripple.core.types.known.tx.txns.*;
+import com.ripple.core.types.known.tx.txns.pseudo.EnableAmendment;
+import com.ripple.core.types.known.tx.txns.pseudo.SetFee;
 import com.ripple.utils.TestHelpers;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -13,11 +20,39 @@ import org.json.JSONTokener;
 import org.junit.Test;
 
 import java.io.FileReader;
+import java.lang.reflect.Method;
 import java.util.*;
 
 import static org.junit.Assert.*;
 
 public class FieldSymbolicsTest {
+    private static TreeMap<TransactionType, Class<? extends Transaction>> txns =
+            new TreeMap<>();
+
+    static {
+        txns.put(TransactionType.Payment, Payment.class);
+        txns.put(TransactionType.AccountSet, AccountSet.class);
+        txns.put(TransactionType.SetRegularKey, SetRegularKey.class);
+        txns.put(TransactionType.TrustSet, TrustSet.class);
+        txns.put(TransactionType.OfferCancel, OfferCancel.class);
+        txns.put(TransactionType.OfferCreate, OfferCreate.class);
+        txns.put(TransactionType.TicketCancel, TicketCancel.class);
+        txns.put(TransactionType.TicketCreate, TicketCreate.class);
+        txns.put(TransactionType.EscrowCancel, EscrowCancel.class);
+        txns.put(TransactionType.EscrowCreate, EscrowCreate.class);
+        txns.put(TransactionType.EscrowFinish, EscrowFinish.class);
+        txns.put(TransactionType.SignerListSet, SignerListSet.class);
+        txns.put(TransactionType.PaymentChannelCreate, PaymentChannelCreate.class);
+        txns.put(TransactionType.PaymentChannelFund, PaymentChannelFund.class);
+        txns.put(TransactionType.PaymentChannelClaim, PaymentChannelClaim.class);
+        txns.put(TransactionType.EnableAmendment, EnableAmendment.class);
+        txns.put(TransactionType.SetFee, SetFee.class);
+
+        for (TransactionType tt : txns.keySet()) {
+            assertEquals(txns.get(tt).getSimpleName(), tt.name());
+        }
+    }
+
     @Test
     public void CheckProtocolDefinitions() {
         FileReader reader = TestHelpers.getResourceReader("protocol.json");
@@ -85,13 +120,86 @@ public class FieldSymbolicsTest {
                     TransactionType.valueOf(txName);
                 } catch (IllegalArgumentException e) {
                     fail("missing TransactionType " +
-                              txName);
+                            txName);
                 }
                 Format txFormat = TxFormat.fromString(txName);
                 assertNotNull(txFormat);
                 checkFormat(tx, txFormat);
+
+                @SuppressWarnings("unchecked") EnumMap<Field, Format.Requirement>
+                        requirements = txFormat.requirements();
+
+                TransactionType key = TransactionType.valueOf(txName);
+                Class<?> kls = FieldSymbolicsTest.txns.get(key);
+                // System.out.println("Methods for: " + txName);
+                boolean missing = false;
+                for (Field field : requirements.keySet()) {
+                    Format.Requirement requirement = requirements.get(field);
+                    boolean optional = requirement == Format.Requirement.OPTIONAL;
+                    String fieldType = field.type.name();
+                    if (optional && !txFormat.isCommon(field)) {
+                        String name = String.format("has%s", field.name());
+                        Method method = getMethod(kls, name, 0);
+                        if (method == null) {
+                            String body =
+                                    String.format("{return has(%s.%s);}",
+                                            fieldType, field.name());
+                            String start =
+                                    String.format("public boolean %s() %s",
+                                            name, body);
+                            System.out.println(start);
+                            missing = true;
+                        }
+                    }
+                    if (!txFormat.isCommon(field)) {
+                        String methodName = camelize(field.name());
+                        Method method = getMethod(kls, methodName, 0);
+                        if (method == null) {
+                            String body = String.format("{return get(%s.%s);}",
+                                    fieldType, field.name());
+                            String start = String.format(
+                                    "public %s %s() %s",
+                                    fieldType,
+                                    methodName,
+                                    body);
+                            System.out.println(start);
+                            missing = true;
+                        }
+                        methodName = camelize(field.name());
+                        method = getMethod(kls, methodName, 1);
+                        if (method == null) {
+                            String body =
+                                    String.format("{ put(%s.%s, val);}",
+                                            fieldType, field.name());
+                            String declaration =
+                                    String.format("public void %s(%s val) %s",
+                                            methodName,
+                                            fieldType, body);
+                            System.out.println(declaration);
+                            missing = true;
+                        } else {
+                            // System.out.println(method.toGenericString());
+                        }
+
+                    }
+                    assertFalse(missing);
+                }
+
+            }
+
+            assertTrue(
+                    txName,
+                    FieldSymbolicsTest.txns.containsKey(TransactionType.valueOf(txName)));
+        }
+    }
+
+    private Method getMethod(Class<?> kls, String name, int paramCount) {
+        for (Method method : kls.getMethods()) {
+            if (method.getName().equals(name) && method.getParameterCount() == paramCount) {
+                return method;
             }
         }
+        return null;
     }
 
     private void checkFormat(JSONObject obj, Format<?> format) {
@@ -116,7 +224,7 @@ public class FieldSymbolicsTest {
                 Format.Requirement req = requirements.get(key);
                 if (!req.toString().equals(requirement)) {
                     fail(String.format("%s format missing %s %s %n",
-                                txName, requirement, fieldName));
+                            txName, requirement, fieldName));
 
                 }
             }
@@ -124,6 +232,11 @@ public class FieldSymbolicsTest {
         // check length is same, and if none are missing, must be equal ;)
         assertEquals(obj.toString(2),
                 fields.length(), requirements.size());
+
+    }
+
+    private String camelize(String name) {
+        return name.substring(0, 1).toLowerCase() + name.substring(1);
     }
 
     private void checkLedgerEntries(JSONArray entries) {

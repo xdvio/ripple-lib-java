@@ -18,4 +18,8 @@ public class OfferCreate extends Transaction {
     public void offerSequence(UInt32 val) {put(Field.OfferSequence, val);}
     public void takerPays(Amount val) {put(Field.TakerPays, val);}
     public void takerGets(Amount val) {put(Field.TakerGets, val);}
+
+    public boolean hasExpiration() {return has(UInt32.Expiration);}
+    public boolean hasOfferSequence() {return has(UInt32.OfferSequence);}
+
 }

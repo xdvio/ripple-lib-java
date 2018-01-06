@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class STArray extends ArrayList<STObject> implements SerializedType {
+
     public JSONArray toJSONArray() {
         JSONArray array = new JSONArray();
 
@@ -114,4 +115,5 @@ public class STArray extends ArrayList<STObject> implements SerializedType {
     static public STArrayField Template = starrayField(Field.Template);
     static public STArrayField Necessary = starrayField(Field.Necessary);
     static public STArrayField Sufficient = starrayField(Field.Sufficient);
+    static public STArrayField Memos = starrayField(Field.Memos);
 }
