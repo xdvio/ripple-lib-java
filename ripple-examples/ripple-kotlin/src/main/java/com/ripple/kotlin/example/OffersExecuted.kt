@@ -11,10 +11,9 @@ import com.ripple.core.types.known.tx.result.AffectedNode
 import com.ripple.core.types.known.tx.result.TransactionResult
 
 fun AffectedNode.offerBeforeAndAft() =
-        Pair(this.nodeAsPrevious() as Offer, nodeAsFinal() as Offer)
+        Pair(nodeAsPrevious() as Offer, nodeAsFinal() as Offer)
 
-fun AffectedNode.previousOffer() =
-        this.isOffer && this.wasPreviousNode()
+fun AffectedNode.previousOffer() = isOffer && wasPreviousNode()
 
 /**
  * This example subscribes to all transactions and prints executed
@@ -43,8 +42,8 @@ object OffersExecuted {
     private fun onLedgerClosed(serverInfo: ServerInfo) {
         println("$serverInfo")
         println("Ledger `${serverInfo.ledger_index}` closed " +
-               "@ `${serverInfo.date()}` " +
-               "with `${serverInfo.txn_count}` transactions.")
+                "@ `${serverInfo.date()}` " +
+                "with `${serverInfo.txn_count}` transactions.")
     }
 
     private fun printTrade(tr: TransactionResult,

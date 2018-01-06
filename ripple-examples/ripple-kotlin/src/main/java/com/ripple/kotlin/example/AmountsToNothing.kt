@@ -2,13 +2,12 @@ package com.ripple.kotlin.example
 
 import com.ripple.core.coretypes.Amount
 
-operator fun Amount.unaryMinus() = this.negate()!!
-operator fun Amount.plus(b: Amount) = this.add(b)!!
+operator fun Amount.unaryMinus() = negate()!!
+operator fun Amount.plus(b: Amount) = add(b)!!
 
-private fun amounts(vararg amounts: String) =
-        amounts.map(Amount::fromIOUString)
+private fun amounts(vararg amounts: String) = amounts.map(Amount::fromIOUString)
 
-private fun claim(c: Boolean, that:String = "all", willBe: Boolean=true) =
+private fun claim(c: Boolean, that: String = "all", willBe: Boolean = true) =
         if (c != willBe) throw AssertionError("$that != $willBe")
         else println("$that == $willBe OK")
 
