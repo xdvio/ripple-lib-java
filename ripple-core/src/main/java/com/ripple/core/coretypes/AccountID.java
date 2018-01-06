@@ -16,6 +16,7 @@ import com.ripple.encodings.common.B16;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.ripple.config.Config.getB58IdentiferCodecs;
 
@@ -33,7 +34,7 @@ public class AccountID extends Hash160 {
     // We can set aliases, so fromString(x) will return a given AccountID
     // this is currently only used for tests, and not recommended to be used
     // elsewhere.
-    public static Map<String, AccountID> aliases = new HashMap<String, AccountID>();
+    private static Map<String, AccountID> aliases = new ConcurrentHashMap<>();
     //
     public static AccountID NEUTRAL = fromInteger(1), XRP_ISSUER = fromInteger(0);
     final public String address;
@@ -181,16 +182,16 @@ public class AccountID extends Hash160 {
         return getB58IdentiferCodecs().encodeAddress(a);
     }
 
-    public static AccountID addAliasFromPassPhrase(String n, String n2) {
-        return aliases.put(n, fromPassPhrase(n2));
+    public static AccountID addAliasFromPassPhrase(String name, String phrase) {
+        return aliases.put(name, fromPassPhrase(phrase));
     }
 
-    public static AccountID accountForAlias(String value) {
+    private static AccountID accountForAlias(String value) {
         return aliases.get(value);
     }
 
     // Typed field definitions
-    public static AccountIDField accountField(final Field f) {
+    private static AccountIDField accountField(final Field f) {
         return new AccountIDField() {
             @Override
             public Field getField() {
