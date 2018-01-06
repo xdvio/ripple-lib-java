@@ -11,8 +11,8 @@ import com.ripple.core.serialized.BytesList;
 import com.ripple.core.serialized.MultiSink;
 import com.ripple.core.serialized.enums.TransactionType;
 import com.ripple.core.types.known.tx.Transaction;
-import com.ripple.crypto.ecdsa.IKeyPair;
-import com.ripple.crypto.ecdsa.Seed;
+import com.ripple.crypto.keys.IKeyPair;
+import com.ripple.crypto.Seed;
 
 import java.util.Arrays;
 

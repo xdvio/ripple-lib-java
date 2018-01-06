@@ -74,9 +74,11 @@ public class Request extends Publisher<Request.events> {
 
     public static abstract class Manager<T> {
         abstract public void cb(Response response, T t) throws JSONException;
+
         public boolean retryOnUnsuccessful(Response r) {
             return false;
         }
+
         public void beforeRequest(Request r) {}
     }
 

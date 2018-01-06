@@ -4,6 +4,8 @@ import com.ripple.config.Config
 import com.ripple.core.coretypes.AccountID
 import com.ripple.core.coretypes.STObject
 import com.ripple.core.types.known.tx.Transaction
+import com.ripple.crypto.Seed
+import com.ripple.crypto.ed25519.EDKeyPair
 import com.ripple.encodings.common.B16
 import org.intellij.lang.annotations.Language
 import org.json.JSONObject
@@ -60,6 +62,6 @@ class EDKeyPairTest {
 
     @Test
     fun testVerifying() {
-        assertTrue(edKeyPair.verifySignature(message, B16.decode(expectedSig)))
+        assertTrue(edKeyPair.verify(message, B16.decode(expectedSig)))
     }
 }

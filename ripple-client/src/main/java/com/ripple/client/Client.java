@@ -24,8 +24,8 @@ import com.ripple.core.types.known.sle.LedgerEntry;
 import com.ripple.core.types.known.sle.entries.AccountRoot;
 import com.ripple.core.types.known.sle.entries.Offer;
 import com.ripple.core.types.known.tx.result.TransactionResult;
-import com.ripple.crypto.ecdsa.IKeyPair;
-import com.ripple.crypto.ecdsa.Seed;
+import com.ripple.crypto.keys.IKeyPair;
+import com.ripple.crypto.Seed;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -98,10 +98,21 @@ public class Client extends Publisher<Client.events> {
     public interface OnSubscribed extends events<ServerInfo> {}
     public interface OnMessage extends events<JSONObject> {}
     public interface OnSendMessage extends events<JSONObject> {}
+    public interface OnValidationReceived extends events<JSONObject> {}
 
     // Fluent binders
     public Client onValidatedTransaction(OnValidatedTransaction cb) {
         on(OnValidatedTransaction.class, cb);
+        return this;
+    }
+
+    public Client onValidationReceived(OnValidationReceived onValidationReceived) {
+        on(OnValidationReceived.class, onValidationReceived);
+        return this;
+    }
+
+    public Client onceValidationReceived(OnValidationReceived onValidationReceived) {
+        once(OnValidationReceived.class, onValidationReceived);
         return this;
     }
 
@@ -552,6 +563,9 @@ public class Client extends Publisher<Client.events> {
                 case path_find:
                     emit(OnPathFind.class, msg);
                     break;
+                case validationReceived:
+                    emit(OnValidationReceived.class, msg);
+                    break;
                 default:
                     unhandledMessage(msg);
                     break;
@@ -811,13 +825,18 @@ public class Client extends Publisher<Client.events> {
     }
 
     // ### Managed Requests API
+    // Can't return the Request object, as a new ones are created on retries
+    public <T> void makeManagedRequest(final Command cmd,
+                                       final Manager<T> manager,
+                                       final Request.Builder<T> builder) {
 
-    public <T> Request makeManagedRequest(final Command cmd, final Manager<T> manager, final Request.Builder<T> builder) {
-        final Request request = newRequest(cmd);
+        // TODO: replace with something sensible; Kotlin ;) ??
         final boolean[] finalized = new boolean[]{false};
+
+        final Request request = newRequest(cmd);
         @SuppressWarnings("CodeBlock2Expr")
-        final OnDisconnected cb = c -> {
-            nowOrWhenConnected((c2) -> {
+        final OnDisconnected cb = __ -> {
+            nowOrWhenConnected((___) -> {
                 if (!finalized[0] && manager.retryOnUnsuccessful(null)) {
                     finalized[0] = true;
                     logRetry(request, "Client disconnected");
@@ -832,6 +851,7 @@ public class Client extends Publisher<Client.events> {
             Client.this.removeListener(OnDisconnected.class, cb);
 
             if (response.succeeded) {
+                // TODO: this could be done in another thread
                 final T t = builder.buildTypedResponse(response);
                 manager.cb(response, t);
             } else {
@@ -844,9 +864,10 @@ public class Client extends Publisher<Client.events> {
         }).onceTimeout(args -> {
             if (!finalized[0] && manager.retryOnUnsuccessful(null)) {
                 finalized[0] = true;
-                boolean cleared = Client.this.removeListener(OnDisconnected.class, cb);;
-                logRetry(request,
-                        "Request timed out, cleared onDisconnected="+cleared);
+                boolean cleared =
+                        Client.this.removeListener(OnDisconnected.class, cb);
+                logRetry(request, "Request timed out, cleared onDisconnected="
+                                + cleared);
                 request.clearAllListeners();
                 queueRetry(50, cmd, manager, builder);
             }
@@ -854,7 +875,6 @@ public class Client extends Publisher<Client.events> {
         builder.beforeRequest(request);
         manager.beforeRequest(request);
         request.request();
-        return request;
     }
 
     private <T> void queueRetry(int ms,

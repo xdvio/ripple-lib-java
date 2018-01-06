@@ -4,6 +4,7 @@ import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.DERSequenceGenerator;
 import org.bouncycastle.asn1.DLSequence;
+import org.bouncycastle.crypto.signers.ECDSASigner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -94,6 +95,18 @@ public class ECDSASignature {
             return true;
         }
 
+    }
+
+    public static ECDSASignature createSignature(byte[] hash, ECDSASigner signer) {
+        BigInteger[] sigs = signer.generateSignature(hash);
+        BigInteger r = sigs[0], s = sigs[1];
+
+        BigInteger otherS = SECP256K1.order().subtract(s);
+        if (s.compareTo(otherS) > 0) {
+            s = otherS;
+        }
+
+        return new ECDSASignature(r, s);
     }
 
     /**

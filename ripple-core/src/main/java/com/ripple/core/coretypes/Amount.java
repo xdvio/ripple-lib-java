@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.Objects;
 
 /**
  * In ripple, amounts are either XRP, the native currency, or an IOU of
@@ -264,9 +265,8 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
                 currencyString().equals(amt.currencyString());
     }
 
-
-
     public int compareTo(Amount amount) {
+        Objects.requireNonNull(amount);
         return value.compareTo(amount.value);
     }
 

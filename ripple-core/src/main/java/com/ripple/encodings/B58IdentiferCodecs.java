@@ -40,11 +40,14 @@ public class B58IdentiferCodecs {
         return encode(bytes, VER_ACCOUNT_ID);
     }
 
+    public byte[] decodeAddress(String address) {
+        return decode(address, VER_ACCOUNT_ID);
+    }
+
     public String encodeNodePublic(byte[] bytes) {
         return encode(bytes, VER_NODE_PUBLIC);
     }
-
-    public byte[] decodeAddress(String address) {
-        return decode(address, VER_ACCOUNT_ID);
+    public byte[] decodeNodePublic(String base58) {
+        return decode(base58, VER_NODE_PUBLIC);
     }
 }

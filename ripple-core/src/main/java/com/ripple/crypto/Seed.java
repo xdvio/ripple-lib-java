@@ -1,13 +1,14 @@
-package com.ripple.crypto.ecdsa;
+package com.ripple.crypto;
 
 import com.ripple.config.Config;
+import com.ripple.crypto.ed25519.EDKeyPair;
+import com.ripple.crypto.ecdsa.K256;
+import com.ripple.crypto.keys.IKeyPair;
 import com.ripple.encodings.B58IdentiferCodecs;
 import com.ripple.encodings.base58.B58;
 import com.ripple.utils.Sha512;
-import com.ripple.utils.Utils;
 
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.util.Arrays;
 
 import static com.ripple.config.Config.getB58IdentiferCodecs;
@@ -16,8 +17,8 @@ public class Seed {
     public static byte[] VER_K256 = new byte[]{(byte) B58IdentiferCodecs.VER_FAMILY_SEED};
     public static byte[] VER_ED25519 = new byte[]{(byte) 0x1, (byte) 0xe1, (byte) 0x4b};
 
-    final byte[] seedBytes;
-    byte[] version;
+    private final byte[] seedBytes;
+    private byte[] version;
 
     public Seed(byte[] seedBytes) {
         this(VER_K256, seedBytes);
@@ -58,7 +59,7 @@ public class Seed {
             if (account != 0) throw new AssertionError();
             return EDKeyPair.from128Seed(seedBytes);
         }  else {
-            return createKeyPair(seedBytes, account);
+            return K256.createKeyPair(seedBytes, account);
         }
 
     }
@@ -80,28 +81,11 @@ public class Seed {
     }
 
     public static IKeyPair createKeyPair(byte[] seedBytes) {
-        return createKeyPair(seedBytes, 0);
-    }
-
-    public static IKeyPair createKeyPair(byte[] seedBytes, int accountNumber) {
-        BigInteger secret, pub, privateGen;
-        // The private generator (aka root private key, master private key)
-        privateGen = K256KeyPair.computePrivateGen(seedBytes);
-        byte[] publicGenBytes = K256KeyPair.computePublicGenerator(privateGen);
-
-        if (accountNumber == -1) {
-            // The root keyPair
-            return new K256KeyPair(privateGen, Utils.uBigInt(publicGenBytes));
-        } else {
-            secret = K256KeyPair.computeSecretKey(privateGen, publicGenBytes, accountNumber);
-            pub = K256KeyPair.computePublicKey(secret);
-            return new K256KeyPair(secret, pub);
-        }
-
+        return K256.createKeyPair(seedBytes, 0);
     }
 
     public static IKeyPair getKeyPair(byte[] seedBytes) {
-        return createKeyPair(seedBytes, 0);
+        return K256.createKeyPair(seedBytes, 0);
     }
 
     public static IKeyPair getKeyPair(String b58) {

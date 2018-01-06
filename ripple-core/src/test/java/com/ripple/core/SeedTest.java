@@ -1,17 +1,11 @@
 package com.ripple.core;
 
 import com.ripple.config.Config;
-import com.ripple.crypto.ecdsa.EDKeyPair;
-import com.ripple.crypto.ecdsa.IKeyPair;
-import com.ripple.crypto.ecdsa.Seed;
+import com.ripple.crypto.ed25519.EDKeyPair;
+import com.ripple.crypto.keys.IKeyPair;
+import com.ripple.crypto.Seed;
 import com.ripple.encodings.B58IdentiferCodecs;
-import com.ripple.encodings.common.B16;
-import net.i2p.crypto.eddsa.math.FieldElement;
-import net.i2p.crypto.eddsa.math.GroupElement;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.Test;
-import org.bouncycastle.util.Arrays;
 
 import static org.junit.Assert.*;
 

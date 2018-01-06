@@ -309,6 +309,8 @@ public enum Field {
 
         TxnSignature.signingField = false;
         Signers.signingField = false;
+        Signature.signingField = false;
+        MasterSignature.signingField = false;
 
         ArrayList<Field> sortedFields;
         Field[] values = Field.values();

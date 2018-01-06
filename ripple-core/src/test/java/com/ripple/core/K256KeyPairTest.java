@@ -1,27 +1,19 @@
 package com.ripple.core;
 
-import com.ripple.crypto.ecdsa.IKeyPair;
+import com.ripple.crypto.ecdsa.K256;
+import com.ripple.crypto.keys.IKeyPair;
 import com.ripple.crypto.ecdsa.K256KeyPair;
-import com.ripple.crypto.ecdsa.SECP256K1;
-import com.ripple.crypto.ecdsa.Seed;
+import com.ripple.crypto.Seed;
 import com.ripple.encodings.common.B16;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.ripple.utils.Utils;
 import org.junit.Test;
-import org.bouncycastle.crypto.digests.SHA256Digest;
-import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
 import org.bouncycastle.util.encoders.Hex;
-
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class K256KeyPairTest {
-    K256KeyPair keyPair = (K256KeyPair) Seed.createKeyPair(
+    K256KeyPair keyPair = (K256KeyPair) K256.createKeyPair(
                     TestFixtures.master_seed_bytes, 0);
 
     @Test
@@ -147,14 +139,14 @@ public class K256KeyPairTest {
 
     @Test
     public void testDerivationFromSeedBytes() {
-        assertEquals("0330E7FC9D56BB25D6893BA3F317AE5BCF33B3291BD63DB32654A313222F7FD020", keyPair.canonicalPubHex());
-        assertEquals("1ACAAEDECE405B2A958212629E16F2EB46B153EEE94CDD350FDEFF52795525B7", keyPair.privHex());
+        assertEquals("0330E7FC9D56BB25D6893BA3F317AE5BCF33B3291BD63DB32654A313222F7FD020", B16.encode(keyPair.canonicalPubBytes()));
+        assertEquals("1ACAAEDECE405B2A958212629E16F2EB46B153EEE94CDD350FDEFF52795525B7", Utils.bigHex(keyPair.privateKey()));
     }
 
     @Test
     public void testDerivationFromString() {
         IKeyPair keyPairFromSeed = Seed.getKeyPair(TestFixtures.master_seed);
-        assertEquals("0330E7FC9D56BB25D6893BA3F317AE5BCF33B3291BD63DB32654A313222F7FD020", keyPairFromSeed.canonicalPubHex());
-        assertEquals("1ACAAEDECE405B2A958212629E16F2EB46B153EEE94CDD350FDEFF52795525B7", keyPairFromSeed.privHex());
+        assertEquals("0330E7FC9D56BB25D6893BA3F317AE5BCF33B3291BD63DB32654A313222F7FD020", B16.encode(keyPairFromSeed.canonicalPubBytes()));
+        assertEquals("1ACAAEDECE405B2A958212629E16F2EB46B153EEE94CDD350FDEFF52795525B7", Utils.bigHex(keyPairFromSeed.privateKey()));
     }
 }

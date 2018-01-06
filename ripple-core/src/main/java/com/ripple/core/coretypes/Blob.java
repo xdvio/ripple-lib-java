@@ -47,6 +47,10 @@ public class Blob implements SerializedType {
         return new Blob(bytes);
     }
 
+    public static Blob fromHex(String hex) {
+        return fromBytes(B16.decode(hex));
+    }
+
     public static class Translator extends TypeTranslator<Blob> {
         @Override
         public Blob fromParser(BinaryParser parser, Integer hint) {

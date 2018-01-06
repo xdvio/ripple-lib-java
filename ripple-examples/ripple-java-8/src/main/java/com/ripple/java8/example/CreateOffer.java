@@ -8,7 +8,7 @@ import com.ripple.client.transport.impl.JavaWebSocketTransportImpl;
 import com.ripple.core.coretypes.Amount;
 import com.ripple.core.types.known.tx.result.TransactionResult;
 import com.ripple.core.types.known.tx.txns.OfferCreate;
-import com.ripple.crypto.ecdsa.Seed;
+import com.ripple.crypto.Seed;
 import com.ripple.java8.utils.Func;
 
 import static com.ripple.java8.utils.Print.print;

@@ -10,7 +10,7 @@ import com.ripple.client.transport.impl.JavaWebSocketTransportImpl;
 import com.ripple.core.coretypes.AccountID;
 import com.ripple.core.coretypes.Currency;
 import com.ripple.core.coretypes.uint.UInt32;
-import com.ripple.crypto.ecdsa.Seed;
+import com.ripple.crypto.Seed;
 import com.ripple.java8.utils.Func;
 
 import java.math.BigDecimal;

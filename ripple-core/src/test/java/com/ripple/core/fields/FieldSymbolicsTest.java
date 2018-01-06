@@ -141,10 +141,6 @@ public class FieldSymbolicsTest {
                                 + name);
             }
 
-            if (name.isEmpty()) {
-                throw new IllegalStateException("name is empty");
-            }
-
             if (!name.isEmpty()) {
                 try {
                     LedgerEntryType.valueOf(name);
@@ -156,6 +152,11 @@ public class FieldSymbolicsTest {
                 assertNotNull(format);
                 checkFormat(entryJson, format);
             }
+
+            if (name.isEmpty()) {
+                throw new IllegalStateException("name is empty");
+            }
+
         }
     }
 
@@ -169,6 +170,13 @@ public class FieldSymbolicsTest {
                 try {
                     Field f = Field.valueOf(fieldJson.getString("name"));
                     Type t = Type.valueOf(fieldJson.getString("type"));
+                    assertEquals(fieldJson.toString(2),
+                            f.isSigningField(),
+                            fieldJson.getBoolean("isSigningField"));
+                    assertEquals(
+                            fieldJson.toString(2),
+                            f.isSerialized(),
+                            fieldJson.getBoolean("isBinary"));
                     assertEquals(fieldJson.toString(2), f.type.id, t.id);
                     assertEquals(fieldJson.toString(2), f.id, fieldJson
                             .getInt("ordinal"));
@@ -178,7 +186,9 @@ public class FieldSymbolicsTest {
                 }
             }
         }
+
         for (Field field : Field.values()) {
+            // We have extra fields declared here
             if (field.isSerialized() && !names.contains(field.name())) {
                 if (!((field == Field.ArrayEndMarker) ||
                         (field == Field.ObjectEndMarker)))

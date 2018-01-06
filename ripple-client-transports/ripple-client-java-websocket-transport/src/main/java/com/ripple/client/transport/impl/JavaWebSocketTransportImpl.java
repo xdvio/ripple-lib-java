@@ -10,7 +10,6 @@ import org.json.JSONObject;
 import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

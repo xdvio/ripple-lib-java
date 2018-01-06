@@ -5,7 +5,7 @@ import com.ripple.client.pubsub.Publisher;
 import com.ripple.client.subscriptions.TrackedAccountRoot;
 import com.ripple.client.transactions.TransactionManager;
 import com.ripple.core.coretypes.AccountID;
-import com.ripple.crypto.ecdsa.IKeyPair;
+import com.ripple.crypto.keys.IKeyPair;
 
 /*
  *

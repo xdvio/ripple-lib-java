@@ -16,7 +16,7 @@ import com.ripple.core.serialized.enums.EngineResult;
 import com.ripple.core.types.known.tx.Transaction;
 import com.ripple.core.types.known.tx.result.TransactionResult;
 import com.ripple.core.types.known.tx.txns.AccountSet;
-import com.ripple.crypto.ecdsa.IKeyPair;
+import com.ripple.crypto.keys.IKeyPair;
 
 import java.util.*;
 

@@ -2,9 +2,11 @@ package com.ripple.core.coretypes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.ripple.core.coretypes.hash.HalfSha512;
 import com.ripple.core.coretypes.hash.Hash128;
 import com.ripple.core.coretypes.hash.Hash160;
 import com.ripple.core.coretypes.hash.Hash256;
+import com.ripple.core.coretypes.hash.prefixes.HashPrefix;
 import com.ripple.core.coretypes.uint.UInt16;
 import com.ripple.core.coretypes.uint.UInt32;
 import com.ripple.core.coretypes.uint.UInt64;
@@ -139,7 +141,20 @@ public class STObject implements SerializedType, Iterable<Field> {
         return fields.get(field);
     }
 
-    public static EngineResult engineResult(STObject obj) {
+    protected Hash256 signingHash(HashPrefix txSign) {
+        HalfSha512 signing = HalfSha512.prefixed256(txSign);
+        toBytesSink(signing, Field::isSigningField);
+        return signing.finish();
+    }
+
+    protected byte[] signingData(HashPrefix txSign) {
+        BytesList bl = new BytesList();
+        bl.add(txSign.bytes);
+        toBytesSink(bl, Field::isSigningField);
+        return bl.bytes();
+    }
+
+    protected static EngineResult engineResult(STObject obj) {
         return (EngineResult) obj.get(Field.TransactionResult);
     }
 

@@ -10,11 +10,10 @@ import com.ripple.core.fields.Type;
 import com.ripple.core.serialized.BinaryParser;
 import com.ripple.core.serialized.BytesSink;
 import com.ripple.core.serialized.TypeTranslator;
-import com.ripple.crypto.ecdsa.IKeyPair;
-import com.ripple.crypto.ecdsa.Seed;
+import com.ripple.crypto.keys.IKeyPair;
+import com.ripple.crypto.Seed;
 import com.ripple.encodings.common.B16;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -70,7 +69,7 @@ public class AccountID extends Hash160 {
     }
 
     public static AccountID fromKeyPair(IKeyPair kp) {
-        byte[] bytes = kp.pub160Hash();
+        byte[] bytes = kp.id();
         return new AccountID(bytes, encodeAddress(bytes));
     }
 

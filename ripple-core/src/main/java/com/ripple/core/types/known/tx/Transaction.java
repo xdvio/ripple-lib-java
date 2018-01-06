@@ -12,10 +12,10 @@ import com.ripple.core.coretypes.uint.UInt32;
 import com.ripple.core.enums.TransactionFlag;
 import com.ripple.core.fields.Field;
 import com.ripple.core.formats.TxFormat;
-import com.ripple.core.serialized.BytesList;
 import com.ripple.core.serialized.enums.TransactionType;
 import com.ripple.core.types.known.tx.signed.SignedTransaction;
-import com.ripple.crypto.ecdsa.IKeyPair;
+import com.ripple.crypto.keys.IKeyPair;
+import com.ripple.crypto.keys.IVerifyingKey;
 import com.ripple.utils.HashUtils;
 
 public class Transaction extends STObject {
@@ -44,16 +44,23 @@ public class Transaction extends STObject {
     }
 
     public Hash256 signingHash() {
-        HalfSha512 signing = HalfSha512.prefixed256(HashPrefix.txSign);
-        toBytesSink(signing, Field::isSigningField);
-        return signing.finish();
+        return signingHash(HashPrefix.txSign);
     }
 
     public byte[] signingData() {
-        BytesList bl = new BytesList();
-        bl.add(HashPrefix.txSign.bytes);
-        toBytesSink(bl, Field::isSigningField);
-        return bl.bytes();
+        return signingData(HashPrefix.txSign);
+    }
+
+    public boolean verifySignature(AccountID key) {
+        Blob pubKey = signingPubKey();
+        return IVerifyingKey.from(pubKey.toBytes())
+                .verify(signingData(),
+                        txnSignature().toBytes()) &&
+                    signingKey().equals(key);
+    }
+
+    public boolean verifyMasterKeySignature() {
+        return verifySignature(account());
     }
 
     public void setCanonicalSignatureFlag() {
@@ -101,6 +108,7 @@ public class Transaction extends STObject {
     }
 
     public AccountID signingKey() {
+        // May be a regular Key
         byte[] pubKey = HashUtils.SHA256_RIPEMD160(signingPubKey().toBytes());
         return AccountID.fromAddressBytes(pubKey);
     }

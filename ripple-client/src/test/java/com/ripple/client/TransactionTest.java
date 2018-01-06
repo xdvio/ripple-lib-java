@@ -3,9 +3,14 @@ package com.ripple.client;
 
 import com.ripple.core.coretypes.AccountID;
 import com.ripple.core.coretypes.Amount;
+import com.ripple.core.coretypes.Blob;
 import com.ripple.core.coretypes.uint.UInt32;
+import com.ripple.core.types.known.tx.signed.SignedTransaction;
 import com.ripple.core.types.known.tx.txns.Payment;
 import org.junit.Test;
+
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
 
 public class TransactionTest {
 
@@ -21,6 +26,10 @@ public class TransactionTest {
         payment.as(Amount.Fee,            "10000");
         payment.as(UInt32.Sequence,       10);
 
-        payment.sign(secret);
+        SignedTransaction sign = payment.sign(secret);
+        assertTrue(sign.txn.verifySignature(payment.account()));
+
+        AccountID someOtherKey = AccountID.fromPassPhrase("A1");
+        assertFalse(sign.txn.verifySignature(someOtherKey));
     }
 }
