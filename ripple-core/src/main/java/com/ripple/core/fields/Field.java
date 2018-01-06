@@ -132,6 +132,7 @@ public enum Field {
     RegularKey(8, Type.AccountID),
 
     ObjectEndMarker(1, Type.STObject),
+
     TransactionMetaData(2, Type.STObject),
     CreatedNode(3, Type.STObject),
     DeletedNode(4, Type.STObject),
@@ -196,7 +197,7 @@ public enum Field {
 
     public static byte[] asBytes(Field field) {
         int name = field.getId(), type = field.getType().getId();
-        ArrayList<Byte> header = new ArrayList<Byte>(3);
+        ArrayList<Byte> header = new ArrayList<>(3);
 
         if (type < 16)
         {
@@ -252,11 +253,11 @@ public enum Field {
         isSerialized = isSerialized(this);
     }
 
-    static private HashMap<Integer, Field> byCode = new HashMap<Integer, Field>();
+    static private HashMap<Integer, Field> byCode = new HashMap<>();
 
     public static Iterator<Field> sorted(Collection<Field> fields) {
-        ArrayList<Field> fieldList = new ArrayList<Field>(fields);
-        Collections.sort(fieldList, comparator);
+        ArrayList<Field> fieldList = new ArrayList<>(fields);
+        fieldList.sort(comparator);
         return fieldList.iterator();
     }
 
@@ -282,12 +283,7 @@ public enum Field {
         return ((f.type.id > 0) && (f.type.id < 256) && (f.id > 0) && (f.id < 256));
     }
 
-    static public Comparator<Field> comparator = new Comparator<Field>() {
-        @Override
-        public int compare(Field o1, Field o2) {
-            return o1.code - o2.code;
-        }
-    };
+    static public Comparator<Field> comparator = Comparator.comparingInt(o -> o.code);
 
     static {
         for (Field f : Field.values()) {
@@ -314,14 +310,15 @@ public enum Field {
 
         ArrayList<Field> sortedFields;
         Field[] values = Field.values();
-        sortedFields = new ArrayList<Field>(Arrays.asList(values));
-        Collections.sort(sortedFields, comparator);
+        sortedFields = new ArrayList<>(Arrays.asList(values));
+        sortedFields.sort(comparator);
 
         for (int i = 0; i < values.length; i++) {
             Field av = values[i];
             Field lv = sortedFields.get(i);
             if (av.code != lv.code) {
-                throw new RuntimeException("Field enum declaration isn't presorted");
+                throw new AssertionError(
+                        "Field enum declaration isn't presorted");
             }
         }
     }
