@@ -4,16 +4,35 @@ import com.ripple.core.coretypes.hash.Hash256;
 import com.ripple.core.serialized.BinarySerializer;
 import com.ripple.core.serialized.BytesSink;
 import com.ripple.core.serialized.SerializedType;
+import com.ripple.core.serialized.StreamSink;
 import com.ripple.core.types.known.sle.LedgerEntry;
 import com.ripple.core.types.known.tx.result.TransactionResult;
 
-public class STWriter implements BytesSink {
+import java.io.*;
+
+public class STWriter implements BytesSink, Closeable {
     BytesSink sink;
     BinarySerializer serializer;
     public STWriter(BytesSink bytesSink) {
         serializer = new BinarySerializer(bytesSink);
         sink = bytesSink;
     }
+
+    private FileOutputStream stream;
+    private STWriter(BytesSink sink, FileOutputStream stream) {
+        this(sink);
+        this.stream = stream;
+    }
+
+    public static STWriter toFile(String path) {
+        try {
+            FileOutputStream stream = new FileOutputStream(path);
+            return new STWriter(new StreamSink(stream), stream);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void write(SerializedType obj) {
         obj.toBytesSink(sink);
     }
@@ -40,5 +59,12 @@ public class STWriter implements BytesSink {
     public void write(Hash256 hash256, LedgerEntry le) {
         write(hash256);
         writeVl(le);
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (this.stream != null) {
+            this.stream.close();
+        }
     }
 }
