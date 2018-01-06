@@ -1,6 +1,7 @@
 package com.ripple.client.subscriptions.ledger;
 
 import com.ripple.client.Client;
+import com.ripple.client.pubsub.Publisher;
 import com.ripple.client.subscriptions.SubscriptionManager;
 import com.ripple.client.subscriptions.TransactionSubscriptionManager;
 import com.ripple.core.types.known.tx.result.TransactionResult;
@@ -12,6 +13,7 @@ import java.util.logging.Logger;
  * Takes care of dropouts when subscribing to a ledger.
  */
 public class LedgerSubscriber implements TransactionSubscriptionManager {
+
     public static final Logger logger = Logger.getLogger(LedgerSubscriber.class.getName());
     private static final long MAX_GAP_LEDGERS_FILLED_PER_CLOSE = 5;
 
@@ -44,9 +46,7 @@ public class LedgerSubscriber implements TransactionSubscriptionManager {
 
             PendingLedger ledger = ledgers.getOrAddLedger(ledger_index);
             ledger.expectedTxns = serverInfo.txn_count;
-
             ledgers.trackMissingLedgersInClearedLedgerHistory();
-
 
             for (Long stalledOrGapLedger : ledgers.pendingLedgerIndexes()) {
                 PendingLedger stalled = ledgers.getOrAddLedger(stalledOrGapLedger);

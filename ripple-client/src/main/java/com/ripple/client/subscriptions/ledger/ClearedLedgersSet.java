@@ -4,7 +4,7 @@ import java.util.TreeSet;
 
 public class ClearedLedgersSet {
     public static boolean DEBUG = true;
-    long lastCleared =-1, firstCleared =-1;
+    private long lastCleared =-1, firstCleared =-1;
 
     public TreeSet<Long> cleared() {
         return clearedLedgers;
@@ -14,8 +14,8 @@ public class ClearedLedgersSet {
         return clearedLedgers.size();
     }
 
-    TreeSet<Long> clearedLedgers = new TreeSet<Long>();
-    TreeSet<Long> clearedLedgersNeverCleared = new TreeSet<Long>();
+    private TreeSet<Long> clearedLedgers = new TreeSet<Long>();
+    private TreeSet<Long> clearedLedgersNeverCleared = new TreeSet<Long>();
 
     public void clear(long ledger_index) {
         if (DEBUG) clearedLedgersNeverCleared.add(ledger_index);

@@ -2,8 +2,10 @@ package com.ripple.client.subscriptions.ledger;
 
 import com.ripple.client.Client;
 import com.ripple.client.enums.Command;
+import com.ripple.client.pubsub.Publisher;
 import com.ripple.client.requests.Request;
 import com.ripple.client.responses.Response;
+import com.ripple.core.coretypes.hash.Hash256;
 import com.ripple.core.serialized.BinaryParser;
 import com.ripple.core.types.known.tx.result.TransactionResult;
 import com.ripple.core.types.ledger.LedgerHeader;
@@ -17,7 +19,11 @@ import java.util.stream.Collector;
 
 import static com.ripple.client.pubsub.Publisher.Callback;
 
-public class PendingLedgers {
+public class PendingLedgers  extends Publisher<PendingLedgers.events>
+{
+    public interface events<T> extends Publisher.Callback<T> {}
+    public interface OnLedgerClosed extends Publisher.Callback<ClosedLedger> {}
+
     private Client client;
     private TreeMap<Long, PendingLedger> ledgers = new TreeMap<Long, PendingLedger>();
     private ClearedLedgersSet clearedLedgers = new ClearedLedgersSet();
@@ -73,9 +79,10 @@ public class PendingLedgers {
         client.requestLedger(ledger_index, new Request.Manager<JSONObject>() {
             @Override
             public void beforeRequest(Request r) {
+                r.json("binary", true);
+
                 if (!onlyHeader) {
                     r.json("transactions", true);
-                    r.json("binary", true);
                     r.json("expand", true);
                 }
             }
@@ -98,8 +105,11 @@ public class PendingLedgers {
 
         requestLedger(ledger_index, true, response -> {
             JSONObject ledgerJSON = response.result.getJSONObject("ledger");
-            final String transaction_hash = ledgerJSON.getString("transaction_hash");
-            boolean correctHash = ledger.transactionHashEquals(transaction_hash);
+            ledger.header = LedgerHeader.fromHex(
+                    ledgerJSON.getString("ledger_data"));
+            final Hash256 transaction_hash = ledger.header.transactionHash;
+            boolean correctHash = ledger.transactions.hash()
+                    .equals(transaction_hash);
             // TODO: set expectedTxns
             if (correctHash) {
                 clearLedger(ledger_index, "checkHeader");

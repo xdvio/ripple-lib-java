@@ -2,6 +2,7 @@ package com.ripple.client.subscriptions.ledger;
 
 import com.ripple.client.Client;
 import com.ripple.core.types.known.tx.result.TransactionResult;
+import com.ripple.core.types.ledger.LedgerHeader;
 import com.ripple.core.types.shamap.TransactionTree;
 
 import java.text.MessageFormat;
@@ -24,7 +25,7 @@ public class PendingLedger {
         logStateChange();
     }
 
-    public static enum Status {
+    public enum Status {
         pending,
         checkingHeader,
         fillingIn,
@@ -37,6 +38,7 @@ public class PendingLedger {
 
     public Status status;
     TransactionTree transactions;
+    LedgerHeader header;
     // set to -1 when we don't know how many to expect
     // this is just useful for debugging purposes
     int expectedTxns = -1;

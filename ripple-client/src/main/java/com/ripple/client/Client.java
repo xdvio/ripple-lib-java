@@ -424,6 +424,8 @@ public class Client extends Publisher<Client.events> {
                     onConnected.called(Client.this);
                 });
             } else {
+                // TODO: run ?
+                // need an annotation ...
                 onConnected.called(this);
             }
         }  else {
@@ -452,7 +454,7 @@ public class Client extends Publisher<Client.events> {
     public void run(Runnable runnable) {
         // What if we are already in the client thread?? What happens then ?
         if (runningOnClientThread()) {
-            runnable.run();
+            errorHandling(runnable).run();
         } else {
             service.submit(errorHandling(runnable));
         }
@@ -812,17 +814,21 @@ public class Client extends Publisher<Client.events> {
 
     public <T> Request makeManagedRequest(final Command cmd, final Manager<T> manager, final Request.Builder<T> builder) {
         final Request request = newRequest(cmd);
-        final boolean[] responded = new boolean[]{false};
-        final OnDisconnected cb = c -> nowOrWhenConnected((c2) -> {
-            if (!responded[0] && manager.retryOnUnsuccessful(null)) {
-                logRetry(request, "Client disconnected");
-                request.clearAllListeners();
-                queueRetry(50, cmd, manager, builder);
-            }
-        });
+        final boolean[] finalized = new boolean[]{false};
+        @SuppressWarnings("CodeBlock2Expr")
+        final OnDisconnected cb = c -> {
+            nowOrWhenConnected((c2) -> {
+                if (!finalized[0] && manager.retryOnUnsuccessful(null)) {
+                    finalized[0] = true;
+                    logRetry(request, "Client disconnected");
+                    request.clearAllListeners();
+                    queueRetry(50, cmd, manager, builder);
+                }
+            });
+        };
         onceDisconnected(cb);
         request.onceResponse(response -> {
-            responded[0] = true;
+            finalized[0] = true;
             Client.this.removeListener(OnDisconnected.class, cb);
 
             if (response.succeeded) {
@@ -836,8 +842,11 @@ public class Client extends Publisher<Client.events> {
                 }
             }
         }).onceTimeout(args -> {
-            if (!responded[0] && manager.retryOnUnsuccessful(null)) {
-                logRetry(request, "Request timed out");
+            if (!finalized[0] && manager.retryOnUnsuccessful(null)) {
+                finalized[0] = true;
+                boolean cleared = Client.this.removeListener(OnDisconnected.class, cb);;
+                logRetry(request,
+                        "Request timed out, cleared onDisconnected="+cleared);
                 request.clearAllListeners();
                 queueRetry(50, cmd, manager, builder);
             }
