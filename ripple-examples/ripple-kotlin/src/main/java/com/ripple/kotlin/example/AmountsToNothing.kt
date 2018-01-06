@@ -9,7 +9,7 @@ private fun amounts(vararg amounts: String) =
         amounts.map(Amount::fromIOUString)
 
 private fun claim(c: Boolean, that:String = "all", willBe: Boolean=true) =
-        if (c != willBe) throw AssertionError()
+        if (c != willBe) throw AssertionError("$that != $willBe")
         else println("$that == $willBe OK")
 
 object AmountsToNothing {
@@ -19,8 +19,9 @@ object AmountsToNothing {
         val a3 = a1 + a2
 
         // Translated to `a.compareTo(b) < 0`
-        claim(a1 < a3, "a1 < a2")
-        claim(a3 < a1, "a2 < a1", false)
+        claim(a1 < a2, "a1 < a2")
+        claim(a3.toLong() == 4L, "a3 = 4")
+        claim(a3 < a1, "a3 < a1", false)
         // Really, it AmountsToNothing!
         claim((-a3 + a3).isZero, "-a3 + a3 = 0")
     }
