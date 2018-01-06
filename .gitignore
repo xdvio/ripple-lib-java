@@ -54,11 +54,8 @@ build/
 # gradle folder
 .gradle
 local.properties
-*/out
+out/
 *.bin
 *.bin.xz
 
-
-ripple-examples/ripple-java-8/src/main/java/com/ripple/java8/example/DumpLedger.java
-ripple-examples/ripple-java-8/src/main/java/com/ripple/java8/example/GetTx.java
-ripple-examples/ripple-java-8/src/main/java/com/ripple/java8/example/RebuildLatest.java
+privatestash/

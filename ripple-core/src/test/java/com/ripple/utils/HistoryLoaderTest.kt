@@ -36,6 +36,7 @@ class HistoryLoaderTest {
             if (stateBuilder == null) {
                 stateBuilder = AccountStateBuilder(state.copy(),
                                         header.sequence.toLong())
+                stateBuilder!!.sortedDirectories = false
             } else {
                 val builder = stateBuilder!!
                 // Add them in order, TransactionResult's are sortable
