@@ -21,6 +21,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.json.JSONWriter;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -290,43 +291,51 @@ public class AccountState extends ShaMap {
         return (AccountState) super.copy();
     }
 
-    public static AccountState loadFromLedgerDump(String filePath) throws IOException {
-        FileReader reader = new FileReader(filePath);
-        return loadFromLedgerDump(reader);
+    public static AccountState loadFromLedgerDump(String filePath) {
+        try {
+            FileReader reader = new FileReader(filePath);
+            return loadFromLedgerDump(reader);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static AccountState loadFromLedgerDump(Reader reader) throws IOException {
-        JsonFactory jsonFactory = new JsonFactory();
-        JsonParser parser = jsonFactory.createParser(reader);
-        JsonToken jsonToken = parser.nextToken();
-        if (jsonToken != JsonToken.START_OBJECT) {
-            throw new AssertionError();
-        }
-
-        String accountState = "accountState";
-
-        // TODO:
-        while (parser.nextToken() != null) {
-            String currentName = parser.getCurrentName();
-            if (currentName.equals(accountState)) {
-                break;
+    public static AccountState loadFromLedgerDump(Reader reader) {
+        try {
+            JsonFactory jsonFactory = new JsonFactory();
+            JsonParser parser = jsonFactory.createParser(reader);
+            JsonToken jsonToken = parser.nextToken();
+            if (jsonToken != JsonToken.START_OBJECT) {
+                throw new AssertionError();
             }
-        }
 
-        if (!parser.getCurrentName().equals("accountState")) {
-            throw new IllegalStateException("No `accountState` field found!");
-        }
+            String accountState = "accountState";
 
-        AccountState state = new AccountState();
-        ObjectMapper mapper = new ObjectMapper();
-        if (parser.nextToken() != JsonToken.START_ARRAY) {
-            throw new AssertionError();
-        }
+            // TODO:
+            while (parser.nextToken() != null) {
+                String currentName = parser.getCurrentName();
+                if (currentName.equals(accountState)) {
+                    break;
+                }
+            }
 
-        while (parser.nextToken() != JsonToken.END_ARRAY) {
-            TreeNode treeNode = mapper.readTree(parser);
-            state.addLE((LedgerEntry) STObject.fromJacksonObject((ObjectNode) treeNode));
+            if (!parser.getCurrentName().equals("accountState")) {
+                throw new IllegalStateException("No `accountState` field found!");
+            }
+
+            AccountState state = new AccountState();
+            ObjectMapper mapper = new ObjectMapper();
+            if (parser.nextToken() != JsonToken.START_ARRAY) {
+                throw new AssertionError();
+            }
+
+            while (parser.nextToken() != JsonToken.END_ARRAY) {
+                TreeNode treeNode = mapper.readTree(parser);
+                state.addLE((LedgerEntry) STObject.fromJacksonObject((ObjectNode) treeNode));
+            }
+            return state;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return state;
     }
 }

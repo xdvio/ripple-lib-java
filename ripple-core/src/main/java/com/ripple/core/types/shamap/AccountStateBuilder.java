@@ -4,9 +4,7 @@ import com.ripple.core.coretypes.hash.Hash256;
 import com.ripple.core.fields.Field;
 import com.ripple.core.types.known.sle.LedgerEntry;
 import com.ripple.core.types.known.sle.ThreadedLedgerEntry;
-import com.ripple.core.types.known.sle.entries.DirectoryNode;
-import com.ripple.core.types.known.sle.entries.Offer;
-import com.ripple.core.types.known.sle.entries.RippleState;
+import com.ripple.core.types.known.sle.entries.*;
 import com.ripple.core.types.known.tx.result.AffectedNode;
 import com.ripple.core.types.known.tx.result.TransactionResult;
 
@@ -24,6 +22,8 @@ public class AccountStateBuilder {
     private TreeSet<Hash256> directoriesModifiedByTransaction = new TreeSet<>();
     public TreeSet<Hash256> ledgerModifiedEntries = new TreeSet<>();
     public TreeSet<Hash256> ledgerDeletedEntries = new TreeSet<>();
+
+    public boolean sortedDirectories = true;
 
     public void resetModified() {
         ledgerModifiedEntries.clear();
@@ -49,6 +49,7 @@ public class AccountStateBuilder {
     }
 
     public void onTransaction(TransactionResult tr) {
+        System.out.println("adding tx: " + tr.hash);
         if (tr.meta.transactionIndex().longValue() != nextTransactionIndex) throw new AssertionError();
         if (tr.ledgerIndex.longValue() != targetLedgerIndex + 1) throw new AssertionError(String.format("%d != %d", tr.ledgerIndex.longValue(), targetLedgerIndex + 1));
         nextTransactionIndex++;
@@ -81,6 +82,15 @@ public class AccountStateBuilder {
                         addToDirectoryNode(dn, state.index());
                     }
                 }
+
+                if (le instanceof IndexedLedgerEntry) {
+                    IndexedLedgerEntry owned = (IndexedLedgerEntry) le;
+                    for (Hash256 directory : owned.ownerDirectoryIndexes(tr.txn)) {
+                        DirectoryNode dn = getDirectoryForUpdating(directory);
+                        addToDirectoryNode(dn, owned.index());
+                    }
+                }
+
                 if (le instanceof ThreadedLedgerEntry) {
                     ThreadedLedgerEntry tle = (ThreadedLedgerEntry) le;
                     tle.previousTxnID(tr.hash);
@@ -94,31 +104,29 @@ public class AccountStateBuilder {
                 if (le instanceof Offer) {
                     Offer offer = (Offer) le;
                     for (Hash256 directory : offer.directoryIndexes()) {
-                        try {
-                            DirectoryNode dn = getDirectoryForUpdating(directory);
-                            if (dn != null) {
+                        DirectoryNode dn = getDirectoryForUpdating(directory);
+                        if (dn != null) {
 //                                Hash256 index = offer.index();
-                                if (dn.owner() != null) {
-                                    deleteFromDirectoryUnstable(offer, dn);
-                                } else {
-                                    deleteFromDirectoryStable(offer, dn);
-                                }
+                            if (dn.owner() != null) {
+                                deleteFromDirectoryUnstable(offer, dn);
+                            } else {
+                                deleteFromDirectoryStable(offer, dn);
                             }
-                        } catch (Exception e) {
-                            //
                         }
                     }
                 } else if (le instanceof RippleState) {
                     RippleState state = (RippleState) le;
                     for (Hash256 directory : state.directoryIndexes()) {
-                        try {
-                            DirectoryNode dn = getDirectoryForUpdating(directory);
-                            if (dn != null) {
-                                deleteFromDirectoryUnstable(le, dn);
-                            }
-                        } catch (Exception e) {
-                            //
+                        DirectoryNode dn = getDirectoryForUpdating(directory);
+                        if (dn != null) {
+                            deleteFromDirectoryUnstable(le, dn);
                         }
+                    }
+                } else if (le instanceof IndexedLedgerEntry) {
+                    IndexedLedgerEntry owned = (IndexedLedgerEntry) le;
+                    for (Hash256 directory : owned.ownerDirectoryIndexes(tr.txn)) {
+                        DirectoryNode dn = getDirectoryForUpdating(directory);
+                        deleteFromDirectoryUnstable(le, dn);
                     }
                 }
             } else if (an.isModifiedNode()) {
@@ -138,6 +146,13 @@ public class AccountStateBuilder {
                     }
                     leModded.put(field, le.get(field));
                 }
+                ArrayList<Field> removed = new ArrayList<>();
+                for (Field field : leModded) {
+                    if (an.removedField(field)) {
+                        removed.add(field);
+                    }
+                }
+                removed.forEach(leModded::remove);
             }
         }
     }
@@ -201,20 +216,24 @@ public class AccountStateBuilder {
     }
     private ArrayList<AffectedNode> sortedAffectedNodes(TransactionResult tr) {
         ArrayList<AffectedNode> sorted = new ArrayList<>(makeCollection(tr.meta.affectedNodes()));
-        sorted.sort(Comparator.comparingInt(this::ord));
+        sorted.sort(Comparator.comparingInt(this::getOrdinal));
         return sorted;
     }
 
-    private int ord(AffectedNode o1) {
+    private int getOrdinal(AffectedNode o1) {
         switch (o1.ledgerEntryType()) {
             case DirectoryNode:
-                return 1;
+                return 10;
             case RippleState:
-                return 2;
+                return 20;
             case Offer:
-                return 3;
+                return 30;
+            case Escrow:
+            case SignerList:
+            case PayChannel:
+                return 21;
             default:
-                return 4;
+                return 40;
         }
     }
 
@@ -233,11 +252,22 @@ public class AccountStateBuilder {
     }
     private boolean directoryRemoveUnstable(DirectoryNode dn, Hash256 index) {
         onDirectoryModified(dn);
-        return dn.indexes().removeUnstable(index);
+        if (sortedDirectories) {
+            return dn.indexes().remove(index);
+        } else {
+            return dn.indexes().removeUnstable(index);
+        }
     }
     private void addToDirectoryNode(DirectoryNode dn, Hash256 index) {
         onDirectoryModified(dn);
-        dn.indexes().add(index);
+        if (dn.exchangeRate() != null) {
+            dn.indexes().add(index);
+        } else {
+            dn.indexes().add(index);
+            if (sortedDirectories) {
+                Collections.sort(dn.indexes());
+            }
+        }
     }
     private DirectoryNode getDirectoryForUpdating(Hash256 directoryIndex) {
         ShaMapLeaf leaf = state.getLeafForUpdating(directoryIndex);

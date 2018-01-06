@@ -23,6 +23,7 @@ public class UInt64 extends UInt<UInt64> {
         }
     };
 
+
     public UInt64(byte[] bytes) {
         super(bytes);
     }
@@ -72,6 +73,7 @@ public class UInt64 extends UInt<UInt64> {
     static public UInt64Field ExchangeRate = int64Field(Field.ExchangeRate);
     static public UInt64Field LowNode = int64Field(Field.LowNode);
     static public UInt64Field HighNode = int64Field(Field.HighNode);
+    public static UInt64Field DestinationNode = int64Field(Field.DestinationNode);
 
     @Override
     public Object toJSON() {

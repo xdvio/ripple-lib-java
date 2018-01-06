@@ -90,6 +90,9 @@ public class STObjectFormatter {
     private static STObject ledgerFormatted(STObject source, LedgerEntryType ledgerEntryType) {
         STObject constructed = null;
         switch (ledgerEntryType) {
+            case Escrow:
+                constructed = new Escrow();
+                break;
             case Offer:
                 constructed = new Offer();
                 break;
@@ -112,6 +115,14 @@ public class STObjectFormatter {
             case Amendments:
                 break;
             case FeeSettings:
+                break;
+            case Ticket:
+                break;
+            case SignerList:
+                constructed = new SignerList();
+                break;
+            case PayChannel:
+                constructed = new PayChannel();
                 break;
         }
         if (constructed == null) {
