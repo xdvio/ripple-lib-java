@@ -3,19 +3,24 @@ The Ripple Java Library [![CircleCI](https://circleci.com/gh/sublimator/ripple-l
 
 # THIS LIBRARY HAS NOT BEEN USED IN PRODUCTION FOR PROCESSING REAL MONEY. DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING.
 
-Java version of ripple-lib (alpha work in progress)
+Yes, `ripple-lib-java` is Java code for working with... ripple.
 
-Currently looking for java/android developers to help evolve this library/api.
+I (@sublimator) wrote this haphazardly over the years while working at ripple,
+firstly as a weekend project to learn the protocol, and given my acquaintance,
+it was my goto tool when processing millions of old transactions, looking for
+transactions that violated implicit invariants. The nodejs ripple-lib has very
+slow binary support, and no out of the box threading.
 
-Please open an issue with any questions/suggestions.
+The Java client is crude, and the async model used is basically a port of nodejs
+EventEmitter, with `on(key, callback)` handlers, and keeping to a single thread.
+It is not very a nice API, and could do with modernizing to use RxJava etc.
 
-The goal for this is to be an implementation of ripple-types, binary
-serialization, with a websocket library agnostic implementation of a client,
-which will track changes to accounts balances/offers/trusts, that can be used as
-the basis for various clients/wallets.
+Likewise, the Transaction/LedgerEntry objects are merely wrappers around
+TreeMap<Field, SerializedType> and don't make good use of libraries like
+Jackson to auto populate fields.
 
 ### Current status
-  
+
   - Binary serialization/parsing/shamap
   - Crude implementation of a high level client
     - Single threaded
@@ -24,6 +29,7 @@ the basis for various clients/wallets.
       - PaymentFlow (wraps path_find)
     - Automatic transaction resubmission
       - Resubmits transactions in manner resilient to poor network conditions
+        - !!!NEEDS TESTING AGAINST LATEST RIPPLED!!!
   - Api client choice of WebSocket transport
   - Test suite for core types
   - Signing / Verification
@@ -36,8 +42,7 @@ the basis for various clients/wallets.
   - [Transaction Manager](ripple-client/src/main/java/com/ripple/client/transactions/README.md)
 
 ### TODO
-  - More helper classes
-  - General cleanup/stabilisation of code / api surface
+  - See the issues!
   - Documentation
   - Complete test coverage
 
