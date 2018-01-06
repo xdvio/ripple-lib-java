@@ -6,6 +6,7 @@ import com.ripple.core.coretypes.Blob;
 import com.ripple.core.coretypes.hash.Hash128;
 import com.ripple.core.coretypes.hash.Hash256;
 import com.ripple.core.coretypes.uint.UInt32;
+import com.ripple.core.coretypes.uint.UInt8;
 import com.ripple.core.enums.LedgerFlag;
 import com.ripple.core.fields.Field;
 import com.ripple.core.serialized.enums.LedgerEntryType;
@@ -44,6 +45,21 @@ public class AccountRoot extends ThreadedLedgerEntry {
         return flags().testBit(LedgerFlag.RequireAuth);
     }
 
+    public boolean hasAccountTxnID() {return has(Hash256.AccountTxnID);}
+    public boolean hasDomain() {return has(Blob.Domain);}
+    public boolean hasEmailHash() {return has(Hash128.EmailHash);}
+    public boolean hasMessageKey() {return has(Blob.MessageKey);}
+    public boolean hasRegularKey() {return has(AccountID.RegularKey);}
+    public boolean hasTickSize() {return has(UInt8.TickSize);}
+    public boolean hasTransferRate() {return has(UInt32.TransferRate);}
+    public boolean hasWalletLocator() {return has(Hash256.WalletLocator);}
+    public boolean hasWalletSize() {return has(UInt32.WalletSize);}
+
+    public Hash256 accountTxnID() {return get(Hash256.AccountTxnID);}
+    public UInt8 tickSize() {return get(UInt8.TickSize);}
+
+    public void accountTxnID(Hash256 val) { put(Hash256.AccountTxnID, val);}
+    public void tickSize(UInt8 val) { put(UInt8.TickSize, val);}
 
     @Override
     public void setDefaults() {

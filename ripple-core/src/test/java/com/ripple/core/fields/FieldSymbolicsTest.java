@@ -6,6 +6,9 @@ import com.ripple.core.formats.TxFormat;
 import com.ripple.core.serialized.enums.EngineResult;
 import com.ripple.core.serialized.enums.LedgerEntryType;
 import com.ripple.core.serialized.enums.TransactionType;
+import com.ripple.core.types.known.sle.LedgerEntry;
+import com.ripple.core.types.known.sle.LedgerHashes;
+import com.ripple.core.types.known.sle.entries.*;
 import com.ripple.core.types.known.tx.txns.EscrowCreate;
 import com.ripple.core.types.known.tx.txns.EscrowCancel;
 import com.ripple.core.types.known.tx.txns.SetRegularKey;
@@ -29,7 +32,24 @@ public class FieldSymbolicsTest {
     private static TreeMap<TransactionType, Class<? extends Transaction>> txns =
             new TreeMap<>();
 
+    private static TreeMap<LedgerEntryType, Class<? extends LedgerEntry>> les =
+            new TreeMap<>();
+
     static {
+
+        les.put(LedgerEntryType.AccountRoot, AccountRoot.class);
+        les.put(LedgerEntryType.DirectoryNode, DirectoryNode.class);
+        les.put(LedgerEntryType.RippleState, RippleState.class);
+        les.put(LedgerEntryType.Escrow, Escrow.class);
+        les.put(LedgerEntryType.Offer, Offer.class);
+        les.put(LedgerEntryType.LedgerHashes, LedgerHashes.class);
+        les.put(LedgerEntryType.Amendments, Amendments.class);
+        les.put(LedgerEntryType.FeeSettings, FeeSettings.class);
+        les.put(LedgerEntryType.Ticket, Ticket.class);
+        les.put(LedgerEntryType.SignerList, SignerList.class);
+        les.put(LedgerEntryType.PayChannel, PayChannel.class);
+
+
         txns.put(TransactionType.Payment, Payment.class);
         txns.put(TransactionType.AccountSet, AccountSet.class);
         txns.put(TransactionType.SetRegularKey, SetRegularKey.class);
@@ -50,6 +70,9 @@ public class FieldSymbolicsTest {
 
         for (TransactionType tt : txns.keySet()) {
             assertEquals(txns.get(tt).getSimpleName(), tt.name());
+        }
+        for (LedgerEntryType let : les.keySet()) {
+            assertEquals(les.get(let).getSimpleName(), let.name());
         }
     }
 
@@ -130,66 +153,71 @@ public class FieldSymbolicsTest {
                         requirements = txFormat.requirements();
 
                 TransactionType key = TransactionType.valueOf(txName);
+                assertTrue(FieldSymbolicsTest.txns.containsKey(key));
                 Class<?> kls = FieldSymbolicsTest.txns.get(key);
-                // System.out.println("Methods for: " + txName);
-                boolean missing = false;
-                for (Field field : requirements.keySet()) {
-                    Format.Requirement requirement = requirements.get(field);
-                    boolean optional = requirement == Format.Requirement.OPTIONAL;
-                    String fieldType = field.type.name();
-                    if (optional && !txFormat.isCommon(field)) {
-                        String name = String.format("has%s", field.name());
-                        Method method = getMethod(kls, name, 0);
-                        if (method == null) {
-                            String body =
-                                    String.format("{return has(%s.%s);}",
-                                            fieldType, field.name());
-                            String start =
-                                    String.format("public boolean %s() %s",
-                                            name, body);
-                            System.out.println(start);
-                            missing = true;
-                        }
-                    }
-                    if (!txFormat.isCommon(field)) {
-                        String methodName = camelize(field.name());
-                        Method method = getMethod(kls, methodName, 0);
-                        if (method == null) {
-                            String body = String.format("{return get(%s.%s);}",
-                                    fieldType, field.name());
-                            String start = String.format(
-                                    "public %s %s() %s",
-                                    fieldType,
-                                    methodName,
-                                    body);
-                            System.out.println(start);
-                            missing = true;
-                        }
-                        methodName = camelize(field.name());
-                        method = getMethod(kls, methodName, 1);
-                        if (method == null) {
-                            String body =
-                                    String.format("{ put(%s.%s, val);}",
-                                            fieldType, field.name());
-                            String declaration =
-                                    String.format("public void %s(%s val) %s",
-                                            methodName,
-                                            fieldType, body);
-                            System.out.println(declaration);
-                            missing = true;
-                        } else {
-                            // System.out.println(method.toGenericString());
-                        }
 
-                    }
-                    assertFalse(missing);
-                }
-
+                checkMethods(txFormat, requirements, kls);
             }
 
             assertTrue(
                     txName,
                     FieldSymbolicsTest.txns.containsKey(TransactionType.valueOf(txName)));
+        }
+    }
+
+    private void checkMethods(Format txFormat, EnumMap<Field, Format.Requirement> requirements, Class<?> kls) {
+         System.out.println("Methods for: " + kls.getSimpleName());
+        boolean missing = false;
+        for (Field field : requirements.keySet()) {
+            Format.Requirement requirement = requirements.get(field);
+            boolean optional = requirement == Format.Requirement.OPTIONAL;
+            String fieldType = field.type.name();
+            if (optional && !txFormat.isCommon(field)) {
+                String name = String.format("has%s", field.name());
+                Method method = getMethod(kls, name, 0);
+                if (method == null) {
+                    String body =
+                            String.format("{return has(%s.%s);}",
+                                    fieldType, field.name());
+                    String start =
+                            String.format("public boolean %s() %s",
+                                    name, body);
+                    System.out.println(start);
+                    missing = true;
+                }
+            }
+            if (!txFormat.isCommon(field)) {
+                String methodName = camelize(field.name());
+                Method method = getMethod(kls, methodName, 0);
+                if (method == null) {
+                    String body = String.format("{return get(%s.%s);}",
+                            fieldType, field.name());
+                    String start = String.format(
+                            "public %s %s() %s",
+                            fieldType,
+                            methodName,
+                            body);
+                    System.out.println(start);
+                    missing = true;
+                }
+                methodName = camelize(field.name());
+                method = getMethod(kls, methodName, 1);
+                if (method == null) {
+                    String body =
+                            String.format("{ put(%s.%s, val);}",
+                                    fieldType, field.name());
+                    String declaration =
+                            String.format("public void %s(%s val) %s",
+                                    methodName,
+                                    fieldType, body);
+                    System.out.println(declaration);
+                    missing = true;
+                } else {
+                    // System.out.println(method.toGenericString());
+                }
+
+            }
+            // assertFalse(missing);
         }
     }
 
@@ -264,6 +292,13 @@ public class FieldSymbolicsTest {
                 LEFormat format = LEFormat.fromString(name);
                 assertNotNull(format);
                 checkFormat(entryJson, format);
+
+                LedgerEntryType key = LedgerEntryType.valueOf(name);
+                assertTrue(FieldSymbolicsTest.les.containsKey(key));
+                Class<?> kls = FieldSymbolicsTest.les.get(key);
+                // System.out.println("Methods for: " + txName);
+                //noinspection unchecked
+                checkMethods(format, format.requirements(), kls);
             }
 
             if (name.isEmpty()) {

@@ -115,5 +115,6 @@ public class STArray extends ArrayList<STObject> implements SerializedType {
     static public STArrayField Template = starrayField(Field.Template);
     static public STArrayField Necessary = starrayField(Field.Necessary);
     static public STArrayField Sufficient = starrayField(Field.Sufficient);
+    static public STArrayField Majorities = starrayField(Field.Majorities);
     static public STArrayField Memos = starrayField(Field.Memos);
 }

@@ -5,8 +5,13 @@ import com.ripple.core.serialized.enums.LedgerEntryType;
 
 import java.util.EnumMap;
 
-public class LEFormat extends Format {
+public class LEFormat extends Format<LEFormat> {
     static public EnumMap<LedgerEntryType, LEFormat> formats = new EnumMap<LedgerEntryType, LEFormat>(LedgerEntryType.class);
+    {
+        common.put(Field.LedgerIndex,             Requirement.OPTIONAL);
+        common.put(Field.LedgerEntryType,         Requirement.REQUIRED);
+        common.put(Field.Flags,                   Requirement.REQUIRED);
+    }
 
     static public LEFormat fromString(String name) {
         return getLedgerFormat(LedgerEntryType.valueOf(name));
@@ -43,9 +48,7 @@ public class LEFormat extends Format {
 
     @Override
     protected void addCommonFields() {
-        put(Field.LedgerIndex,             Requirement.OPTIONAL);
-        put(Field.LedgerEntryType,         Requirement.REQUIRED);
-        put(Field.Flags,                   Requirement.REQUIRED);
+        requirementEnumMap.putAll(common);
     }
 
     @Override

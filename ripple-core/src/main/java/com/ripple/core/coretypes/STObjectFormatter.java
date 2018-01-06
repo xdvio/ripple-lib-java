@@ -1,12 +1,9 @@
 package com.ripple.core.coretypes;
 
-import com.ripple.core.fields.Field;
 import com.ripple.core.serialized.enums.LedgerEntryType;
 import com.ripple.core.serialized.enums.TransactionType;
-import com.ripple.core.types.known.sle.LedgerEntry;
 import com.ripple.core.types.known.sle.LedgerHashes;
 import com.ripple.core.types.known.sle.entries.*;
-import com.ripple.core.types.known.tx.Transaction;
 import com.ripple.core.types.known.tx.result.AffectedNode;
 import com.ripple.core.types.known.tx.result.TransactionMeta;
 import com.ripple.core.types.known.tx.txns.*;
@@ -117,8 +114,8 @@ public class STObjectFormatter {
                 constructed = new AccountRoot();
                 break;
             case DirectoryNode:
-                if (source.has(Field.Owner)) {
-                    constructed = new DirectoryNode();
+                if (source.has(AccountID.Owner)) {
+                    constructed = new OwnerDirectory();
                 } else {
                     constructed = new OfferDirectory();
                 }
@@ -127,10 +124,13 @@ public class STObjectFormatter {
                 constructed = new LedgerHashes();
                 break;
             case Amendments:
+                constructed = new Amendments();
                 break;
             case FeeSettings:
+                constructed = new FeeSettings();
                 break;
             case Ticket:
+                constructed = new Ticket();
                 break;
             case SignerList:
                 constructed = new SignerList();
@@ -138,9 +138,6 @@ public class STObjectFormatter {
             case PayChannel:
                 constructed = new PayChannel();
                 break;
-        }
-        if (constructed == null) {
-            constructed = new LedgerEntry(ledgerEntryType);
         }
         constructed.fields = source.fields;
         return constructed;

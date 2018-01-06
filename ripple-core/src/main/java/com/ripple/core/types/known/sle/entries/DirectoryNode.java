@@ -37,6 +37,15 @@ public class DirectoryNode extends LedgerEntry {
     public void takerGetsIssuer(Hash160 val) {put(Field.TakerGetsIssuer, val);}
     public void indexes(Vector256 val) {put(Field.Indexes, val);}
 
+    public boolean hasIndexNext() {return has(UInt64.IndexNext);}
+    public boolean hasIndexPrevious() {return has(UInt64.IndexPrevious);}
+    public boolean hasExchangeRate() {return has(UInt64.ExchangeRate);}
+    public boolean hasOwner() {return has(AccountID.Owner);}
+    public boolean hasTakerPaysCurrency() {return has(Hash160.TakerPaysCurrency);}
+    public boolean hasTakerPaysIssuer() {return has(Hash160.TakerPaysIssuer);}
+    public boolean hasTakerGetsCurrency() {return has(Hash160.TakerGetsCurrency);}
+    public boolean hasTakerGetsIssuer() {return has(Hash160.TakerGetsIssuer);}
+
     public Hash256 nextIndex() {
         return Index.directoryNode(rootIndex(), indexNext());
     }
@@ -45,11 +54,11 @@ public class DirectoryNode extends LedgerEntry {
     }
 
     public boolean hasPreviousIndex() {
-        return indexPrevious() != null && !indexPrevious().isZero();
+        return hasIndexPrevious() && !indexPrevious().isZero();
     }
 
     public boolean hasNextIndex() {
-        return indexNext() != null && !indexNext().isZero();
+        return hasIndexNext() && !indexNext().isZero();
     }
 
     public boolean isRootIndex() {

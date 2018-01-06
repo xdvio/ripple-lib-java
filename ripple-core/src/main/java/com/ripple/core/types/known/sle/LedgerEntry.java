@@ -31,6 +31,8 @@ public class LedgerEntry extends STObject {
     public void flags(UInt32 val) {put(Field.Flags, val);}
     public void ledgerIndex(Hash256 val) {put(Field.LedgerIndex, val);}
 
+    public boolean hasLedgerIndex() {return has(Hash256.LedgerIndex);}
+
     public TreeSet<AccountID> owners() {
         TreeSet<AccountID> owners = new TreeSet<>();
 

@@ -186,6 +186,8 @@ public class Offer extends ThreadedLedgerEntry {
     public void takerGets(Amount val) {put(Field.TakerGets, val);}
     public void account(AccountID val) {put(Field.Account, val);}
 
+    public boolean hasExpiration() {return has(UInt32.Expiration);}
+
     public Hash256[] directoryIndexes() {
         return new Hash256[]{bookNodeDirectoryIndex(), ownerNodeDirectoryIndex()};
     }

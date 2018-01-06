@@ -106,6 +106,12 @@ public class RippleState extends ThreadedLedgerEntry {
     public void lowLimit(Amount val) {put(Field.LowLimit, val);}
     public void highLimit(Amount val) {put(Field.HighLimit, val);}
 
+    public boolean hasHighQualityIn() {return has(UInt32.HighQualityIn);}
+    public boolean hasHighQualityOut() {return has(UInt32.HighQualityOut);}
+    public boolean hasLowQualityIn() {return has(UInt32.LowQualityIn);}
+    public boolean hasLowQualityOut() {return has(UInt32.LowQualityOut);}
+    public boolean hasLowNode() {return has(UInt64.LowNode);}
+    public boolean hasHighNode() {return has(UInt64.HighNode);}
 
     public AccountID lowAccount() {
         return lowLimit().issuer();

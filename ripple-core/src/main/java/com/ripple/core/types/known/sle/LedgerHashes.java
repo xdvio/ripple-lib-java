@@ -20,4 +20,13 @@ public class LedgerHashes extends LedgerEntry {
     public UInt32 lastLedgerSequence() {
         return get(UInt32.LastLedgerSequence);
     }
+
+    public UInt32 firstLedgerSequence() {return get(UInt32.FirstLedgerSequence);}
+
+    public void firstLedgerSequence(UInt32 val) { put(UInt32.FirstLedgerSequence, val);}
+
+    public void lastLedgerSequence(UInt32 val) { put(UInt32.LastLedgerSequence, val);}
+
+    public boolean hasFirstLedgerSequence() {return has(UInt32.FirstLedgerSequence);}
+    public boolean hasLastLedgerSequence() {return has(UInt32.LastLedgerSequence);}
 }
