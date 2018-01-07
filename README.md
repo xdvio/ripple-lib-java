@@ -19,6 +19,8 @@ Likewise, the Transaction/LedgerEntry objects are merely wrappers around
 TreeMap<Field, SerializedType> and don't make good use of libraries like
 Jackson to auto populate fields.
 
+See: [ripple-lib-java-sucks](https://github.com/sublimator/ripple-lib-java-sucks)
+
 ### Current status
 
   - Binary serialization/parsing/shamap
