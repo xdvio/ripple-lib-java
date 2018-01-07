@@ -84,6 +84,21 @@ public class Index {
         return prefixed256(LedgerSpace.account).add(accountID).finish();
     }
 
+    public static Hash256 paymentChannel(AccountID account, AccountID destination, UInt32 sequence) {
+        return prefixed256(LedgerSpace.paymentChannel)
+                .add(account)
+                .add(destination)
+                .add(sequence)
+                .finish();
+    }
+
+    public static Hash256 escrow(AccountID account, UInt32 sequence) {
+        return prefixed256(LedgerSpace.escrow)
+                .add(account)
+                .add(sequence)
+                .finish();
+    }
+
     public static Hash256 ownerDirectory(AccountID account) {
         return Hash256.prefixedHalfSha512(LedgerSpace.ownerDir, account.bytes());
     }

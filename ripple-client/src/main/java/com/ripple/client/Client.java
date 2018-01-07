@@ -372,6 +372,9 @@ public class Client extends Publisher<Client.events> {
                         if (msSince > reconnectDormantAfter) {
                             lastConnection = defaultValue;
                             if (!reconnecting) {
+                                log(Level.WARNING,
+                                        "received no messages for %dseconds. Reconnecting!",
+                                        reconnectDormantAfter / 1000);
                                 reconnect();
                             }
                         }

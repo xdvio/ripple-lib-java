@@ -31,8 +31,8 @@ public class UInt32 extends UInt<UInt32> {
         super(value);
     }
 
-    public UInt32(Number s) {
-        super(s);
+    public UInt32(Number val) {
+        super(val);
     }
     public UInt32(String s) {
         super(s);
