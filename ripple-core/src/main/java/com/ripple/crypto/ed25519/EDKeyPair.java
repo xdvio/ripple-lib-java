@@ -32,8 +32,8 @@ public class EDKeyPair extends EDVerifyingKey implements IKeyPair {
     }
 
     @Override
-    public BigInteger privateKey() {
-        return Utils.uBigInt(keySpec.geta());
+    public byte[] privateKey() {
+        return keySpec.geta();
     }
 
     @Override
