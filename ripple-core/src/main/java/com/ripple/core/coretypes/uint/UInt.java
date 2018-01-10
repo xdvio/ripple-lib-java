@@ -5,6 +5,7 @@ import com.ripple.core.serialized.BytesSink;
 import com.ripple.core.serialized.SerializedType;
 import com.ripple.core.serialized.TypeTranslator;
 import com.ripple.encodings.common.B16;
+import com.ripple.utils.Utils;
 
 import java.math.BigInteger;
 
@@ -20,34 +21,33 @@ abstract public class UInt<Subclass extends UInt> extends Number implements Seri
     public BigInteger getMinimumValue() {
         return BigInteger.ZERO;
     }
-    public UInt(byte[] bytes) {
+    UInt(byte[] bytes) {
         setValue(new BigInteger(1, bytes));
     }
-    public UInt(BigInteger bi) {
+    UInt(BigInteger bi) {
         setValue(bi);
     }
-    public UInt(Number s) {
+    UInt(Number s) {
         setValue(BigInteger.valueOf(s.longValue()));
     }
-    public UInt(String s) {
+    UInt(String s) {
         setValue(new BigInteger(s));
     }
-    public UInt(String s, int radix) {
+    UInt(String s, int radix) {
         setValue(new BigInteger(s, radix));
     }
-
 
     @Override
     public String toString() {
         return value.toString();
     }
 
-    public UInt() {}
+    UInt() {}
 
     public abstract int getByteWidth();
     public abstract Subclass instanceFrom(BigInteger n);
 
-    public boolean isValid(BigInteger n) {
+    private boolean isValid(BigInteger n) {
         return !((bitLength() / 8) > getByteWidth());
     }
 
@@ -112,36 +112,7 @@ abstract public class UInt<Subclass extends UInt> extends Number implements Seri
     }
     public byte[] toByteArray() {
         int length = getByteWidth();
-
-        {
-            byte[] bytes = value.toByteArray();
-
-            if (bytes[0] == 0) {
-                if (bytes.length - 1 > length) {
-                    throw new IllegalArgumentException("standard length exceeded for value");
-                }
-
-                byte[] tmp = new byte[length];
-
-                System.arraycopy(bytes, 1, tmp, tmp.length - (bytes.length - 1), bytes.length - 1);
-
-                return tmp;
-            } else {
-                if (bytes.length == length) {
-                    return bytes;
-                }
-
-                if (bytes.length > length) {
-                    throw new IllegalArgumentException("standard length exceeded for value");
-                }
-
-                byte[] tmp = new byte[length];
-
-                System.arraycopy(bytes, 0, tmp, tmp.length - bytes.length, bytes.length);
-
-                return tmp;
-            }
-        }
+        return Utils.leadingZeroesTrimmedOrPaddedTo(length, value.toByteArray());
     }
 
     abstract public Object value();
@@ -149,7 +120,6 @@ abstract public class UInt<Subclass extends UInt> extends Number implements Seri
     public BigInteger bigInteger(){
         return value;
     }
-
 
     @Override
     public int intValue() {

@@ -9,29 +9,31 @@ import com.ripple.encodings.common.B16;
 
 import java.util.TreeMap;
 
-public enum LedgerEntryType implements SerializedType{
+public enum LedgerEntryType implements SerializedType {
     // Invalid (-1),
-    AccountRoot ('a'),
+    AccountRoot('a'),
     DirectoryNode('d'),
     // GeneratorMap ('g'),
-    RippleState ('r'),
-    Escrow ('u'),
+    RippleState('r'),
+    Escrow('u'),
     // Nickname ('n'), // deprecated
-    Offer ('o'),
+    Offer('o'),
     // Contract ('c'),
-    LedgerHashes ('h'),
+    LedgerHashes('h'),
     Amendments('f'),
-    FeeSettings ('s'),
+    FeeSettings('s'),
     Ticket('T'),
     SignerList('S'),
     PayChannel('x');
 
     final int ord;
+
     LedgerEntryType(int i) {
         ord = i;
     }
 
     static private TreeMap<Integer, LedgerEntryType> byCode = new TreeMap<Integer, LedgerEntryType>();
+
     static {
         for (Object a : LedgerEntryType.values()) {
             LedgerEntryType f = (LedgerEntryType) a;
@@ -57,18 +59,22 @@ public enum LedgerEntryType implements SerializedType{
     public byte[] toBytes() {
         return new byte[]{(byte) ((ord >>> 8) & 0xFF), (byte) (ord & 0xFF)};
     }
+
     @Override
     public Object toJSON() {
         return toString();
     }
+
     @Override
     public String toHex() {
         return B16.encode(toBytes());
     }
+
     @Override
     public void toBytesSink(BytesSink to) {
         to.add(toBytes());
     }
+
     public static class Translator extends TypeTranslator<LedgerEntryType> {
         @Override
         public LedgerEntryType fromParser(BinaryParser parser, Integer hint) {
@@ -85,5 +91,6 @@ public enum LedgerEntryType implements SerializedType{
             return LedgerEntryType.valueOf(value);
         }
     }
+
     public static Translator translate = new Translator();
 }

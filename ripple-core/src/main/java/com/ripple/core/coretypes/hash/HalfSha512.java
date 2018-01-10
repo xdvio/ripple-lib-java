@@ -7,7 +7,7 @@ import com.ripple.core.serialized.SerializedType;
 import java.security.MessageDigest;
 
 public class HalfSha512 implements BytesSink {
-    MessageDigest messageDigest;
+    private MessageDigest messageDigest;
 
     public HalfSha512() {
         try {

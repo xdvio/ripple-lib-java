@@ -7,7 +7,6 @@ import com.ripple.core.coretypes.hash.prefixes.HashPrefix;
 import com.ripple.core.coretypes.hash.prefixes.LedgerSpace;
 import com.ripple.core.coretypes.uint.UInt32;
 import com.ripple.core.coretypes.uint.UInt64;
-import com.ripple.core.serialized.SerializedType;
 
 import java.util.Arrays;
 import java.util.List;
@@ -132,5 +131,13 @@ public class Index {
     }
     public static Hash256 ledgerHashes() {
         return prefixed256(LedgerSpace.skipList).finish();
+    }
+
+    public static Hash256 amendments() {
+        return prefixed256(LedgerSpace.amendment).finish();
+    }
+
+    public static Hash256 feeSettings() {
+        return prefixed256(LedgerSpace.fee).finish();
     }
 }
