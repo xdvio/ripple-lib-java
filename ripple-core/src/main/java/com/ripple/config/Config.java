@@ -6,11 +6,20 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
 
-// Somewhat of a global registry, dependency injection ala guice would be nicer, but trying to KISS
+// TODO: remove this class, as it's completely unneeded
+// We only really need the initiate bouncy part but that can be done elsewhere
+// Somewhat of a global registry, dependency injection ala guice would be
+// nicer, but trying to KISS.
 public class Config {
-    public  static final String DEFAULT_ALPHABET = "rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz";
+    // TODO: In the early days the test net used a different alphabet, and
+    // ripple-lib, which this was initially modeled after had a global config
+    // object which allowed setting the alphabet. There's no need for this muck
+    // now.
+    public static final String DEFAULT_ALPHABET = "rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz";
 
     private static B58IdentiferCodecs b58IdentiferCodecs;
+
+    // TODO: this should belong on the transaction manager class
     private static double feeCushion;
     private static B58 b58;
 
@@ -36,7 +45,7 @@ public class Config {
     /**
      * TODO, this is gross
      */
-    static public boolean bouncyInitiated = false;
+    private static boolean bouncyInitiated = false;
     static public void initBouncy() {
         if (!bouncyInitiated) {
             // For android
@@ -45,7 +54,7 @@ public class Config {
             bouncyInitiated = true;
         }
     }
-    /***
+    /*
      * We set up all the defaults here
      */
     static {
