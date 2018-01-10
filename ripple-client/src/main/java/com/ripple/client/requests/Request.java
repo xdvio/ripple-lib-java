@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Iterator;
+import java.util.function.BiConsumer;
 import java.util.logging.Logger;
 
 // We can just shift to using delegation
@@ -73,7 +74,7 @@ public class Request extends Publisher<Request.events> {
     }
 
     public static abstract class Manager<T> {
-        abstract public void cb(Response response, T t) throws JSONException;
+        abstract public void cb(Response response, T t);
 
         public boolean retryOnUnsuccessful(Response r) {
             return false;

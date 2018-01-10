@@ -54,11 +54,8 @@ public class AccountTxPager {
         this.client = client;
         //
         if (onPage == null) {
-            onPage = new OnPage() {
-                @Override
-                public void onPage(Page page) {
+            onPage = page -> {
 
-                }
             };
         }
         this.onPage = onPage;

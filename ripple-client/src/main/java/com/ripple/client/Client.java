@@ -336,6 +336,11 @@ public class Client extends Publisher<Client.events> {
 
     @SuppressWarnings("WeakerAccess")
     public void disconnect() {
+        // If we put this method in the run block then the dispose method, if
+        // called from another thread will mean that it never runs. People
+        // SHOULD only use the client object inside event handlers and run
+        // blocks, however it's seen that's not always the case.
+
         if (!connected) {
             log(Level.WARNING,
                     "called disconnect when not connected");
@@ -357,7 +362,7 @@ public class Client extends Publisher<Client.events> {
      * This will detect stalled connections When connected we are subscribed to
      * a ledger, and ledgers should be at most 20 seconds apart.
      *
-     * This also
+     * This also clears timed out requests.
      */
     private void scheduleMaintenance() {
         schedule(maintenanceSchedule, () -> {
@@ -373,7 +378,7 @@ public class Client extends Publisher<Client.events> {
                             lastConnection = defaultValue;
                             if (!reconnecting) {
                                 log(Level.WARNING,
-                                        "received no messages for %dseconds. Reconnecting!",
+                                        "received no messages for {0} seconds. Reconnecting!",
                                         reconnectDormantAfter / 1000);
                                 reconnect();
                             }
@@ -404,6 +409,7 @@ public class Client extends Publisher<Client.events> {
         for (Request request : requests.values()) {
             if (request.sendTime != 0) {
                 long since = now - request.sendTime;
+                // TODO: allow per request timeout
                 if (since >= Request.TIME_OUT) {
                     timedOut.add(request);
                 }
@@ -489,19 +495,6 @@ public class Client extends Publisher<Client.events> {
             clientThread.setName(name + "-thread");
             return clientThread;
         });
-    }
-
-    public static abstract class ThrowingRunnable implements Runnable {
-        public abstract void throwingRun() throws Exception;
-
-        @Override
-        public void run() {
-            try {
-                throwingRun();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 
     private Runnable errorHandling(final Runnable runnable) {
@@ -673,10 +666,10 @@ public class Client extends Publisher<Client.events> {
             }
         }
 
-        Account initator = accounts.get(tr.initiatingAccount());
-        if (initator != null) {
-            log(Level.INFO, "Found initiator {0}, notifying transactionManager", initator);
-            initator.transactionManager().notifyTransactionResult(tr);
+        Account initiator = accounts.get(tr.initiatingAccount());
+        if (initiator != null) {
+            log(Level.INFO, "Found initiator {0}, notifying transactionManager", initiator);
+            initiator.transactionManager().notifyTransactionResult(tr);
         } else {
             if (logMessages) {
                 log(Level.FINE, "Can't find initiating account!");
@@ -953,7 +946,7 @@ public class Client extends Publisher<Client.events> {
             @Override
             public ArrayList<LedgerEntry> buildTypedResponse(Response response) {
                 JSONArray state = response.result.getJSONArray("state");
-                ArrayList<LedgerEntry> result = new ArrayList<LedgerEntry>();
+                ArrayList<LedgerEntry> result = new ArrayList<>();
                 for (int i = 0; i < state.length(); i++) {
                     JSONObject stateObject = state.getJSONObject(i);
                     LedgerEntry le = (LedgerEntry) STObject.fromHex(stateObject.getString("data"));
@@ -974,38 +967,13 @@ public class Client extends Publisher<Client.events> {
 
             @Override
             public ArrayList<AccountLine> buildTypedResponse(Response response) {
-                ArrayList<AccountLine> lines = new ArrayList<AccountLine>();
+                ArrayList<AccountLine> lines = new ArrayList<>();
                 JSONArray array = response.result.optJSONArray("lines");
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject line = array.optJSONObject(i);
                     lines.add(AccountLine.fromJSON(addy, line));
                 }
                 return lines;
-            }
-        });
-    }
-
-    public void requestHostID(final Callback<String> callback) {
-        makeManagedRequest(Command.server_info, new Manager<String>() {
-            @Override
-            public void cb(Response response, String hostid) throws JSONException {
-                callback.called(hostid);
-            }
-
-            @Override
-            public boolean retryOnUnsuccessful(Response r) {
-                return true;
-            }
-        }, new Request.Builder<String>() {
-            @Override
-            public void beforeRequest(Request request) {
-
-            }
-
-            @Override
-            public String buildTypedResponse(Response response) {
-                JSONObject info = response.result.getJSONObject("info");
-                return info.getString("hostid");
             }
         });
     }
@@ -1021,12 +989,13 @@ public class Client extends Publisher<Client.events> {
                 request.json("taker_pays", pay.toJSON());
 
                 if (ledger_index != null) {
+                    // TODO: default to "validated" ?
                     request.json("ledger_index", ledger_index);
                 }
             }
             @Override
             public ArrayList<Offer> buildTypedResponse(Response response) {
-                ArrayList<Offer> offers = new ArrayList<Offer>();
+                ArrayList<Offer> offers = new ArrayList<>();
                 JSONArray offersJson = response.result.getJSONArray("offers");
                 for (int i = 0; i < offersJson.length(); i++) {
                     JSONObject jsonObject = offersJson.getJSONObject(i);

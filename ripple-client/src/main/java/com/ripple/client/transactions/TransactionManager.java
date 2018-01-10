@@ -6,7 +6,6 @@ import com.ripple.client.pubsub.CallbackContext;
 import com.ripple.client.pubsub.Publisher;
 import com.ripple.client.requests.Request;
 import com.ripple.client.responses.Response;
-import com.ripple.client.subscriptions.ServerInfo;
 import com.ripple.client.subscriptions.TrackedAccountRoot;
 import com.ripple.core.coretypes.AccountID;
 import com.ripple.core.coretypes.Amount;
@@ -18,21 +17,69 @@ import com.ripple.core.types.known.tx.result.TransactionResult;
 import com.ripple.core.types.known.tx.txns.AccountSet;
 import com.ripple.crypto.keys.IKeyPair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.TreeSet;
 
+/**
+ * This class takes care of resubmitting transactions in a manner resilient to
+ * network failures. It does NOT handle the case where the process exits
+ * prematurely as it only persists the hashes, submission and last valid ledger
+ * sequence in memory, rather than to disk, where recovery can be made.
+ *
+ * This was written long ago when the author had relatively little experience
+ * with ripple, and was never used internally at ripple for *anything*.
+ *
+ * This class needs:
+ *  - Documentation of the existing logic
+ *  - Refactoring for better testability without a [live/test] net
+ *  - RangeSet and logic for handling ledger history gaps
+ *      - ensure that each and every ledger index has been checked
+ *  - Handling new fee escalation logic
+ *     - Transactions with higher fees are prioritized
+ *  - Handling new transaction queue result codes
+ *     - Upper limits on the number of transactions submitted per txn per acct
+ *  - Adding hooks for submission persistence
+ *  - Testing on the test net
+ *
+ */
 public class TransactionManager extends Publisher<TransactionManager.events> {
-    public static interface events<T> extends Publisher.Callback<T> {}
+    public interface events<T> extends Publisher.Callback<T> {}
     // This event is emitted with the Sequence of the AccountRoot
-    public static interface OnValidatedSequence extends events<UInt32> {}
+    private interface OnValidatedSequence extends events<UInt32> {}
 
-    Client client;
-    TrackedAccountRoot accountRoot;
-    AccountID accountID;
-    IKeyPair keyPair;
-    AccountTxPager txnPager;
+    private Client client;
+    // TODO: Using a shared mutable cache ... fix ...
+    private TrackedAccountRoot accountRoot;
+    private AccountID accountID;
+    private IKeyPair keyPair;
+    private AccountTxPager txnPager;
 
-    private ArrayList<ManagedTxn> pending = new ArrayList<ManagedTxn>();
-    private ArrayList<ManagedTxn> failedTransactions = new ArrayList<ManagedTxn>();
+    private static final int RESUBMIT_PENDING_AFTER_N_LEDGERS = 5;
+
+    /**
+     * These are transactions that we have either put on the wire, or we have
+     * received a successful provisional result for.
+     */
+    private ArrayList<ManagedTxn> pending = new ArrayList<>();
+
+    /**
+     * These transactions *may actually still clear*, but had a provisional
+     * failure. As a rule we keep a look out for ALL transactions that we have
+     * submitted to the network.
+     *
+     * We wait until we have seen the `LastLedgerSequence` exceeded, along with
+     * some safety margin, and then emit the last submissions result as an error
+     * or failure as a ManagedTxn event.
+     *
+     * {@link ManagedTxn.OnSubmitError}
+     * {@link ManagedTxn.OnSubmitFailure}
+     *
+     * It's possible and more convenient to bind to both in
+     * one call: {@link ManagedTxn#onError}
+     */
+    private ArrayList<ManagedTxn> failedTransactions = new ArrayList<>();
 
     public TransactionManager(Client client,
                               final TrackedAccountRoot accountRoot,
@@ -44,26 +91,24 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
         this.keyPair = keyPair;
 
         // We'd be subscribed yeah ;)
-        this.client.on(Client.OnLedgerClosed.class, new Client.OnLedgerClosed() {
-            @Override
-            public void called(ServerInfo serverInfo) {
-                checkAccountTransactions(serverInfo.ledger_index);
+        // TODO: audit this for ledgerClosed -> transaction -> transaction ...
+        // stream of events from the server.
+        this.client.onLedgerClosed(serverInfo -> {
+            checkAccountTransactions(serverInfo.ledger_index);
+            clearFailed(serverInfo.ledger_index);
 
-                clearFailed(serverInfo.ledger_index);
+            if (!canSubmit() || getPending().isEmpty()) {
+                return;
+            }
+            ArrayList<ManagedTxn> sorted = pendingSequenceSorted();
 
-                if (!canSubmit() || getPending().isEmpty()) {
-                    return;
-                }
-                ArrayList<ManagedTxn> sorted = pendingSequenceSorted();
+            ManagedTxn first = sorted.get(0);
+            Submission previous = first.lastSubmission();
 
-                ManagedTxn first = sorted.get(0);
-                Submission previous = first.lastSubmission();
-
-                if (previous != null) {
-                    long ledgersClosed = serverInfo.ledger_index - previous.ledgerSequence;
-                    if (ledgersClosed > 5) {
-                        resubmitWithSameSequence(first);
-                    }
+            if (previous != null) {
+                long ledgersClosed = serverInfo.ledger_index - previous.ledgerSequence;
+                if (ledgersClosed > RESUBMIT_PENDING_AFTER_N_LEDGERS) {
+                    resubmitWithSameSequence(first);
                 }
             }
         });
@@ -96,8 +141,7 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
         }
     }
 
-    // TODO: this is never cleared
-    Set<Long> seenValidatedSequences = new TreeSet<Long>();
+    private Set<Long> seenValidatedSequences = new TreeSet<>();
     public long sequence = 0;
 
     private UInt32 locallyPreemptedSubmissionSequence() {
@@ -119,12 +163,8 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
         if (accountRoot.primed()) {
             queue(tx, locallyPreemptedSubmissionSequence());
         } else {
-            accountRoot.once(TrackedAccountRoot.OnUpdate.class, new TrackedAccountRoot.OnUpdate() {
-                @Override
-                public void called(TrackedAccountRoot accountRoot) {
-                    queue(tx, locallyPreemptedSubmissionSequence());
-                }
-            });
+            accountRoot.once(TrackedAccountRoot.OnUpdate.class,
+                    accountRoot -> queue(tx, locallyPreemptedSubmissionSequence()));
         }
     }
 
@@ -134,13 +174,8 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
     }
 
     public ArrayList<ManagedTxn> pendingSequenceSorted() {
-        ArrayList<ManagedTxn> queued = new ArrayList<ManagedTxn>(getPending());
-        Collections.sort(queued, new Comparator<ManagedTxn>() {
-            @Override
-            public int compare(ManagedTxn lhs, ManagedTxn rhs) {
-                return lhs.sequence().compareTo(rhs.sequence());
-            }
-        });
+        ArrayList<ManagedTxn> queued = new ArrayList<>(getPending());
+        queued.sort(Comparator.comparing(ManagedTxn::sequence));
         return queued;
     }
 
@@ -149,15 +184,17 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
     }
 
     // TODO, maybe this is an instance configurable strategy parameter
-    public static long LEDGERS_BETWEEN_ACCOUNT_TX = 15;
-    public static long ACCOUNT_TX_TIMEOUT = 5;
+    private static long LEDGERS_BETWEEN_ACCOUNT_TX = 15;
+    private static long ACCOUNT_TX_TIMEOUT = 5;
+
     private long lastTxnRequesterUpdate = 0;
     private long lastLedgerCheckedAccountTxns = 0;
-    AccountTxPager.OnPage onTxnsPage = new AccountTxPager.OnPage() {
+    private AccountTxPager.OnPage onTxnsPage = new AccountTxPager.OnPage() {
         @Override
         public void onPage(AccountTxPager.Page page) {
             lastTxnRequesterUpdate = client.serverInfo.ledger_index;
 
+            // TODO: account for ledger gaps ...
             if (page.hasNext()) {
                 page.requestNext();
             } else {
@@ -173,6 +210,8 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
 
     private void checkAccountTransactions(long currentLedgerIndex) {
         if (pending.size() == 0 && failedTransactions.size() == 0) {
+            // TODO: this currently grows unbounded. Can use a RangeSet here
+            // seenValidatedSequences.clear();
             lastLedgerCheckedAccountTxns = 0;
             return;
         }
@@ -218,7 +257,7 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
         makeSubmitRequest(txn, sequence);
     }
 
-    public boolean canSubmit() {
+    private boolean canSubmit() {
         return client.connected  &&
                client.serverInfo.primed() &&
                 // ledger close could have given us
@@ -246,23 +285,20 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
                     // The next state change should cause this to remove
                     return txn.isFinalized() || n != txn.submissions.size();
                 }
-            }, new Client.OnStateChange() {
-                @Override
-                public void called(Client client) {
-                    doSubmitRequest(txn, sequence);
-                }
-            });
+            }, client -> doSubmitRequest(txn, sequence));
         }
     }
 
     private Request doSubmitRequest(final ManagedTxn txn, UInt32 sequence) {
         // Compute the fee for the current load_factor
+        // TODO: handle new fee escalation rules
         Amount fee = client.serverInfo.transactionFee(txn.txn);
         // Inside prepare we check if Fee and Sequence are the same, and if so
         // we don't recreate tx_blob, or resign ;)
 
 
         long currentLedgerIndex = client.serverInfo.ledger_index;
+        // TODO: make 8 ledgers timeout configurable
         UInt32 lastLedgerSequence = new UInt32(currentLedgerIndex + 8);
         Submission submission = txn.lastSubmission();
         if (submission != null) {
@@ -277,19 +313,8 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
         // tx_blob is a hex string, right o' the bat
         req.json("tx_blob", txn.tx_blob);
 
-        req.once(Request.OnSuccess.class, new Request.OnSuccess() {
-            @Override
-            public void called(Response response) {
-                handleSubmitSuccess(txn, response);
-            }
-        });
-
-        req.once(Request.OnError.class, new Request.OnError() {
-            @Override
-            public void called(Response response) {
-                handleSubmitError(txn, response);
-            }
-        });
+        req.onceSuccess(response -> handleSubmitSuccess(txn, response));
+        req.onceError(response -> handleSubmitError(txn, response));
 
         // Keep track of the submission, including the hash submitted
         // to the network, and the ledger_index at that point in time.
@@ -298,23 +323,16 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
         return req;
     }
 
-    public void handleSubmitError(final ManagedTxn txn, Response res) {
+    private void handleSubmitError(final ManagedTxn txn, Response res) {
         if (txn.finalizedOrResponseIsToPriorSubmission(res)) {
             return;
         }
         switch (res.rpcerr) {
             case noNetwork:
-                client.schedule(500, new Runnable() {
-                    @Override
-                    public void run() {
-                        resubmitWithSameSequence(txn);
-                    }
-                });
+                client.schedule(500, () -> resubmitWithSameSequence(txn));
                 break;
             default:
                 // TODO, what other cases should this retry?
-                // TODO, what if this actually eventually clears?
-                // TOOD, need to use LastLedgerSequence
                 awaitLastLedgerSequenceExpiry(txn);
                 break;
         }
@@ -324,7 +342,7 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
      * We handle various transaction engine results specifically
      * and then by class of result.
      */
-    public void handleSubmitSuccess(final ManagedTxn txn, final Response res) {
+    private void handleSubmitSuccess(final ManagedTxn txn, final Response res) {
         if (txn.finalizedOrResponseIsToPriorSubmission(res)) {
             return;
         }
@@ -335,6 +353,7 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
                 txn.emit(ManagedTxn.OnSubmitSuccess.class, res);
                 return;
             case tefPAST_SEQ:
+                // TODO: make this configurable
                 resubmitWithNewSequence(txn);
                 break;
             case tefMAX_LEDGER:
@@ -363,25 +382,64 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
                 // We only get this if we are submitting with exact same transactionID
                 // Do nothing, the transaction has already been submitted
                 break;
+            case terQUEUED:
+                // terQUEUED == `Held until escalated fee drops.`
+                // It must have been well formed to get this far and not `tef`
+                // or `tel` so it should become `tec` or `tes` soon.
+                // It will also be resubmitted with the same sequence once 5
+                // ledgers have passed if we leave it as `pending`
+                break;
+
+            case telCAN_NOT_QUEUE:
+            case telCAN_NOT_QUEUE_FEE:
+            case telCAN_NOT_QUEUE_FULL:
+                // Just wait the 5 or so ledgers and let it resubmit. We keep
+                // an eye out for *ALL* transactions submitted to the network
+                // so this *may* clear before then in the case of crazy queue
+                // logic.
+                break;
+            case telCAN_NOT_QUEUE_BALANCE:
+            case telCAN_NOT_QUEUE_BLOCKS:
+            case telCAN_NOT_QUEUE_BLOCKED:
+                // TODO: not sure what to do here. Just resubmit with same
+                // sequence. See `RESUBMIT_PENDING_AFTER_N_LEDGERS`
+                break;
+
             default:
+                // For safety we *always* wait for LastLedgerSequence to timeout
+                // the transaction.
                 switch (ter.resultClass()) {
                     case tecCLAIM:
-                        // Sequence was consumed, may even succeed
-                        // so do nothing, just wait until it clears or expires.
+                        // Sequence was consumed and may even succeed,
+                        // so do nothing and just wait until it clears or
+                        // expires.
+                        // TODO: could resubmit at least once, after the ledger
+                        // closes.
                         awaitLastLedgerSequenceExpiry(txn);
                         break;
-                    // These are, according to the wiki, all of a final disposition
+                    // OLD COMMENT: These are, according to the wiki, all of a final disposition
+                    // ND2017: ^ The wiki was wrong, or misread ^
                     case temMALFORMED:
+                        // See "For safety" comment above, though for a trusted
+                        // server we should be able to immediately clear these.
                     case tefFAILURE:
                     case telLOCAL_ERROR:
+                        // Assume failed and wait for it to either clear or
+                        // timeout, but don't resubmit.
                     case terRETRY:
                         awaitLastLedgerSequenceExpiry(txn);
-                        if (getPending().isEmpty()) {
+                        if (getPending().isEmpty()) //noinspection DanglingJavadoc
+                        {
+                            /**
+                             * We take max(serverReported, locallyCalculated)
+                             *
+                             * {@link TransactionManager#locallyPreemptedSubmissionSequence}
+                              */
                             sequence--;
                         } else {
-                            // Plug a Sequence gap and pre-emptively resubmit some txns
-                            // rather than waiting for `OnValidatedSequence` which will take
-                            // quite some ledgers.
+                            // Plug a Sequence gap and preemptively resubmit some
+                            // txns rather than waiting for `OnValidatedSequence`
+                            // which will take quite some ledgers.
                             queueSequencePlugTxn(submitSequence);
                             resubmitGreaterThan(submitSequence);
                         }
@@ -398,7 +456,7 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
 
     private void resubmitGreaterThan(UInt32 submitSequence) {
         for (ManagedTxn txn : getPending()) {
-            if (txn.sequence().compareTo(submitSequence) == 1) {
+            if (txn.sequence().compareTo(submitSequence) > 0) {
                 resubmitWithSameSequence(txn);
             }
         }
@@ -410,7 +468,7 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
         queue(plug, sequence);
     }
 
-    public void finalizeTxnAndRemoveFromQueue(ManagedTxn transaction) {
+    private void finalizeTxnAndRemoveFromQueue(ManagedTxn transaction) {
         transaction.setFinalized();
         pending.remove(transaction);
     }
@@ -426,6 +484,11 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
     // We only EVER resubmit a txn with a new Sequence if we have actually
     // seen that the Sequence has been consumed by a transaction we didn't
     // submit ourselves.
+
+    // TODO: This is arguably a security RED FLAG and should probably be
+    // treated as such. This code followed the earlier versions of JavaScript
+    // ripple-lib and tries to the handle the case of sequence contention.
+
     // This is the method that handles that,
     private void resubmitWithNewSequence(final ManagedTxn txn) {
         // A sequence plug's sole purpose is to plug a Sequence
@@ -455,15 +518,12 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
                         return txn.isFinalized();
                     }
                 },
-                new OnValidatedSequence() {
-                    @Override
-                    public void called(UInt32 uInt32) {
+                    uInt32 -> {
                         // Again, just to be safe.
                         if (txnNotFinalizedAndSeenValidatedSequence(txn)) {
                             resubmit(txn, locallyPreemptedSubmissionSequence());
                         }
-                    }
-            });
+                    });
         }
     }
 
@@ -497,11 +557,20 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
             finalizeTxnAndRemoveFromQueue(txn);
             failedTransactions.remove(txn);
             txn.emit(ManagedTxn.OnTransactionValidated.class, tr);
-        } else {
-            // TODO Check for transaction malleability, by computing a signing hash
-            // preempt the terPRE_SEQ
+        } else //noinspection DanglingJavadoc
+        {
+            // TODO: Check for transaction malleability, by computing a signing
+            // hash.
+            // ND2017: With RFC 6979 and canonical signatures, this should not
+            // be a problem.
+
+            // Preempt the terPRE_SEQ
             resubmitFirstTransactionWithTakenSequence(txnSequence);
             // Some transactions are waiting on this event before resubmission
+            // TODO: this assumes transactions will come in ordered
+            /**
+             * {@link com.ripple.client.subscriptions.ledger.LedgerSubscriber}
+             */
             emit(OnValidatedSequence.class, txnSequence.add(new UInt32(1)));
         }
     }

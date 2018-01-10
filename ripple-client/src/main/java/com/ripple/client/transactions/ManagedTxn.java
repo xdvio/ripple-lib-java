@@ -16,11 +16,44 @@ import java.util.ArrayList;
 import java.util.TreeSet;
 
 public class ManagedTxn extends SignedTransaction {
-    public static interface events<T> extends Callback<T> {}
-    public static interface OnSubmitSuccess extends events<Response> {}
-    public static interface OnSubmitFailure extends events<Response> {}
-    public static interface OnSubmitError extends events<Response> {}
-    public static interface OnTransactionValidated extends events<TransactionResult> {}
+    public interface events<T> extends Callback<T> {}
+    public interface OnSubmitSuccess extends events<Response> {}
+    public interface OnSubmitFailure extends events<Response> {}
+    public interface OnSubmitError extends events<Response> {}
+    public interface OnTransactionValidated extends events<TransactionResult> {}
+
+    public ManagedTxn onSubmitFailure(OnSubmitFailure onSubmitFailure) {
+        on(OnSubmitFailure.class, onSubmitFailure);
+        return this;
+    }
+    public ManagedTxn onceSubmitFailure(OnSubmitFailure onSubmitFailure) {
+        once(OnSubmitFailure.class, onSubmitFailure);
+        return this;
+    }
+    public ManagedTxn onSubmitSuccess(OnSubmitSuccess onSubmitSuccess) {
+        on(OnSubmitSuccess.class, onSubmitSuccess);
+        return this;
+    }
+    public ManagedTxn onceSubmitSuccess(OnSubmitSuccess onSubmitSuccess) {
+        once(OnSubmitSuccess.class, onSubmitSuccess);
+        return this;
+    }
+    public ManagedTxn onSubmitError(OnSubmitError onSubmitError) {
+        on(OnSubmitError.class, onSubmitError);
+        return this;
+    }
+    public ManagedTxn onceSubmitError(OnSubmitError onSubmitError) {
+        once(OnSubmitError.class, onSubmitError);
+        return this;
+    }
+    public ManagedTxn onTransactionValidated(OnTransactionValidated onTransactionValidated) {
+        on(OnTransactionValidated.class, onTransactionValidated);
+        return this;
+    }
+    public ManagedTxn onceTransactionValidated(OnTransactionValidated onTransactionValidated) {
+        once(OnTransactionValidated.class, onTransactionValidated);
+        return this;
+    }
 
     public TransactionResult result;
 
@@ -78,7 +111,7 @@ public class ManagedTxn extends SignedTransaction {
     }
     public void setSequencePlug(boolean isNoop) {
         this.isSequencePlug = isNoop;
-        setDescription("SequencePlug");
+        description("SequencePlug");
     }
 
     private String description;
@@ -88,10 +121,9 @@ public class ManagedTxn extends SignedTransaction {
         }
         return description;
     }
-    public void setDescription(String description) {
+    public void description(String description) {
         this.description = description;
     }
-
 
     public ManagedTxn(Transaction txn) {
         this.txn = txn;
@@ -104,7 +136,6 @@ public class ManagedTxn extends SignedTransaction {
         Request req = lastSubmission().request;
         return res.request == req;
     }
-
 
     public boolean finalizedOrResponseIsToPriorSubmission(Response res) {
         return isFinalized() || !responseWasToLastSubmission(res);

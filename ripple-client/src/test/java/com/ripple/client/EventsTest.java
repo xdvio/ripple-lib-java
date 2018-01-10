@@ -1,6 +1,7 @@
 package com.ripple.client;
 
 import com.ripple.client.subscriptions.SubscriptionManager;
+import com.ripple.client.transactions.ManagedTxn;
 import org.junit.Test;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -17,7 +18,7 @@ public class EventsTest {
 
      @Test
     public void testFluentBinders() throws Exception {
-        Class<?> rootKlass = Client.class;
+        Class<?> rootKlass = ManagedTxn.class;
         String canonicalName = rootKlass.getCanonicalName();
         Class<?> eventsKlass = classLoader.loadClass(canonicalName + "$events");
 
