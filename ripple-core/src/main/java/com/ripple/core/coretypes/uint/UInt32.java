@@ -57,8 +57,6 @@ public class UInt32 extends UInt<UInt32> {
         return longValue();
     }
 
-    private UInt32(){}
-
     private static UInt32Field int32Field(final Field f) {
         return new UInt32Field(){ @Override public Field getField() {return f;}};
     }

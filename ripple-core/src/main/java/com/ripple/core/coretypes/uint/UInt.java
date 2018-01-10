@@ -10,39 +10,54 @@ import com.ripple.utils.Utils;
 import java.math.BigInteger;
 
 abstract public class UInt<Subclass extends UInt> extends Number implements SerializedType, Comparable<UInt> {
+    private final BigInteger value;
 
-    private BigInteger value;
 
-    public static BigInteger Max8  = new BigInteger("256"),
-                             Max16 = new BigInteger("65536"),
-                             Max32 = new BigInteger("4294967296"),
-                             Max64 = new BigInteger("18446744073709551616");
-
-    public BigInteger getMinimumValue() {
-        return BigInteger.ZERO;
+    private static BigInteger[] upperBounds = new BigInteger[8];
+    private static BigInteger maxUIntVal(int bits) {
+        return new BigInteger("2").pow(bits).subtract(BigInteger.ONE);
     }
+
+    static {
+        for (int i = 0; i < 8; i++) {
+            upperBounds[i] = maxUIntVal((i + 1) * 8 );
+        }
+    }
+
     UInt(byte[] bytes) {
-        setValue(new BigInteger(1, bytes));
+        value = new BigInteger(1, bytes);
+        checkBounds();
     }
+
+    private void checkBounds() {
+        BigInteger upper = upperBounds[getByteWidth() - 1];
+        if (value.compareTo(upper) > 0 || value.compareTo(BigInteger.ZERO) < 0) {
+            throw new IllegalArgumentException("value `" + value +
+                    "` is illegal for " + getClass().getSimpleName());
+        }
+    }
+
     UInt(BigInteger bi) {
-        setValue(bi);
+        value = (bi);
+        checkBounds();
     }
     UInt(Number s) {
-        setValue(BigInteger.valueOf(s.longValue()));
+        value = (BigInteger.valueOf(s.longValue()));
+        checkBounds();
     }
     UInt(String s) {
-        setValue(new BigInteger(s));
+        value = (new BigInteger(s));
+        checkBounds();
     }
     UInt(String s, int radix) {
-        setValue(new BigInteger(s, radix));
+        value = (new BigInteger(s, radix));
+        checkBounds();
     }
 
     @Override
     public String toString() {
         return value.toString();
     }
-
-    UInt() {}
 
     public abstract int getByteWidth();
     public abstract Subclass instanceFrom(BigInteger n);
@@ -149,10 +164,6 @@ abstract public class UInt<Subclass extends UInt> extends Number implements Seri
     @Override
     public short shortValue() {
         return value.shortValue();
-    }
-
-    public void setValue(BigInteger value) {
-        this.value = value;
     }
 
     public <T extends UInt> boolean  lte(T sequence) {

@@ -59,8 +59,6 @@ public class UInt64 extends UInt<UInt64> {
         return bigInteger();
     }
 
-    private UInt64(){}
-
     private static UInt64Field int64Field(final Field f) {
         return new UInt64Field(){ @Override public Field getField() {return f;}};
     }

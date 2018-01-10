@@ -58,9 +58,6 @@ public class UInt8 extends UInt<UInt8> {
         return shortValue();
     }
 
-    private UInt8() {
-    }
-
     private static UInt8Field int8Field(final Field f) {
         return new UInt8Field() {@Override public Field getField() {return f; } };
     }
