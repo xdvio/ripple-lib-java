@@ -48,10 +48,10 @@ public class Index {
         return rippleState(accounts, currency);
     }
 
-    public static Hash256 rippleState(List<AccountID> accounts, Currency currency) {
+    public static Hash256 rippleState(List<AccountID> sortedAccounts, Currency currency) {
         HalfSha512 hasher = prefixed256(LedgerSpace.ripple);
         // Low then High
-        for (AccountID account : accounts) account.toBytesSink(hasher);
+        for (AccountID account : sortedAccounts) account.toBytesSink(hasher);
         // Currency
         currency.toBytesSink(hasher);
 
@@ -147,4 +147,13 @@ public class Index {
                 .add(UInt32.ZERO)
                 .finish();
     }
+
+    public static Hash256 ticket(AccountID account, UInt32 sequence) {
+        return prefixed256(LedgerSpace.ticket)
+                .add(account)
+                .add(sequence)
+                .finish();
+    }
+
+
 }

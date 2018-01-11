@@ -49,4 +49,12 @@ class IndexTest {
         val actual = Index.signerList(account)
         assertEquals(expected, actual)
     }
+
+    @Test
+    fun ticket() {
+        val account = address("rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh")
+        val expected = hash256("EE418FDC986F49CF6486E88AC61F4ED64607F134F03B7A525828213AAC066AE2")
+        val actual = Index.ticket(account, UInt32(5))
+        assertEquals(expected, actual)
+    }
 }
