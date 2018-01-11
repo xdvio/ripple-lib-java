@@ -1,6 +1,5 @@
 package com.ripple.crypto.ecdsa
 
-import com.ripple.config.Config
 import com.ripple.core.coretypes.AccountID
 import com.ripple.core.coretypes.STObject
 import com.ripple.core.types.known.tx.Transaction
@@ -15,12 +14,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 
 class EDKeyPairTest {
-    companion object {
-        init {
-            Config.initBouncy()
-        }
-    }
-
     @Language("JSON")
     private val fixturesJson = """{
       "tx_json": {

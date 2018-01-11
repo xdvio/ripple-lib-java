@@ -95,6 +95,7 @@ public class Client extends Publisher<Client.events> {
     public interface OnDisconnected extends events<Client> {}
     public interface OnSubscribed extends events<ServerInfo> {}
     public interface OnMessage extends events<JSONObject> {}
+    public interface OnError extends events<Exception> {}
     public interface OnSendMessage extends events<JSONObject> {}
     public interface OnValidationReceived extends events<JSONObject> {}
 
@@ -209,7 +210,7 @@ public class Client extends Publisher<Client.events> {
     protected TreeMap<Integer, Request> requests = new TreeMap<>();
 
     // Give the client a name for debugging purposes
-    private String name = "client-" + clients.getAndIncrement();
+    private String name = "client-" + clients.incrementAndGet();
 
     // Keeps track of the `id` doled out to Request objects
     private int cmdIDs;
@@ -431,15 +432,13 @@ public class Client extends Publisher<Client.events> {
     private void whenConnected(boolean nextTick, final OnConnected onConnected) {
         if (connected) {
             if (nextTick) {
-                schedule(0, () -> {
-                    onConnected.called(Client.this);
-                });
+                schedule(0, () -> onConnected.called(Client.this));
             } else {
-                // TODO: run ?
-                // need an annotation ...
-                onConnected.called(this);
+                run(() -> onConnected.called(this));
             }
         }  else {
+            // Will be run inside the run(...) block called from WebSocket
+            // thread
             once(OnConnected.class, onConnected);
         }
     }
@@ -484,6 +483,9 @@ public class Client extends Publisher<Client.events> {
         if (logger.isLoggable(Level.WARNING)) {
             log(Level.WARNING, "Exception {0}", e);
         }
+        // onException could be called from various threads so call from the
+        // client loop thread, as Publisher is not thread safe.
+        run(() -> emit(OnError.class, e));
     }
 
     private void resetReconnectStatus() {
@@ -802,6 +804,8 @@ public class Client extends Publisher<Client.events> {
         final boolean[] finalized = new boolean[]{false};
 
         final Request request = newRequest(cmd);
+        int ms = manager.retryAfterMs();
+
         @SuppressWarnings("CodeBlock2Expr")
         final OnDisconnected cb = __ -> {
             nowOrWhenConnected((___) -> {
@@ -809,7 +813,7 @@ public class Client extends Publisher<Client.events> {
                     finalized[0] = true;
                     logRetry(request, "Client disconnected");
                     request.clearAllListeners();
-                    queueRetry(50, cmd, manager, builder);
+                    queueRetry(ms, cmd, manager, builder);
                 }
             });
         };
@@ -824,7 +828,7 @@ public class Client extends Publisher<Client.events> {
                 manager.cb(response, t);
             } else {
                 if (manager.retryOnUnsuccessful(response)) {
-                    queueRetry(50, cmd, manager, builder);
+                    queueRetry(ms, cmd, manager, builder);
                 } else {
                     manager.cb(response, null);
                 }
@@ -837,7 +841,7 @@ public class Client extends Publisher<Client.events> {
                 logRetry(request, "Request timed out, cleared onDisconnected="
                                 + cleared);
                 request.clearAllListeners();
-                queueRetry(50, cmd, manager, builder);
+                queueRetry(ms, cmd, manager, builder);
             }
         });
         builder.beforeRequest(request);

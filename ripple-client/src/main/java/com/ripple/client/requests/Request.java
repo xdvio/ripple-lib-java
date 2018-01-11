@@ -28,7 +28,7 @@ public class Request extends Publisher<Request.events> {
         }
     }
 
-    public static interface Builder<T> {
+    public interface Builder<T> {
         void beforeRequest(Request request);
         T buildTypedResponse(Response response);
     }
@@ -80,10 +80,14 @@ public class Request extends Publisher<Request.events> {
             return false;
         }
 
+        public int retryAfterMs() {
+            return 50;
+        }
+
         public void beforeRequest(Request r) {}
     }
 
-    Client client;
+    private Client client;
     public Command           cmd;
     public Response     response;
     private JSONObject      json;

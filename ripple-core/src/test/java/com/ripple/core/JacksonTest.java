@@ -1,7 +1,6 @@
 package com.ripple.core;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.ripple.config.Config;
 import com.ripple.core.coretypes.Amount;
 import com.ripple.core.coretypes.STObject;
 import com.ripple.core.types.known.tx.Transaction;
@@ -11,9 +10,6 @@ import org.junit.Test;
 import static junit.framework.TestCase.assertEquals;
 
 public class JacksonTest {
-    static {
-        Config.initBouncy();
-    }
 
     private static final String amount = "{\n" +
             "  \"currency\" : \"USD\",\n" +

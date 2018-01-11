@@ -4,7 +4,6 @@ import com.ripple.client.Client;
 import com.ripple.client.subscriptions.ServerInfo;
 import com.ripple.client.subscriptions.ledger.LedgerSubscriber;
 import com.ripple.client.transport.impl.JavaWebSocketTransportImpl;
-import com.ripple.config.Config;
 import com.ripple.core.coretypes.Amount;
 import com.ripple.core.coretypes.STObject;
 import com.ripple.core.types.known.sle.entries.Offer;
@@ -18,9 +17,6 @@ import static com.ripple.java8.utils.Print.print;
  * offers.
  */
 public class OffersExecuted {
-    static {
-        Config.initBouncy();
-    }
 
     public static void main(String[] args) {
         print("pid={0}", ProcessHelper.getPID());

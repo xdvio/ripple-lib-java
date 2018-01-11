@@ -1,6 +1,5 @@
 package com.ripple.core.coretypes;
 
-import com.ripple.config.Config;
 import com.ripple.core.coretypes.hash.Hash256;
 import org.junit.Test;
 
@@ -9,9 +8,6 @@ import java.math.BigDecimal;
 import static junit.framework.TestCase.assertEquals;
 
 public class QualityTest {
-    static {
-        Config.initBouncy();
-    }
 
     @Test
     public void testFromBookDirectory() throws Exception {

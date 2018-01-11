@@ -1,13 +1,9 @@
 package com.ripple.core;
 
-import com.ripple.config.Config;
 import com.ripple.core.coretypes.AccountID;
 import com.ripple.crypto.Seed;
 
 public class TestFixtures {
-    {
-        Config.initBouncy();
-    }
     /*
     * From wallet_propose masterpassphrase
     * */

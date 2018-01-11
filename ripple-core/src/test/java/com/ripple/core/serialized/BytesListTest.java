@@ -1,14 +1,10 @@
 package com.ripple.core.serialized;
 
-import com.ripple.config.Config;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 
 public class BytesListTest {
-    static {
-        Config.initBouncy();
-    }
 
     @Test
     public void testNested() throws Exception {

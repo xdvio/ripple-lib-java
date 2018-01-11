@@ -1,6 +1,5 @@
 package com.ripple.encodings;
 
-import com.ripple.config.Config;
 import com.ripple.core.TestFixtures;
 import com.ripple.encodings.addresses.Addresses;
 import org.junit.Assert;
@@ -9,9 +8,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class B58IdentifierTest {
-    static {
-        Config.initBouncy();
-    }
     @Test
     public void testDecodeFamilySeed() {
         Assert.assertArrayEquals(TestFixtures.master_seed_bytes,

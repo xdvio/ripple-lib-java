@@ -6,17 +6,20 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * This API is currently not thread safe.
+ */
 public class Publisher<CompatHack extends Publisher.Callback> {
     static final Logger logger = Logger.getLogger(Publisher.class.getName());
     private void log(Level level, String message, Object... params) {
         logger.log(level, message, params);
     }
 
-    public static interface Callback<T> {
+    public interface Callback<T> {
         public void called(T args);
     }
 
-    public static interface ErrBack<T> extends Callback<T> {
+    public interface ErrBack<T> extends Callback<T> {
         public void erred(RuntimeException args);
     }
 

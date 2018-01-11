@@ -1,6 +1,5 @@
 package com.ripple.utils
 
-import com.ripple.config.Config
 import com.ripple.core.binary.STReader
 import com.ripple.core.coretypes.hash.Hash256
 import com.ripple.core.coretypes.uint.UInt32
@@ -18,9 +17,6 @@ import java.io.File
 import java.util.*
 
 class HistoryLoaderTest {
-    init {
-        Config.initBouncy()
-    }
     @Test
     fun testLoadTransactions() {
 

@@ -1,6 +1,5 @@
 package com.ripple.client.subscriptions;
 
-import com.ripple.config.Config;
 import com.ripple.core.coretypes.AccountID;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -8,9 +7,6 @@ import org.junit.Test;
 import static junit.framework.TestCase.assertEquals;
 
 public class SubscriptionManagerTest {
-    static {
-        Config.initBouncy();
-    }
 
     public static AccountID bob_account = AccountID.fromSeedString("shn6zJ8zzkaoFSfsEWvJLZf3V344C");
 

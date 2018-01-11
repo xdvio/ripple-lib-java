@@ -1,6 +1,5 @@
 package com.ripple.client.subscriptions;
 
-import com.ripple.config.Config;
 import com.ripple.core.coretypes.Amount;
 import com.ripple.core.types.known.tx.Transaction;
 import org.json.JSONObject;

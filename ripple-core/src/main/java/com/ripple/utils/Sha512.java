@@ -5,12 +5,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
 public class Sha512 {
-    MessageDigest messageDigest;
+    private MessageDigest messageDigest;
 
     public Sha512() {
         try {
-            messageDigest = MessageDigest.getInstance("SHA-512", "BC");
-        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            messageDigest = MessageDigest.getInstance("SHA-512");
+        } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }

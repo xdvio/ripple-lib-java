@@ -1,6 +1,5 @@
 package com.ripple.core.coretypes;
 
-import com.ripple.config.Config;
 import org.json.JSONArray;
 import org.junit.Test;
 
@@ -9,9 +8,6 @@ import static junit.framework.TestCase.assertTrue;
 
 
 public class PathSetTest {
-    static {
-        Config.initBouncy();
-    }
 
     @Test
     public void testSerialization() throws Exception {

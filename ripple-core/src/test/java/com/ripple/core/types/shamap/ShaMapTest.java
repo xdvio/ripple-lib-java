@@ -1,6 +1,5 @@
 package com.ripple.core.types.shamap;
 
-import com.ripple.config.Config;
 import com.ripple.core.coretypes.hash.Hash256;
 import org.junit.Test;
 
@@ -17,9 +16,6 @@ public class ShaMapTest {
     See the README.md related to shamaps for an overview
 
     */
-    static {
-        Config.initBouncy();
-    }
 
     @Test
     public void testAddLeaf() {

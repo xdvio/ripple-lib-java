@@ -1,6 +1,5 @@
 package com.ripple.core.types.ledger;
 
-import com.ripple.config.Config;
 import com.ripple.core.binary.STReader;
 import com.ripple.core.coretypes.hash.prefixes.HashPrefix;
 import com.ripple.core.serialized.BinaryParser;
@@ -10,9 +9,6 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 public class LedgerTest {
-    static {
-        Config.initBouncy();
-    }
 
     @Test
     /**

@@ -4,7 +4,6 @@ import com.ripple.client.Client;
 import com.ripple.client.responses.Response;
 import com.ripple.client.transactions.AccountTxPager;
 import com.ripple.client.transport.impl.JavaWebSocketTransportImpl;
-import com.ripple.config.Config;
 import com.ripple.core.coretypes.AccountID;
 import com.ripple.core.types.known.tx.result.TransactionResult;
 
@@ -16,9 +15,6 @@ import static com.ripple.java8.utils.Print.printErr;
  * affecting the BitStamp account.
  */
 public class AccountTx {
-    static {
-        Config.initBouncy();
-    }
 
     static final AccountID bitStamp =
             AccountID.fromAddress("rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B");

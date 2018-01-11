@@ -1,6 +1,5 @@
 package com.ripple.core.coretypes.hash
 
-import com.ripple.config.Config
 import com.ripple.core.coretypes.AccountID
 import com.ripple.core.coretypes.uint.UInt32
 import org.junit.Assert.assertEquals
@@ -10,9 +9,6 @@ val address = AccountID::fromAddress
 val hash256 = Hash256::fromHex
 
 class IndexTest {
-    init {
-        Config.initBouncy()
-    }
     @Test
     fun paymentChannel() {
         val account = address("rDx69ebzbowuqztksVDmZXjizTd12BVr4x")

@@ -1,6 +1,5 @@
 package com.ripple.core.types.shamap;
 
-import com.ripple.config.Config;
 import com.ripple.core.coretypes.hash.Hash256;
 import com.ripple.core.coretypes.hash.prefixes.Prefix;
 import com.ripple.core.serialized.BytesSink;
@@ -11,9 +10,6 @@ import java.io.UnsupportedEncodingException;
 import static junit.framework.TestCase.assertEquals;
 
 public class ShaMapDiffTest {
-    static {
-        Config.initBouncy();
-    }
 
     public interface Comparison {
         String[] A();

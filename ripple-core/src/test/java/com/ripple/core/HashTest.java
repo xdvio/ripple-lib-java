@@ -1,6 +1,5 @@
 package com.ripple.core;
 
-import com.ripple.config.Config;
 import com.ripple.core.coretypes.STObject;
 import com.ripple.core.coretypes.hash.Hash128;
 import com.ripple.core.coretypes.hash.Hash256;
@@ -14,9 +13,6 @@ import static org.junit.Assert.assertEquals;
 
 
 public class HashTest{
-    static {
-        Config.initBouncy();
-    }
 
     @Test(expected = IllegalArgumentException.class)
     public void testDoesNoImplicitPadding() {

@@ -1,6 +1,5 @@
 package com.ripple.core;
 
-import com.ripple.config.Config;
 import com.ripple.crypto.ed25519.EDKeyPair;
 import com.ripple.crypto.keys.IKeyPair;
 import com.ripple.crypto.Seed;
@@ -10,9 +9,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class SeedTest {
-    static {
-        Config.initBouncy();
-    }
     private static final String[] ADDRESS_ARRAY = new String[] {
             // seedStr, addressBytes, accountNumber, keypair pub hex
             "masterpassphrase", "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh", "0", "0330E7FC9D56BB25D6893BA3F317AE5BCF33B3291BD63DB32654A313222F7FD020",
