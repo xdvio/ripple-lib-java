@@ -1,4 +1,4 @@
-package com.ripple.encodings.base58;
+package com.ripple.encodings.basex;
 
 public class EncodingFormatException extends RuntimeException{
     public EncodingFormatException(String message) {

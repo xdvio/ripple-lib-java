@@ -3,7 +3,7 @@ package com.ripple.core;
 import com.ripple.core.coretypes.AccountID;
 import com.ripple.core.coretypes.Amount;
 import com.ripple.core.coretypes.uint.UInt32;
-import com.ripple.encodings.base58.EncodingFormatException;
+import com.ripple.encodings.basex.EncodingFormatException;
 import org.json.JSONObject;
 import org.junit.Test;
 

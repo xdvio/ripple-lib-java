@@ -41,4 +41,12 @@ class IndexTest {
                 "4BC50C9B0D8515D3EAAE1E74B29A95804346C491EE1A95BF25E4AAB854A6A651")
         assertEquals(expected, Index.feeSettings())
     }
+
+    @Test
+    fun signerList() {
+        val account = address("rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh")
+        val expected = hash256("778365D5180F5DF3016817D1F318527AD7410D83F8636CF48C43E8AF72AB49BF")
+        val actual = Index.signerList(account)
+        assertEquals(expected, actual)
+    }
 }

@@ -1,7 +1,7 @@
 package com.ripple.core;
 
 import com.ripple.core.coretypes.AccountID;
-import com.ripple.encodings.base58.EncodingFormatException;
+import com.ripple.encodings.basex.EncodingFormatException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

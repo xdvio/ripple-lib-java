@@ -1,6 +1,5 @@
 package com.ripple.encodings.basex;
 
-import com.ripple.encodings.base58.EncodingFormatException;
 import com.ripple.utils.HashUtils;
 
 import java.util.Arrays;

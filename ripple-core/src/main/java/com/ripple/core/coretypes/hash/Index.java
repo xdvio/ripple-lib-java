@@ -140,4 +140,11 @@ public class Index {
     public static Hash256 feeSettings() {
         return prefixed256(LedgerSpace.fee).finish();
     }
+
+    public static Hash256 signerList(AccountID account) {
+        return prefixed256(LedgerSpace.signerList)
+                .add(account)
+                .add(UInt32.ZERO)
+                .finish();
+    }
 }
