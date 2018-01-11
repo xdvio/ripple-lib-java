@@ -48,7 +48,7 @@ public class UInt32 extends UInt<UInt32> {
     }
 
     @Override
-    public UInt32 instanceFrom(BigInteger n) {
+    protected UInt32 instanceFrom(BigInteger n) {
         return new UInt32(n);
     }
 

@@ -12,7 +12,6 @@ import java.math.BigInteger;
 abstract public class UInt<Subclass extends UInt> extends Number implements SerializedType, Comparable<UInt> {
     private final BigInteger value;
 
-
     private static BigInteger[] upperBounds = new BigInteger[8];
     private static BigInteger maxUIntVal(int bits) {
         return new BigInteger("2").pow(bits).subtract(BigInteger.ONE);
@@ -60,11 +59,7 @@ abstract public class UInt<Subclass extends UInt> extends Number implements Seri
     }
 
     public abstract int getByteWidth();
-    public abstract Subclass instanceFrom(BigInteger n);
-
-    private boolean isValid(BigInteger n) {
-        return !((bitLength() / 8) > getByteWidth());
-    }
+    protected abstract Subclass instanceFrom(BigInteger n);
 
     public Subclass add(UInt val) {
         return instanceFrom(value.add(val.value));
@@ -94,10 +89,6 @@ abstract public class UInt<Subclass extends UInt> extends Number implements Seri
         return instanceFrom(value.shiftRight(n));
     }
 
-    public int bitLength() {
-        return value.bitLength();
-    }
-
     public int compareTo(UInt val) {
         return value.compareTo(val.value);
     }
@@ -112,14 +103,6 @@ abstract public class UInt<Subclass extends UInt> extends Number implements Seri
 
     public boolean equals(UInt x) {
         return value.equals(x.value);
-    }
-
-    public BigInteger min(BigInteger val) {
-        return value.min(val);
-    }
-
-    public BigInteger max(BigInteger val) {
-        return value.max(val);
     }
 
     public String toString(int radix) {

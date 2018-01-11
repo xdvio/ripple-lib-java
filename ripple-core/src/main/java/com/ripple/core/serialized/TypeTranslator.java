@@ -70,27 +70,27 @@ public abstract class TypeTranslator<T extends SerializedType> {
 
     }
 
-    public T fromJacksonObject(ObjectNode object) {
+    protected T fromJacksonObject(ObjectNode object) {
         throw new UnsupportedOperationException();
     }
 
-    public T fromJacksonArray(ArrayNode node) {
+    protected T fromJacksonArray(ArrayNode node) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean toBoolean(T obj) {
+    protected boolean toBoolean(T obj) {
         throw new UnsupportedOperationException();
     }
 
-    public long toLong(T obj) {
+    protected long toLong(T obj) {
         throw new UnsupportedOperationException();
     }
 
-    public int toInteger(T obj) {
+    protected int toInteger(T obj) {
         throw new UnsupportedOperationException();
     }
 
-    public double toDouble(T obj) {
+    protected double toDouble(T obj) {
         throw new UnsupportedOperationException();
     }
 
@@ -98,31 +98,31 @@ public abstract class TypeTranslator<T extends SerializedType> {
         return obj.toString();
     }
 
-    public T fromJSONObject(JSONObject jsonObject) {
+    protected T fromJSONObject(JSONObject jsonObject) {
         throw new UnsupportedOperationException();
     }
 
-    public T fromJSONArray(JSONArray jsonArray) {
+    protected T fromJSONArray(JSONArray jsonArray) {
         throw new UnsupportedOperationException();
     }
 
-    public T fromBoolean(boolean aBoolean) {
+    protected T fromBoolean(boolean aBoolean) {
         throw new UnsupportedOperationException();
     }
 
-    public T fromLong(long aLong) {
+    protected T fromLong(long aLong) {
         throw new UnsupportedOperationException();
     }
 
-    public T fromInteger(int integer) {
+    protected T fromInteger(int integer) {
         throw new UnsupportedOperationException();
     }
 
-    public T fromDouble(double aDouble) {
+    protected T fromDouble(double aDouble) {
         throw new UnsupportedOperationException();
     }
 
-    public T fromString(String value) {
+    protected T fromString(String value) {
         throw new UnsupportedOperationException();
     }
 
@@ -143,11 +143,11 @@ public abstract class TypeTranslator<T extends SerializedType> {
         return fromBytes(B16.decode(hex));
     }
 
-    public JSONObject toJSONObject(T obj) {
+    protected JSONObject toJSONObject(T obj) {
         throw new UnsupportedOperationException();
     }
 
-    public JSONArray toJSONArray(T obj) {
+    protected JSONArray toJSONArray(T obj) {
         throw new UnsupportedOperationException();
     }
     public Object toJSON(T obj) {

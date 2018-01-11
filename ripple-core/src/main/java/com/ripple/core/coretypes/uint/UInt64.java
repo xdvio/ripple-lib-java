@@ -50,7 +50,7 @@ public class UInt64 extends UInt<UInt64> {
     }
 
     @Override
-    public UInt64 instanceFrom(BigInteger n) {
+    protected UInt64 instanceFrom(BigInteger n) {
         return new UInt64(n);
     }
 

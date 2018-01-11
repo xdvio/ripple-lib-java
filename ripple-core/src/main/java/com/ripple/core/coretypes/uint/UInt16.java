@@ -49,7 +49,7 @@ public class UInt16 extends UInt<UInt16> {
     }
 
     @Override
-    public UInt16 instanceFrom(BigInteger n) {
+    protected UInt16 instanceFrom(BigInteger n) {
         return new UInt16(n);
     }
 
