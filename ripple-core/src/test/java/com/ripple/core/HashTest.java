@@ -11,13 +11,12 @@ import static org.junit.Assert.assertEquals;
 
 
 public class HashTest{
-    @Test
-    public void testPadding() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testDoesNoImplicitPadding() {
         Hash128 hash128 = new Hash128(new byte[]{0});
-        assertEquals(16, hash128.bytes().length);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testBoundsChecking() {
         Hash128 hash128 = new Hash128(new byte[32]);
     }

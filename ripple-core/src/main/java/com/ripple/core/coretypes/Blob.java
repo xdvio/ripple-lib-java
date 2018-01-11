@@ -13,10 +13,10 @@ import org.bouncycastle.util.encoders.Hex;
 
 public class Blob implements SerializedType {
     public Blob(byte[] bytes) {
-        buffer = bytes;
+        buffer = bytes.clone();
     }
 
-    byte[] buffer;
+    private final byte[] buffer;
 
     @Override
     public Object toJSON() {
@@ -77,7 +77,7 @@ public class Blob implements SerializedType {
 
         @Override
         public void toBytesSink(Blob obj, BytesSink to) {
-            to.add(obj.buffer);
+            to.add(obj.buffer.clone());
         }
     }
 

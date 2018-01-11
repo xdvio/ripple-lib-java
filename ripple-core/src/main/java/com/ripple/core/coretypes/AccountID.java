@@ -13,6 +13,7 @@ import com.ripple.core.serialized.TypeTranslator;
 import com.ripple.crypto.keys.IKeyPair;
 import com.ripple.crypto.Seed;
 import com.ripple.encodings.common.B16;
+import com.ripple.utils.Utils;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -86,8 +87,7 @@ public class AccountID extends Hash160 {
     }
 
     static public AccountID fromInteger(Integer n) {
-        // The hash160 constructor will extend the 4bytes address
-        return fromBytes(new Hash160(new UInt32(n).toByteArray()).bytes());
+        return fromBytes(Utils.padTo160(new UInt32(n).toByteArray()));
     }
 
     public static AccountID fromBytes(byte[] bytes) {

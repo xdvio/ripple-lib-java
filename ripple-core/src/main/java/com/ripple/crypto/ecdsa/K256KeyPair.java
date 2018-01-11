@@ -17,7 +17,7 @@ public class K256KeyPair extends K256VerifyingKey implements IKeyPair {
 
     K256KeyPair(BigInteger privateKey, ECPoint pub, byte[] pubEncoded) {
         super(pub, pubEncoded);
-        this.privateKey = Utils.to256(privateKey.toByteArray());
+        this.privateKey = Utils.padTo256(privateKey.toByteArray());
         signer= new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));
         ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(privateKey, SECP256K1.params());
         signer.init(true, privKey);

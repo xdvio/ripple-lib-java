@@ -14,7 +14,7 @@ import java.util.*
 
 class AccountStateTest {
 
-    // @Test
+     @Test
     fun loadFromLedgerDump() {
         val file = File("/Users/ndudfield/ripple/rippled/ledger.json")
 

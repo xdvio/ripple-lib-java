@@ -82,12 +82,7 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
     // amount is native.
     private AccountID issuer;
 
-    // While internally the value is stored as a BigDecimal
-    // the mantissa and exponent, as per the binary
-    // format can be computed.
-    // The mantissa is computed lazily, then cached
-    // TODO: just compute it
-    private UInt64 mantissa = null;
+    private UInt64 mantissa;
     // The exponent is always calculated.
     private int exponent;
 
@@ -150,11 +145,13 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
             exponent = calculateExponent();
 
             if (value.precision() > MAXIMUM_IOU_PRECISION && !unbounded) {
-                String err = "value precision of " + value.precision() + " is greater than maximum " +
+                String err = "value precision of " + value.precision() +
+                        " is greater than maximum " +
                         "iou precision of " + MAXIMUM_IOU_PRECISION;
                 throw new PrecisionError(err, this);
             }
         }
+        mantissa = calculateMantissa();
     }
 
     private Amount newValue(BigDecimal newValue) {
@@ -191,11 +188,14 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
         return new Issue(currency, issuer);
     }
 
-    public UInt64 mantissa() {
-        // TODO:
-        if (mantissa == null) {
-            mantissa = calculateMantissa();
-        }
+    private UInt64 mantissa() {
+        // Having this lazily computed and then cached would give significant
+        // performance boosts in some single threaded contexts. Given the inputs
+        // for the method are at least effectively final, and the method is
+        // essentially a pure function, it seems probably safe to do. It
+        // seems at worst, that in a multi threaded context, some extra work
+        // will be done in rare cases?
+        // TODO: check this assumption
         return mantissa;
     }
 
@@ -519,10 +519,10 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
             return new Amount(new BigDecimal(value), currency, issuer);
         }
 
-        private void checkField(ObjectNode object, String value1) {
-            if (!object.has(value1)) {
+        private void checkField(ObjectNode object, String field) {
+            if (!object.has(field)) {
                 throw new IllegalArgumentException(object + "is missing `" +
-                        value1 + "`");
+                        field + "`");
             }
         }
     }
@@ -585,7 +585,9 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
     public static Amount fromIOUString(String val) {
         String[] split = val.split("/");
         if (split.length == 1) {
-            throw new RuntimeException("IOU string must be in the form number/currencyString or number/currencyString/issuerString");
+            throw new RuntimeException("IOU string must be in the form " +
+                    "number/currencyString or " +
+                    "number/currencyString/issuerString");
         } else if (split.length == 2) {
             return new Amount(new BigDecimal(split[0]), split[1]);
         } else {
@@ -651,13 +653,15 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
     }
 
     /**
-     * @return A String containing the value as a decimal number (in XRP scale)
+     * @return A String containing the value (in XRP scale when native)
+     * as a decimal number
+     *
      */
     public String valueText() {
         return value.signum() == 0 ? "0" : value().toPlainString();
     }
 
-    public void checkLowerDropBound(BigDecimal val) {
+    private void checkLowerDropBound(BigDecimal val) {
         if (val.scale() > 6) {
             PrecisionError bigger = getOutOfBoundsError(val,
                                     "smaller than min native value",
@@ -668,7 +672,7 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
     }
 
     private void checkUpperBound(BigDecimal val) {
-        if (val.compareTo(MAX_NATIVE_VALUE) == 1) {
+        if (val.compareTo(MAX_NATIVE_VALUE) > 0) {
             PrecisionError bigger = getOutOfBoundsError(val,
                                     "bigger than max native value ",
                                     MAX_NATIVE_VALUE);
@@ -677,17 +681,25 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
         }
     }
 
-    private static PrecisionError getOutOfBoundsError(BigDecimal abs, String sized, BigDecimal bound) {
-        return new PrecisionError(abs.toPlainString() + " absolute XRP is " + sized + bound);
+    private static PrecisionError getOutOfBoundsError(
+            BigDecimal abs,
+            String sized,
+            BigDecimal bound) {
+        return new PrecisionError(
+                abs.toPlainString() + " absolute XRP is " + sized + bound);
     }
 
     private void checkXRPBounds() {
         BigDecimal v = value.abs();
-        if (v.compareTo(TAKER_PAYS_FOR_THAT_DAMN_OFFER) == 0) {
-            return;
+        try {
+            checkLowerDropBound(v);
+            checkUpperBound(v);
+        } catch (PrecisionError e) {
+            if (v.compareTo(TAKER_PAYS_FOR_THAT_DAMN_OFFER) == 0) {
+                return;
+            }
+            throw e;
         }
-        checkLowerDropBound(v);
-        checkUpperBound(v);
     }
 
 

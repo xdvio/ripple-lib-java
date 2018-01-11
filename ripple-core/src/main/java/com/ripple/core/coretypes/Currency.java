@@ -5,6 +5,7 @@ import com.ripple.core.coretypes.uint.UInt64;
 import com.ripple.core.serialized.BinaryParser;
 import com.ripple.core.serialized.BytesSink;
 import com.ripple.encodings.common.B16;
+import com.ripple.utils.Utils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -19,8 +20,8 @@ import java.util.concurrent.TimeUnit;
  * https://gist.github.com/justmoon/8597643
  */
 public class Currency extends Hash160 {
-    public static final Currency NEUTRAL = new Currency(BigInteger.ONE.toByteArray());
-    public static final Currency XRP = new Currency(BigInteger.ZERO.toByteArray());
+    public static final Currency NEUTRAL = new Currency(Utils.padTo160(BigInteger.ONE.toByteArray()));
+    public static final Currency XRP = new Currency(Utils.padTo160(BigInteger.ZERO.toByteArray()));
 
     @Override
     public Object toJSON() {

@@ -35,8 +35,12 @@ public class Utils {
         return padTo(bytes, size);
     }
 
-    public static byte[] to256(byte[] bytes) {
+    public static byte[] padTo256(byte[] bytes) {
         return leadingZeroesTrimmedOrPaddedTo(32, bytes);
+    }
+
+    public static byte[] padTo160(byte[] bytes) {
+        return leadingZeroesTrimmedOrPaddedTo(20, bytes);
     }
 
     private static byte[] copyFrom(byte[] bytes, int offset, int size) {
