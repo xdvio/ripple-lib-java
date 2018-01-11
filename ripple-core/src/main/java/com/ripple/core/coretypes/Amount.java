@@ -60,6 +60,10 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
 
     public static final Amount ONE_XRP = fromString("1.0");
 
+    // TODO, even though all these fields are effectively final, and only
+    // ever set it would be nice to actually use the final modifier.
+    // Perhaps create an amount builder.
+
     // The quantity of XRP or Issue(currency/issuer pairing)
     // When native, the value unit is XRP, not drops.
     private BigDecimal value;
@@ -82,6 +86,7 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
     // the mantissa and exponent, as per the binary
     // format can be computed.
     // The mantissa is computed lazily, then cached
+    // TODO: just compute it
     private UInt64 mantissa = null;
     // The exponent is always calculated.
     private int exponent;
@@ -90,10 +95,10 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
         this(value, currency, issuer, false);
     }
 
-    public Amount(BigDecimal value) {
+    public Amount(BigDecimal xrpScaleValue) {
         isNative = true;
         currency = Currency.XRP;
-        this.setAndCheckValue(value);
+        this.setAndCheckValue(xrpScaleValue);
     }
 
     public Amount(BigDecimal value, Currency currency, AccountID issuer, boolean isNative, boolean unbounded) {
@@ -187,6 +192,7 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
     }
 
     public UInt64 mantissa() {
+        // TODO:
         if (mantissa == null) {
             mantissa = calculateMantissa();
         }
@@ -225,11 +231,11 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
         }
     }
 
-    protected int calculateExponent() {
+    private int calculateExponent() {
         return -MAXIMUM_IOU_PRECISION + value.precision() - value.scale();
     }
 
-    public BigInteger bigIntegerIOUMantissa() {
+    private BigInteger bigIntegerIOUMantissa() {
         return exactBigIntegerScaledByPowerOfTen(-exponent).abs();
     }
 
@@ -419,6 +425,7 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
 
     @Override
     public void toBytesSink(BytesSink to) {
+        // TODO: probably better off using long
         UInt64 man = mantissa();
 
         if (isNative()) {
@@ -433,7 +440,7 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
             if (isZero()) {
                 packed = BINARY_FLAG_IS_IOU;
             } else if (isNegative()) {
-                packed = man.or(new UInt64(512 + 0 + 97 + exponent).shiftLeft(64 - 10));
+                packed = man.or(new UInt64(512 + /* 0 + */ 97 + exponent).shiftLeft(64 - 10));
             } else {
                 packed = man.or(new UInt64(512 + 256 + 97 + exponent).shiftLeft(64 - 10));
             }
@@ -551,7 +558,7 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
     }
 
     public Amount newIssuer(AccountID issuer) {
-        return new Amount(value, currency, issuer);
+        return new Amount(value, currency, issuer, isNative, unbounded);
     }
 
     public Amount copy() {
@@ -570,9 +577,9 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
     }
 
     public static Amount fromDropString(String val) {
-        BigDecimal drops = new BigDecimal(val).scaleByPowerOfTen(-6);
+        BigDecimal xrp = new BigDecimal(val).scaleByPowerOfTen(-6);
         checkDropsValueWhole(val);
-        return new Amount(drops);
+        return new Amount(xrp);
     }
 
     public static Amount fromIOUString(String val) {
@@ -660,7 +667,7 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
         }
     }
 
-    public void checkUpperBound(BigDecimal val) {
+    private void checkUpperBound(BigDecimal val) {
         if (val.compareTo(MAX_NATIVE_VALUE) == 1) {
             PrecisionError bigger = getOutOfBoundsError(val,
                                     "bigger than max native value ",
@@ -674,7 +681,7 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
         return new PrecisionError(abs.toPlainString() + " absolute XRP is " + sized + bound);
     }
 
-    public void checkXRPBounds() {
+    private void checkXRPBounds() {
         BigDecimal v = value.abs();
         if (v.compareTo(TAKER_PAYS_FOR_THAT_DAMN_OFFER) == 0) {
             return;
