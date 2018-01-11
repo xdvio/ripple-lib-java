@@ -17,6 +17,7 @@ public class Seed {
     public Seed(byte[] seedBytes) {
         this(Addresses.SEED_K256, seedBytes);
     }
+
     public Seed(B58.Version version, byte[] seedBytes) {
         this.seedBytes = seedBytes;
         this.version = version;
@@ -53,7 +54,7 @@ public class Seed {
                 Arrays.equals(version.bytes, Addresses.SEED_ED25519.bytes)) {
             if (account != 0) throw new IllegalStateException();
             return EDKeyPair.from128Seed(seedBytes);
-        }  else {
+        } else {
             return K256.createKeyPair(seedBytes, account);
         }
 
@@ -76,16 +77,8 @@ public class Seed {
         }
     }
 
-    public static IKeyPair createKeyPair(byte[] seedBytes) {
-        return K256.createKeyPair(seedBytes, 0);
-    }
-
-    public static IKeyPair getKeyPair(byte[] seedBytes) {
-        return K256.createKeyPair(seedBytes, 0);
-    }
-
     public static IKeyPair getKeyPair(String b58) {
-        return getKeyPair(Addresses.decodeSeedToBytes(b58));
+        return fromBase58(b58).keyPair();
     }
 }
 

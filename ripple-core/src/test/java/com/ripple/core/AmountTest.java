@@ -3,24 +3,29 @@ package com.ripple.core;
 import com.ripple.core.coretypes.AccountID;
 import com.ripple.core.coretypes.Amount;
 import com.ripple.core.coretypes.uint.UInt32;
+import com.ripple.encodings.addresses.Addresses;
 import com.ripple.encodings.basex.EncodingFormatException;
 import org.json.JSONObject;
 import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.TreeMap;
 
 import static org.junit.Assert.*;
 
 public class AmountTest {
 
-    public String rootAddress = TestFixtures.master_seed_address;
-    Amount.Translator amounts = Amount.translate;
+    private String rootAddress = TestFixtures.master_seed_address;
+    private Amount.Translator amounts = Amount.translate;
 
-    static {
-        AccountID.addAliasFromPassPhrase("root", "masterpassphrase");
-        AccountID.addAliasFromPassPhrase("bob", "bob");
+    static private HashMap<String, AccountID> aliases = new HashMap<>();
+    {
+        aliases.put("bob", AccountID.fromPassPhrase("bob"));
+        aliases.put("root", AccountID.fromPassPhrase("masterpassphrase"));
     }
 
     @Test
@@ -276,7 +281,13 @@ public class AmountTest {
     }
 
     private static Amount amt(String s) {
-        return Amount.fromString(s);
+        String[] split = s.split("/");
+        if (split.length == 3) {
+            if (aliases.containsKey(split[2])) {
+                split[2] = aliases.get(split[2]).toString();
+            }
+        }
+        return Amount.fromString(String.join("/", split));
     }
 
     @Test

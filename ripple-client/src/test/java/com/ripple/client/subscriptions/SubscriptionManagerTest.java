@@ -8,7 +8,7 @@ import static junit.framework.TestCase.assertEquals;
 
 public class SubscriptionManagerTest {
 
-    public static AccountID bob_account = AccountID.fromSeedString("shn6zJ8zzkaoFSfsEWvJLZf3V344C");
+    public static AccountID bob_account = AccountID.fromSeed("shn6zJ8zzkaoFSfsEWvJLZf3V344C");
 
     @Test
     public void testConnectionSubscription() throws Exception {

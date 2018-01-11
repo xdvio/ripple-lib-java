@@ -3,6 +3,7 @@ package com.ripple.core;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ripple.core.coretypes.Amount;
 import com.ripple.core.coretypes.STObject;
+import com.ripple.core.coretypes.hash.Hash256;
 import com.ripple.core.types.known.tx.Transaction;
 import com.ripple.encodings.json.JSON;
 import org.junit.Test;

@@ -22,22 +22,18 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Originally it was intended that AccountIDs would be variable length so that's
  * why they are variable length encoded as top level field objects.
- *
+ * <p>
  * Note however, that in practice, all account ids are just 160 bit hashes.
  * Consider the fields TakerPaysIssuer and fixed length encoding of issuers in
  * amount serializations.
- *
+ * <p>
  * Thus, we extend Hash160 which affords us some functionality.
  */
 public class AccountID extends Hash160 {
-    // We can set aliases, so fromString(x) will return a given AccountID
-    // this is currently only used for tests, and not recommended to be used
-    // elsewhere.
-    // TODO: Perhaps move elsewhere then ...
-    private static Map<String, AccountID> aliases = new ConcurrentHashMap<>();
-    //
-    public static AccountID NEUTRAL = fromInteger(1), XRP_ISSUER = fromInteger(0);
-    final public String address;
+    public static final AccountID NEUTRAL = fromInteger(1);
+    public static final AccountID XRP_ISSUER = fromInteger(0);
+
+    public final String address;
 
     public AccountID(byte[] bytes) {
         this(bytes, encodeAddress(bytes));
@@ -51,16 +47,9 @@ public class AccountID extends Hash160 {
     // Static from* constructors
     public static AccountID fromString(String value) {
         if (value.length() == 160 / 4) {
-            return fromAddressBytes(B16.decode(value));
+            return fromBytes(B16.decode(value));
         } else {
-            if (value.startsWith("r") && value.length() >= 26) {
-                return fromAddress(value);
-            }
-            AccountID accountID = accountForAlias(value);
-            if (accountID == null) {
-                throw new UnknownAlias("Alias unset: " + value);
-            }
-            return accountID;
+            return fromAddress(value);
         }
     }
 
@@ -78,24 +67,16 @@ public class AccountID extends Hash160 {
         return fromKeyPair(Seed.fromPassPhrase(phrase).keyPair());
     }
 
-    static public AccountID fromSeedString(String seed) {
+    static public AccountID fromSeed(String seed) {
         return fromKeyPair(Seed.getKeyPair(seed));
     }
 
-    static public AccountID fromSeedBytes(byte[] seed) {
-        return fromKeyPair(Seed.getKeyPair(seed));
-    }
-
-    static public AccountID fromInteger(Integer n) {
+    private static AccountID fromInteger(Integer n) {
         return fromBytes(Utils.padTo160(new UInt32(n).toByteArray()));
     }
 
     public static AccountID fromBytes(byte[] bytes) {
         return new AccountID(bytes, encodeAddress(bytes));
-    }
-
-    static public AccountID fromAddressBytes(byte[] bytes) {
-        return fromBytes(bytes);
     }
 
     @Override
@@ -117,7 +98,7 @@ public class AccountID extends Hash160 {
     }
 
     public boolean isNativeIssuer() {
-        return equals(XRP_ISSUER);
+        return this == XRP_ISSUER || equals(XRP_ISSUER);
     }
 
     // SerializedType interface implementation
@@ -157,7 +138,7 @@ public class AccountID extends Hash160 {
             if (hint == null) {
                 hint = 20;
             }
-            return AccountID.fromAddressBytes(parser.read(hint));
+            return AccountID.fromBytes(parser.read(hint));
         }
 
         @Override
@@ -181,14 +162,6 @@ public class AccountID extends Hash160 {
         return Addresses.encodeAccountID(address);
     }
 
-    public static AccountID addAliasFromPassPhrase(String name, String phrase) {
-        return aliases.put(name, fromPassPhrase(phrase));
-    }
-
-    private static AccountID accountForAlias(String value) {
-        return aliases.get(value);
-    }
-
     // Typed field definitions
     private static AccountIDField accountField(final Field f) {
         return new AccountIDField() {
@@ -205,16 +178,4 @@ public class AccountID extends Hash160 {
     static public AccountIDField Issuer = accountField(Field.Issuer);
     static public AccountIDField Target = accountField(Field.Target);
     static public AccountIDField RegularKey = accountField(Field.RegularKey);
-
-    // Exceptions
-    public static class UnknownAlias extends RuntimeException {
-        /**
-         *
-         */
-        private static final long serialVersionUID = -8042838677708510072L;
-
-        public UnknownAlias(String s) {
-            super(s);
-        }
-    }
 }

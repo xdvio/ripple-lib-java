@@ -118,6 +118,6 @@ public class Transaction extends STObject {
     public AccountID signingKey() {
         // May be a regular Key
         byte[] pubKey = HashUtils.SHA256_RIPEMD160(signingPubKey().toBytes());
-        return AccountID.fromAddressBytes(pubKey);
+        return AccountID.fromBytes(pubKey);
     }
 }

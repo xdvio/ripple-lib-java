@@ -2,6 +2,9 @@ package com.ripple.encodings.addresses;
 
 
 import com.ripple.encodings.base58.B58;
+import com.ripple.encodings.basex.EncodingFormatException;
+import com.ripple.encodings.basex.IBaseX;
+import org.omg.IOP.Encoding;
 
 public class Addresses {
     public static final B58 codec = new B58("rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz");
@@ -57,5 +60,18 @@ public class Addresses {
 
     public static byte[] decodeNodePublic(String base58) {
         return decode(base58, NODE_PUBLIC_KEY);
+    }
+
+    public static boolean isValid(String encoded, B58.Version... versions) {
+        try {
+            codec.decodeVersioned(encoded, versions);
+            return true;
+        } catch (EncodingFormatException e) {
+            return false;
+        }
+    }
+
+    public static boolean isValidAccountID(String encoded) {
+        return isValid(encoded, ACCOUNT_ID);
     }
 }

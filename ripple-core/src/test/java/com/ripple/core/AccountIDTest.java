@@ -12,7 +12,7 @@ public class AccountIDTest {
 
     @Test
     public void testAddress() {
-        AccountID account = AccountID.fromSeedString(TestFixtures.master_seed);
+        AccountID account = AccountID.fromSeed(TestFixtures.master_seed);
         assertEquals(TestFixtures.master_seed_address, account.address);
     }
 
