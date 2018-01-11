@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 import time
+import sys
 import random
 import subprocess
+
+def set_network(direction):
+    print('setting connection', direction)
+    subprocess.run(['ifconfig', 'en0', direction])
 
 i = 0
 while True:
     i += 1
     direction = 'up' if i % 2 == 0 else 'down'
-    print('setting connection', direction)
-    subprocess.run(['ifconfig', 'en0', direction])
+    set_network(direction)
+
     sleep_for = random.randint(1_00, 60_00) / 100.
     print('sleeping for', sleep_for)
 
@@ -26,5 +31,7 @@ while True:
         try:
             time.sleep(0.2)
         except KeyboardInterrupt as e:
-            raise e
+            set_network('up')
+            sys.exit(0)
+
 

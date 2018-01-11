@@ -2,10 +2,15 @@ package com.ripple.java8.example;
 
 import com.ripple.client.Client;
 import com.ripple.client.transport.impl.JavaWebSocketTransportImpl;
+import com.ripple.config.Config;
 
 import static com.ripple.java8.utils.Print.print;
 
 public class Threaded {
+    static {
+        Config.initBouncy();
+    }
+
     private static final Object lock = new Object();
 
     public static void main(String[] args) throws InterruptedException {

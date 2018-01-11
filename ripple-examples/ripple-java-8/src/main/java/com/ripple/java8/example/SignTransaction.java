@@ -1,5 +1,6 @@
 package com.ripple.java8.example;
 
+import com.ripple.config.Config;
 import com.ripple.core.coretypes.AccountID;
 import com.ripple.core.coretypes.Amount;
 import com.ripple.core.coretypes.STObject;
@@ -14,6 +15,10 @@ import static com.ripple.java8.utils.Print.print;
  * the ripple-lib-java API and one already built in json.
  */
 public class SignTransaction {
+    static {
+        Config.initBouncy();
+    }
+
     public static void main(String[] args) {
         String secret = "ssStiMFzkGefDoTqgk9w9WpYkTepQ";
         Payment payment = new Payment();

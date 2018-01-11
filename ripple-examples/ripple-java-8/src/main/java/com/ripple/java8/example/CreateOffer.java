@@ -5,6 +5,7 @@ import com.ripple.client.Client;
 import com.ripple.client.transactions.ManagedTxn;
 import com.ripple.client.transactions.TransactionManager;
 import com.ripple.client.transport.impl.JavaWebSocketTransportImpl;
+import com.ripple.config.Config;
 import com.ripple.core.coretypes.Amount;
 import com.ripple.core.types.known.tx.result.TransactionResult;
 import com.ripple.core.types.known.tx.txns.OfferCreate;
@@ -19,6 +20,10 @@ import static com.ripple.java8.utils.Print.printErr;
  * own issue.
  */
 public class CreateOffer {
+    static {
+        Config.initBouncy();
+    }
+
     public static void main(String[] args) {
         // We need a valid seed
         if (args.length != 1 || Func.itThrows(Seed::fromBase58, args[0])) {

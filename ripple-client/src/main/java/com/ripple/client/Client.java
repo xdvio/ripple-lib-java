@@ -32,9 +32,6 @@ import org.json.JSONObject;
 
 import java.net.URI;
 import java.util.*;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,7 +49,8 @@ public class Client extends Publisher<Client.events> {
      */
     protected class InnerWebSocketHandler implements TransportEventHandler {
         /**
-         * This is to ensure we run everything on {@link Client#clientThread}
+         * This is to ensure we run everything on the main thread
+         * {@link IClientLoop#runningOnClientThread()}
          */
         @Override
         public void onMessage(final JSONObject msg) {
@@ -206,19 +204,12 @@ public class Client extends Publisher<Client.events> {
     private TransactionSubscriptionManager transactionSubscriptionManager;
 
     // This is in charge of executing code in the `clientThread`
-    @SuppressWarnings("WeakerAccess")
-    protected ScheduledExecutorService service;
-    // All code that use the Client api, must be run on this thread
-    /**
-     See {@link Client#run}
-     */
-    @SuppressWarnings("WeakerAccess")
-    protected Thread clientThread;
+    private IClientLoop loop;
 
     protected TreeMap<Integer, Request> requests = new TreeMap<>();
 
     // Give the client a name for debugging purposes
-    private String name = "client-" + clients.incrementAndGet();
+    private String name = "client-" + clients.getAndIncrement();
 
     // Keeps track of the `id` doled out to Request objects
     private int cmdIDs;
@@ -247,13 +238,19 @@ public class Client extends Publisher<Client.events> {
     // Handles [un]subscription requests, also on reconnect
     public SubscriptionManager subscriptions = new SubscriptionManager();
 
-    // Constructor
     public Client(WebSocketTransport transport) {
+        this(transport, new ScheduledExecutorServiceLoop());
+    }
+
+    // Constructor
+    public Client(WebSocketTransport transport, IClientLoop clientLoop) {
+        super();
         ws = transport;
         ws.setHandler(new InnerWebSocketHandler());
+        loop = clientLoop;
+        loop.start(name);
 
-        prepareExecutor();
-        // requires executor, so call after prepareExecutor
+        // requires loop, so called after loop is set
         scheduleMaintenance();
 
         subscriptions.onSubscribed(subscription -> {
@@ -319,12 +316,6 @@ public class Client extends Publisher<Client.events> {
     public String name() {
         return name;
     }
-
-    public Client name(String name) {
-        this.name = name;
-        return this;
-    }
-
 
     private void doConnect(String uri) {
         if (connected) throw new IllegalStateException(
@@ -463,38 +454,19 @@ public class Client extends Publisher<Client.events> {
 
     public void dispose() {
         int nListeners = clearAllListeners();
-        List<Runnable> runnables = service.shutdownNow();
-        log(Level.WARNING, "disposing {0} listeners and {1} queued tasks",
-                nListeners, runnables.size());
+        loop.stop();
+        log(Level.WARNING, "disposing {0} listeners", nListeners);
         ws = null;
     }
 
     /* -------------------------------- EXECUTOR -------------------------------- */
 
-    public void run(Runnable runnable) {
-        // What if we are already in the client thread?? What happens then ?
-        if (runningOnClientThread()) {
-            errorHandling(runnable).run();
-        } else {
-            service.submit(errorHandling(runnable));
-        }
+    public void run(final Runnable runnable) {
+        loop.run(errorHandling(runnable));
     }
 
     public void schedule(long ms, Runnable runnable) {
-        service.schedule(errorHandling(runnable), ms, TimeUnit.MILLISECONDS);
-    }
-
-    public boolean runningOnClientThread() {
-        return clientThread != null && Thread.currentThread().getId() ==
-                clientThread.getId();
-    }
-
-    protected void prepareExecutor() {
-        service = new ScheduledThreadPoolExecutor(1, r -> {
-            clientThread = new Thread(r);
-            clientThread.setName(name + "-thread");
-            return clientThread;
-        });
+        loop.schedule(ms, errorHandling(runnable));
     }
 
     private Runnable errorHandling(final Runnable runnable) {

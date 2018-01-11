@@ -7,102 +7,24 @@ import org.json.JSONObject;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.PriorityQueue;
 
 public class MockPair {
     RippledMock server = new RippledMock();
 
-    public class Scheduler {
-        private PriorityQueue<Callback> queue;
-        private int ms = 0;
-
-        public Scheduler() {
-            queue = new PriorityQueue<>();
-        }
-
-        public class Callback implements Comparable<Callback> {
-            long when;
-
-            Runnable runnable;
-            public Callback(Runnable runnable, long delay) {
-                this.when = ms + delay;
-                this.runnable = runnable;
-            }
-
-            @Override
-            public int compareTo(Callback o) {
-                return Long.compare(when, o.when);
-            }
-        }
-
-        public void schedule(long delay, Runnable runnable) {
-            queue.add(new Callback(runnable, delay));
-        }
-
-        public void tick(int pass) {
-            ms += pass;
-            Iterator<Callback> iterator = queue.iterator();
-            while (iterator.hasNext()) {
-                Callback next = iterator.next();
-                if (next.when <= ms) {
-                    try {
-                        next.runnable.run();
-                    } catch (Exception ignored) {
-                        throw new RuntimeException(ignored);
-                    } finally {
-                        iterator.remove();
-                    }
-                } else {
-                    break;
-                }
-            }
-        }
-
-    }
-
-    // TODO a mock ScheduledExecutorService?
-    // TODO make client abstract?
     public class MockClient extends Client {
-        private class MockeInnerWebSocketHandler extends InnerWebSocketHandler {
-            @Override
-            public void onMessage(JSONObject msg) {
-                onMessageInClientThread(msg);
-            }
-        }
-
-        public Scheduler scheduler;
-
-        public MockClient(WebSocketTransport ws) {
-            super(ws);
-        }
-        @Override
-        public void run(Runnable runnable) {
-            runnable.run();
-        }
-
-        @Override
-        protected void prepareExecutor() {
-            service = null;
-        }
-
-        @Override
-        public void schedule(long ms, Runnable runnable) {
-            // We have to put up with this until we restructure this
-            // a better way
-            if (scheduler == null) {
-                scheduler = new Scheduler();
-            }
-            scheduler.schedule(ms, runnable);
+        MockLoop mockLoop;
+        MockClient(WebSocketTransport ws, MockLoop mockLoop) {
+            super(ws, mockLoop);
+            this.mockLoop = mockLoop;
         }
     }
 
-    MockClient client = new MockClient(server.ws);
+    MockClient client = new MockClient(server.ws, new MockLoop());
 
     public MockPair connect() {
         client.connect("wss://this.doesnt.matter.com");
-        client.scheduler.tick(50);
         server.connect();
+        client.mockLoop.tick(50);
         return this;
     }
 
@@ -111,7 +33,7 @@ public class MockPair {
         boolean client;
         int n;
 
-        public Message(JSONObject msg, boolean client, int n) {
+        Message(JSONObject msg, boolean client, int n) {
             this.msg = msg;
             this.client = client;
             this.n = n;
@@ -179,13 +101,13 @@ public class MockPair {
 
         MockSocket ws;
 
-        public RippledMock() {
+        RippledMock() {
             ws = new MockSocket();
             messages = new ArrayList<Message>();
             archived = new ArrayList<Message>();
         }
 
-        public void connect() {
+        void connect() {
             if (ws.connected) {
                 ws.onConnecting();
                 ws.onConnected();
@@ -196,7 +118,7 @@ public class MockPair {
                 ws.onDisconnected();
             }
         }
-        public void sendMessage(JSONObject json) {
+        void sendMessage(JSONObject json) {
             ws.onMessage(json);
         }
 
@@ -220,7 +142,7 @@ public class MockPair {
             }
         }
 
-        public void respond(Request request, String status, JSONObject result) {
+        void respond(Request request, String status, JSONObject result) {
             JSONObject response = new JSONObject();
 
             response.put("result", result);

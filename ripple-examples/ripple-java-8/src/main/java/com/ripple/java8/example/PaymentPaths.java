@@ -7,6 +7,7 @@ import com.ripple.client.transactions.ManagedTxn;
 import com.ripple.client.transactions.Submission;
 import com.ripple.client.transactions.TransactionManager;
 import com.ripple.client.transport.impl.JavaWebSocketTransportImpl;
+import com.ripple.config.Config;
 import com.ripple.core.coretypes.AccountID;
 import com.ripple.core.coretypes.Currency;
 import com.ripple.core.coretypes.uint.UInt32;
@@ -30,6 +31,10 @@ import static com.ripple.java8.utils.Print.printErr;
  *
  */
 public class PaymentPaths {
+    static {
+        Config.initBouncy();
+    }
+
     public static void main(String[] args) {
         // We need a valid seed
         if (args.length != 1 || Func.itThrows(Seed::fromBase58, args[0])) {
