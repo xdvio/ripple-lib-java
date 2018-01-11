@@ -1,11 +1,16 @@
 package com.ripple.utils
 
+import com.ripple.config.Config
 import com.ripple.encodings.common.B16
 import junit.framework.Assert.assertEquals
 import org.junit.Test
 
 @Suppress("MemberVisibilityCanPrivate")
 class UtilsTest {
+    init {
+        Config.initBouncy()
+    }
+
     val longNonZero =
                "FFE8A3E6508A7BE5FDE2097B2CF46638A3C34208B0AB09967022B4CE3A3150BC5A"
     val ok =     "E8A3E6508A7BE5FDE2097B2CF46638A3C34208B0AB09967022B4CE3A3150BC5A"

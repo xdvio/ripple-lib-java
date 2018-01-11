@@ -1,11 +1,16 @@
 package com.ripple.core.coretypes.uint;
 
+import com.ripple.config.Config;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 public class UIntTest {
+    static {
+        Config.initBouncy();
+    }
+
     @Test
     public void testLTE() {
         UInt64 n = new UInt64(34);

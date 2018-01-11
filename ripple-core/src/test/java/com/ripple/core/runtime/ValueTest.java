@@ -2,6 +2,7 @@ package com.ripple.core.runtime;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ripple.config.Config;
 import com.ripple.encodings.json.JSON;
 import org.junit.Test;
 
@@ -10,6 +11,10 @@ import java.io.IOException;
 import static junit.framework.TestCase.assertEquals;
 
 public class ValueTest {
+    static {
+        Config.initBouncy();
+    }
+
     private JsonNode jsonNode = parseJson("{\n" +
             "  \"works\" : true,\n" +
             "  \"object\" : {\n" +

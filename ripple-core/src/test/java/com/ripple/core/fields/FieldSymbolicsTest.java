@@ -1,5 +1,6 @@
 package com.ripple.core.fields;
 
+import com.ripple.config.Config;
 import com.ripple.core.formats.Format;
 import com.ripple.core.formats.LEFormat;
 import com.ripple.core.formats.TxFormat;
@@ -29,6 +30,10 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 public class FieldSymbolicsTest {
+    static {
+        Config.initBouncy();
+    }
+
     private static TreeMap<TransactionType, Class<? extends Transaction>> txns =
             new TreeMap<>();
 

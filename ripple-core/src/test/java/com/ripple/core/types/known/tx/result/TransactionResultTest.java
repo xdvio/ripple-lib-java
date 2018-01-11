@@ -1,5 +1,6 @@
 package com.ripple.core.types.known.tx.result;
 
+import com.ripple.config.Config;
 import com.ripple.core.serialized.enums.EngineResult;
 import com.ripple.core.types.known.tx.txns.Payment;
 import org.json.JSONException;
@@ -11,6 +12,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TransactionResultTest {
+    static {
+        Config.initBouncy();
+    }
+
     /*
         DONE:
             transaction_subscription_notification

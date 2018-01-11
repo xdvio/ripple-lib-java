@@ -1,5 +1,6 @@
 package com.ripple.core.coretypes;
 
+import com.ripple.config.Config;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -8,6 +9,10 @@ import java.util.concurrent.TimeUnit;
 import static junit.framework.TestCase.assertEquals;
 
 public class CurrencyTest {
+    static {
+        Config.initBouncy();
+    }
+
     @Test
     public void testTranslateToString() throws Exception {
         String code = "USD";

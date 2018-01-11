@@ -1,5 +1,6 @@
 package com.ripple.core;
 
+import com.ripple.config.Config;
 import com.ripple.core.binary.STReader;
 import com.ripple.core.binary.STWriter;
 import com.ripple.core.coretypes.*;
@@ -40,6 +41,10 @@ import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.*;
 
 public class STObjectTest {
+    static {
+        Config.initBouncy();
+    }
+
     @Test
     public void binaryParsingSerializingSanityTest2() throws FileNotFoundException {
 //        File f = new File("/home/nick/dumps/ledger-full-120000.json");

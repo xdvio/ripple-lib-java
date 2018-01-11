@@ -1,5 +1,6 @@
 package com.ripple.core.coretypes.hash;
 
+import com.ripple.config.Config;
 import com.ripple.core.coretypes.AccountID;
 import org.junit.Test;
 
@@ -7,6 +8,10 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 public class Hash256Test {
+    static {
+        Config.initBouncy();
+    }
+
     @Test
     public void testAccountIDLedgerIndex() throws Exception {
         String addy = "rP1coskQzayaQ9geMdJgAV5f3tNZcHghzH";

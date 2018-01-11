@@ -18,9 +18,12 @@ import java.io.File
 import java.util.*
 
 class HistoryLoaderTest {
+    init {
+        Config.initBouncy()
+    }
     @Test
     fun testLoadTransactions() {
-        Config.initBouncy()
+
         val pack = System.getenv("HISTORY_PACK") ?:
                 "history-11375000-11380000.bin"
         if (!File(pack).exists()) {

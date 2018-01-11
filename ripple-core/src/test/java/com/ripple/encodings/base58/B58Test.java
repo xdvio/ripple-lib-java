@@ -1,5 +1,6 @@
 package com.ripple.encodings.base58;
 
+import com.ripple.config.Config;
 import com.ripple.encodings.addresses.Addresses;
 import com.ripple.encodings.common.B16;
 import org.bouncycastle.util.Arrays;
@@ -8,6 +9,10 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class B58Test {
+    static {
+        Config.initBouncy();
+    }
+
     @Test
     public void testFindsEdPrefix() throws Exception {
         String prefix = "sEd";

@@ -1,5 +1,6 @@
 package com.ripple.core.coretypes;
 
+import com.ripple.config.Config;
 import junit.framework.TestCase;
 import org.junit.Test;
 
@@ -8,6 +9,10 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 public class RippleDateTest extends TestCase {
+    static {
+        Config.initBouncy();
+    }
+
     @Test
     public void testDateParsing() throws Exception {
         GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));

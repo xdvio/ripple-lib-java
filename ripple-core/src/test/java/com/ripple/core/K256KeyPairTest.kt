@@ -1,5 +1,6 @@
 package com.ripple.core
 
+import com.ripple.config.Config
 import com.ripple.crypto.Seed
 import com.ripple.crypto.ecdsa.K256
 import com.ripple.crypto.ecdsa.K256KeyPair
@@ -10,6 +11,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class K256KeyPairTest {
+    init {
+        Config.initBouncy();
+    }
+
     private val keyPair = K256.createKeyPair(
             TestFixtures.master_seed_bytes, 0) as K256KeyPair
 

@@ -1,5 +1,6 @@
 package com.ripple.core.types.ledger;
 
+import com.ripple.config.Config;
 import com.ripple.core.binary.STReader;
 import com.ripple.core.coretypes.hash.prefixes.HashPrefix;
 import com.ripple.core.serialized.BinaryParser;
@@ -9,6 +10,10 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 public class LedgerTest {
+    static {
+        Config.initBouncy();
+    }
+
     @Test
     /**
      * ➜  rippled git:(develop) ✗ ~/rocksdb/ldb --hex --db=/mnt/rippled/db/rocksdb get 0x498ef6300a8693c98be8345037843a95216fb254b672af679c8ef1c85d213972

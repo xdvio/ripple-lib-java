@@ -3,6 +3,8 @@ package com.ripple.core.types.shamap;
 import com.ripple.core.coretypes.hash.Hash256;
 
 public class TestHelpers {
+
+
     public static Hash256 H256(String hex) {
         hex = zeroPadAfterTo(hex, 64);
         return Hash256.fromHex(hex);

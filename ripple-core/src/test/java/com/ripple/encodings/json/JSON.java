@@ -3,11 +3,16 @@ package com.ripple.encodings.json;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.ripple.config.Config;
 
 import java.io.IOException;
 import java.io.Reader;
 
 public class JSON {
+    static {
+        Config.initBouncy();
+    }
+
     public static class ParseError extends RuntimeException {
         ParseError(Exception e) {
             super(e);
