@@ -1,48 +1,42 @@
 package com.ripple.crypto;
 
-import com.ripple.config.Config;
-import com.ripple.crypto.ed25519.EDKeyPair;
 import com.ripple.crypto.ecdsa.K256;
+import com.ripple.crypto.ed25519.EDKeyPair;
 import com.ripple.crypto.keys.IKeyPair;
-import com.ripple.encodings.B58IdentiferCodecs;
+import com.ripple.encodings.addresses.Addresses;
 import com.ripple.encodings.base58.B58;
 import com.ripple.utils.Sha512;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
-import static com.ripple.config.Config.getB58IdentiferCodecs;
-
 public class Seed {
-    public static byte[] VER_K256 = new byte[]{(byte) B58IdentiferCodecs.VER_FAMILY_SEED};
-    public static byte[] VER_ED25519 = new byte[]{(byte) 0x1, (byte) 0xe1, (byte) 0x4b};
-
     private final byte[] seedBytes;
-    private byte[] version;
+    private B58.Version version;
 
     public Seed(byte[] seedBytes) {
-        this(VER_K256, seedBytes);
+        this(Addresses.SEED_K256, seedBytes);
     }
-    public Seed(byte[] version, byte[] seedBytes) {
+    public Seed(B58.Version version, byte[] seedBytes) {
         this.seedBytes = seedBytes;
         this.version = version;
     }
 
     @Override
     public String toString() {
-        return Config.getB58().encodeToStringChecked(seedBytes, version);
+        return Addresses.encode(seedBytes, version);
     }
 
     public byte[] bytes() {
         return seedBytes;
     }
 
-    public byte[] version() {
+    public B58.Version version() {
         return version;
     }
 
     public Seed setEd25519() {
-        this.version = VER_ED25519;
+        this.version = Addresses.SEED_ED25519;
         return this;
     }
 
@@ -55,16 +49,18 @@ public class Seed {
     }
 
     public IKeyPair keyPair(int account) {
-        if (Arrays.equals(version, VER_ED25519)) {
-            if (account != 0) throw new AssertionError();
+        if (version == Addresses.SEED_ED25519 ||
+                Arrays.equals(version.bytes, Addresses.SEED_ED25519.bytes)) {
+            if (account != 0) throw new IllegalStateException();
             return EDKeyPair.from128Seed(seedBytes);
         }  else {
             return K256.createKeyPair(seedBytes, account);
         }
 
     }
+
     public static Seed fromBase58(String b58) {
-        B58.Decoded decoded = Config.getB58().decodeMulti(b58, 16, VER_K256, VER_ED25519);
+        B58.Decoded decoded = Addresses.decodeSeed(b58);
         return new Seed(decoded.version, decoded.payload);
     }
 
@@ -89,7 +85,7 @@ public class Seed {
     }
 
     public static IKeyPair getKeyPair(String b58) {
-        return getKeyPair(getB58IdentiferCodecs().decodeFamilySeed(b58));
+        return getKeyPair(Addresses.decodeSeedToBytes(b58));
     }
 }
 

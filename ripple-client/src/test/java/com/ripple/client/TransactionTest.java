@@ -1,9 +1,9 @@
 
 package com.ripple.client;
 
+import com.ripple.config.Config;
 import com.ripple.core.coretypes.AccountID;
 import com.ripple.core.coretypes.Amount;
-import com.ripple.core.coretypes.Blob;
 import com.ripple.core.coretypes.uint.UInt32;
 import com.ripple.core.types.known.tx.signed.SignedTransaction;
 import com.ripple.core.types.known.tx.txns.Payment;
@@ -13,6 +13,9 @@ import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
 public class TransactionTest {
+    {
+        Config.initBouncy();
+    }
 
     @Test
     public void testCreatePaymentTransaction() throws Exception {

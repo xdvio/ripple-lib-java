@@ -45,6 +45,8 @@ import java.util.TreeSet;
  *
  */
 public class TransactionManager extends Publisher<TransactionManager.events> {
+    public static final double DEFAULT_FEE_CUSHION = 1.1;
+
     public interface events<T> extends Publisher.Callback<T> {}
     // This event is emitted with the Sequence of the AccountRoot
     private interface OnValidatedSequence extends events<UInt32> {}
@@ -55,6 +57,11 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
     private AccountID accountID;
     private IKeyPair keyPair;
     private AccountTxPager txnPager;
+    private double feeCushion = DEFAULT_FEE_CUSHION;
+
+    public void feeCushion(double multiplier) {
+        feeCushion = multiplier;
+    }
 
     private static final int RESUBMIT_PENDING_AFTER_N_LEDGERS = 5;
 
@@ -292,7 +299,7 @@ public class TransactionManager extends Publisher<TransactionManager.events> {
     private Request doSubmitRequest(final ManagedTxn txn, UInt32 sequence) {
         // Compute the fee for the current load_factor
         // TODO: handle new fee escalation rules
-        Amount fee = client.serverInfo.transactionFee(txn.txn);
+        Amount fee = client.serverInfo.transactionFee(txn.txn).multiply(feeCushion);
         // Inside prepare we check if Fee and Sequence are the same, and if so
         // we don't recreate tx_blob, or resign ;)
 

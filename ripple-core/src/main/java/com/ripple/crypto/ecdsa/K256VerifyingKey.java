@@ -1,7 +1,7 @@
 package com.ripple.crypto.ecdsa;
 
-import com.ripple.config.Config;
 import com.ripple.crypto.keys.IVerifyingKey;
+import com.ripple.encodings.addresses.Addresses;
 import com.ripple.utils.HashUtils;
 import org.bouncycastle.crypto.params.ECPublicKeyParameters;
 import org.bouncycastle.crypto.signers.ECDSASigner;
@@ -44,7 +44,7 @@ public class K256VerifyingKey implements IVerifyingKey {
     }
 
     public static K256VerifyingKey fromNodePublicKey(String node) {
-        byte[] pub = Config.getB58IdentiferCodecs().decodeNodePublic(node);
+        byte[] pub = Addresses.decodeNodePublic(node);
         return new K256VerifyingKey(pub);
     }
 

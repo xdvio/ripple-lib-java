@@ -10,15 +10,14 @@ import com.ripple.core.fields.Type;
 import com.ripple.core.serialized.BinaryParser;
 import com.ripple.core.serialized.BytesSink;
 import com.ripple.core.serialized.TypeTranslator;
-import com.ripple.crypto.keys.IKeyPair;
 import com.ripple.crypto.Seed;
+import com.ripple.crypto.keys.IKeyPair;
+import com.ripple.encodings.addresses.Addresses;
 import com.ripple.encodings.common.B16;
 import com.ripple.utils.Utils;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static com.ripple.config.Config.getB58IdentiferCodecs;
 
 /**
  * Originally it was intended that AccountIDs would be variable length so that's
@@ -34,6 +33,7 @@ public class AccountID extends Hash160 {
     // We can set aliases, so fromString(x) will return a given AccountID
     // this is currently only used for tests, and not recommended to be used
     // elsewhere.
+    // TODO: Perhaps move elsewhere then ...
     private static Map<String, AccountID> aliases = new ConcurrentHashMap<>();
     //
     public static AccountID NEUTRAL = fromInteger(1), XRP_ISSUER = fromInteger(0);
@@ -65,7 +65,7 @@ public class AccountID extends Hash160 {
     }
 
     static public AccountID fromAddress(String address) {
-        byte[] bytes = getB58IdentiferCodecs().decodeAddress(address);
+        byte[] bytes = Addresses.decodeAccountID(address);
         return new AccountID(bytes, address);
     }
 
@@ -177,8 +177,8 @@ public class AccountID extends Hash160 {
 
     // helpers
 
-    private static String encodeAddress(byte[] a) {
-        return getB58IdentiferCodecs().encodeAddress(a);
+    private static String encodeAddress(byte[] address) {
+        return Addresses.encodeAccountID(address);
     }
 
     public static AccountID addAliasFromPassPhrase(String name, String phrase) {

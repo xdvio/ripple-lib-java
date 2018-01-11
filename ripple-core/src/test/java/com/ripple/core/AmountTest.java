@@ -1,5 +1,6 @@
 package com.ripple.core;
 
+import com.ripple.config.Config;
 import com.ripple.core.coretypes.AccountID;
 import com.ripple.core.coretypes.Amount;
 import com.ripple.core.coretypes.uint.UInt32;
@@ -14,6 +15,10 @@ import java.util.Arrays;
 import static org.junit.Assert.*;
 
 public class AmountTest {
+    static {
+        Config.initBouncy();
+    }
+
     public String rootAddress = TestFixtures.master_seed_address;
     Amount.Translator amounts = Amount.translate;
 

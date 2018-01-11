@@ -15,8 +15,6 @@ public class ServerInfoTest {
 
     @Test
     public void test_LedgerInfo_can_compute_a_transactionFee() {
-        assertEquals("This was 1.1 at the time of test writing", 1.1, Config.getFeeCushion());
-
         ServerInfo info = new ServerInfo();
 
         // These fields are needed (package accessible, we are all adults here ;)
@@ -27,7 +25,7 @@ public class ServerInfoTest {
         info.load_factor =    256;
 
         Amount fee = info.transactionFee(null);
-        assertEquals(fee, amt("11"));
+        assertEquals(fee, amt("10"));
     }
 
     private Amount amt(String s) {

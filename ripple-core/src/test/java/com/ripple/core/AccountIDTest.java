@@ -1,5 +1,6 @@
 package com.ripple.core;
 
+import com.ripple.config.Config;
 import com.ripple.core.coretypes.AccountID;
 import com.ripple.encodings.base58.EncodingFormatException;
 import org.junit.Test;
@@ -7,6 +8,9 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class AccountIDTest {
+    static {
+        Config.initBouncy();
+    }
 
     private String randomXqvWyhPcWjBE7nawXLTKH5YLNmSc = "randomXqvWyhPcWjBE7nawXLTKH5YLNmSc";
 

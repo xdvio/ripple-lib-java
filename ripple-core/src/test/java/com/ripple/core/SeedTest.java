@@ -4,7 +4,7 @@ import com.ripple.config.Config;
 import com.ripple.crypto.ed25519.EDKeyPair;
 import com.ripple.crypto.keys.IKeyPair;
 import com.ripple.crypto.Seed;
-import com.ripple.encodings.B58IdentiferCodecs;
+import com.ripple.encodings.addresses.Addresses;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -14,6 +14,7 @@ public class SeedTest {
         Config.initBouncy();
     }
     private static final String[] ADDRESS_ARRAY = new String[] {
+            // seedStr, addressBytes, accountNumber, keypair pub hex
             "masterpassphrase", "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh", "0", "0330E7FC9D56BB25D6893BA3F317AE5BCF33B3291BD63DB32654A313222F7FD020",
             "masterpassphrase", "r4bYF7SLUMD7QgSLLpgJx38WJSY12ViRjP", "1", "02CD8C4CE87F86AAD1D9D18B03DE28E6E756F040BD72A9C127862833EB90D60BAD",
             "masterpassphrase", "rLpAd4peHUMBPbVJASMYK5GTBUSwXRD9nx", "2", "0259A57642A6F4AEFC9B8062AF453FDEEEAC5572BA602BB1DBD5EF011394C6F9FC",
@@ -21,7 +22,6 @@ public class SeedTest {
             "otherpassphrase", "raAPC2gALSmsTkXR4wUwQcPgX66kJuLv2S", "5", "03F0619AFABE08D22D98C8721895FE3673B6174168949976F2573CE1138C124994",
             "yetanotherpassphrase", "rKnM44fS48qrGiDxB5fB5u64vHVJwjDPUo", "0", "0385AD049327EF7E5EC429350A15CEB23955037DE99660F6E70C11C5ABF4407036",
             "yetanotherpassphrase", "rMvkT1RHPfsZwTFbKDKBEisa5U4d2a9V8n", "1", "023A2876EA130CBE7BBA0573C2DB4C4CEB9A7547666915BD40366CDC6150CF54DC"
-            // seedStr, addressBytes, accountNumber, keypair pub hex
     };
 
     private static final int ADDRESS_LINE_SIZE = ADDRESS_ARRAY.length / 7;
@@ -42,11 +42,10 @@ public class SeedTest {
     @Test
     public void testCreateRootKeyPair()
     {
-        B58IdentiferCodecs b58 = Config.getB58IdentiferCodecs();
         Seed seed = Seed.fromPassPhrase("N4");
         IKeyPair rootPair = seed.rootKeyPair();
-        String s = b58.encodeNodePublic(rootPair.canonicalPubBytes());
-        assertEquals("n9JvnFJFCrdeRonKkuQHzE4VxT1QaG8Zo1VoG5okiTZ2S9B7ihsx", s);
+        String actual = Addresses.encodeNodePublic(rootPair.canonicalPubBytes());
+        assertEquals("n9JvnFJFCrdeRonKkuQHzE4VxT1QaG8Zo1VoG5okiTZ2S9B7ihsx", actual);
     }
 
     @Test
@@ -56,7 +55,7 @@ public class SeedTest {
         assertEquals("sEd", sEdPrefixed.substring(0, 3));
         Seed fromBase58 = Seed.fromBase58(sEdPrefixed);
         assertArrayEquals(seed.bytes(), fromBase58.bytes());
-        assertArrayEquals(Seed.VER_ED25519, fromBase58.version());
+        assertArrayEquals(Addresses.SEED_ED25519.bytes, fromBase58.version().bytes);
         assertEquals(16, fromBase58.bytes().length);
         IKeyPair iKeyPair = seed.keyPair();
         assertTrue(iKeyPair instanceof EDKeyPair);
