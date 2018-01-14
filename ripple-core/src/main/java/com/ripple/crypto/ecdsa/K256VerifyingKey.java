@@ -8,7 +8,7 @@ import org.bouncycastle.crypto.signers.ECDSASigner;
 import org.bouncycastle.math.ec.ECPoint;
 
 public class K256VerifyingKey implements IVerifyingKey {
-    private final ECDSASigner signer;
+    private final ECPublicKeyParameters keyParameters;
     private final byte[] canonicalPublicKey;
 
     K256VerifyingKey(ECPoint publicKey, byte[] publicKeyBytes) {
@@ -18,9 +18,8 @@ public class K256VerifyingKey implements IVerifyingKey {
             publicKey = SECP256K1.curve().decodePoint(publicKeyBytes);
         }
         canonicalPublicKey = publicKeyBytes;
-        signer = new ECDSASigner();
-        ECPublicKeyParameters params = new ECPublicKeyParameters(publicKey, SECP256K1.params());
-        signer.init(false, params);
+        keyParameters = new ECPublicKeyParameters(
+                publicKey, SECP256K1.params());
     }
 
     private K256VerifyingKey(byte[] pubKeyBytes) {
@@ -39,6 +38,8 @@ public class K256VerifyingKey implements IVerifyingKey {
     }
 
     public boolean verifyHash(byte[] hash, byte[] signature) {
+        ECDSASigner signer = new ECDSASigner();
+        signer.init(false, keyParameters);
         ECDSASignature sig = ECDSASignature.decodeFromDER(signature);
         return sig != null && signer.verifySignature(hash, sig.r, sig.s);
     }

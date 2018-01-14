@@ -13,14 +13,13 @@ import java.math.BigInteger;
 
 public class K256KeyPair extends K256VerifyingKey implements IKeyPair {
     private byte[] privateKey;
-    private ECDSASigner signer;
+    private ECPrivateKeyParameters privateKeyParameters;
 
     K256KeyPair(BigInteger privateKey, ECPoint pub, byte[] pubEncoded) {
         super(pub, pubEncoded);
         this.privateKey = Utils.padTo256(privateKey.toByteArray());
-        signer= new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));
-        ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(privateKey, SECP256K1.params());
-        signer.init(true, privKey);
+        privateKeyParameters = new ECPrivateKeyParameters(privateKey,
+                SECP256K1.params());
     }
 
     @Override
@@ -35,12 +34,21 @@ public class K256KeyPair extends K256VerifyingKey implements IKeyPair {
     }
 
     public byte[] signHash(byte[] bytes) {
+        ECDSASigner signer = newSigner();
+
         ECDSASignature sig = K256.createECDSASignature(bytes, signer);
         byte[] der = sig.encodeToDER();
         if (!ECDSASignature.isStrictlyCanonical(der)) {
             throw new IllegalStateException("Signature is not strictly canonical");
         }
         return der;
+    }
+
+    private ECDSASigner newSigner() {
+        ECDSASigner signer = new ECDSASigner(
+                new HMacDSAKCalculator(new SHA256Digest()));
+        signer.init(true, privateKeyParameters);
+        return signer;
     }
 
 }
