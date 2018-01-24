@@ -48,6 +48,7 @@ public class TxFormat extends Format<TxFormat> {
     }
 
     public TxFormat(TransactionType type) {
+        super();
         transactionType = type;
         addCommonFields();
         formats.put(transactionType, this);
@@ -185,4 +186,22 @@ public class TxFormat extends Format<TxFormat> {
             Field.Signature,              Requirement.OPTIONAL,
             Field.PublicKey,              Requirement.OPTIONAL
     );
+
+    static public TxFormat CheckCreate = new TxFormat(TransactionType.CheckCreate)
+            .required(Field.Destination)
+            .required(Field.SendMax)
+            .optional(Field.Expiration)
+            .optional(Field.DestinationTag)
+            .optional(Field.InvoiceID)
+            ;
+
+    static public TxFormat CheckCash = new TxFormat(TransactionType.CheckCash)
+            .required(Field.CheckID)
+            .optional(Field.Amount)
+            .optional(Field.DeliverMin)
+            ;
+
+    static public TxFormat CheckCancel = new TxFormat(TransactionType.CheckCancel)
+            .required(Field.CheckID)
+            ;
 }

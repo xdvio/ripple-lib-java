@@ -22,6 +22,11 @@
 			"description" : "A destination tag is required.",
 			"ordinal" : 143
 		},
+		"tecEXPIRED" : 
+		{
+			"description" : "Expiration time is passed.",
+			"ordinal" : 148
+		},
 		"tecFAILED_PROCESSING" : 
 		{
 			"description" : "Failed to correctly process transaction.",
@@ -1101,6 +1106,14 @@
 		{
 			"isBinary" : true,
 			"isSigningField" : true,
+			"name" : "CheckID",
+			"ordinal" : 24,
+			"type" : "Hash256"
+		},
+		
+		{
+			"isBinary" : true,
+			"isSigningField" : true,
 			"name" : "Amount",
 			"ordinal" : 1,
 			"type" : "Amount"
@@ -1636,6 +1649,29 @@
 	],
 	"ledgerEntries" : 
 	[
+		
+		{
+			"fields" : 
+			[
+				[ "LedgerIndex", "OPTIONAL" ],
+				[ "LedgerEntryType", "REQUIRED" ],
+				[ "Flags", "REQUIRED" ],
+				[ "Account", "REQUIRED" ],
+				[ "Destination", "REQUIRED" ],
+				[ "SendMax", "REQUIRED" ],
+				[ "Sequence", "REQUIRED" ],
+				[ "OwnerNode", "REQUIRED" ],
+				[ "DestinationNode", "REQUIRED" ],
+				[ "Expiration", "OPTIONAL" ],
+				[ "InvoiceID", "OPTIONAL" ],
+				[ "SourceTag", "OPTIONAL" ],
+				[ "DestinationTag", "OPTIONAL" ],
+				[ "PreviousTxnID", "REQUIRED" ],
+				[ "PreviousTxnLgrSeq", "REQUIRED" ]
+			],
+			"name" : "Check",
+			"ordinal" : 67
+		},
 		
 		{
 			"fields" : 
@@ -2211,6 +2247,81 @@
 			],
 			"name" : "PaymentChannelClaim",
 			"ordinal" : 15
+		},
+		
+		{
+			"fields" : 
+			[
+				[ "TransactionType", "REQUIRED" ],
+				[ "Flags", "OPTIONAL" ],
+				[ "SourceTag", "OPTIONAL" ],
+				[ "Account", "REQUIRED" ],
+				[ "Sequence", "REQUIRED" ],
+				[ "PreviousTxnID", "OPTIONAL" ],
+				[ "LastLedgerSequence", "OPTIONAL" ],
+				[ "AccountTxnID", "OPTIONAL" ],
+				[ "Fee", "REQUIRED" ],
+				[ "OperationLimit", "OPTIONAL" ],
+				[ "Memos", "OPTIONAL" ],
+				[ "SigningPubKey", "REQUIRED" ],
+				[ "TxnSignature", "OPTIONAL" ],
+				[ "Signers", "OPTIONAL" ],
+				[ "Destination", "REQUIRED" ],
+				[ "SendMax", "REQUIRED" ],
+				[ "Expiration", "OPTIONAL" ],
+				[ "DestinationTag", "OPTIONAL" ],
+				[ "InvoiceID", "OPTIONAL" ]
+			],
+			"name" : "CheckCreate",
+			"ordinal" : 16
+		},
+		
+		{
+			"fields" : 
+			[
+				[ "TransactionType", "REQUIRED" ],
+				[ "Flags", "OPTIONAL" ],
+				[ "SourceTag", "OPTIONAL" ],
+				[ "Account", "REQUIRED" ],
+				[ "Sequence", "REQUIRED" ],
+				[ "PreviousTxnID", "OPTIONAL" ],
+				[ "LastLedgerSequence", "OPTIONAL" ],
+				[ "AccountTxnID", "OPTIONAL" ],
+				[ "Fee", "REQUIRED" ],
+				[ "OperationLimit", "OPTIONAL" ],
+				[ "Memos", "OPTIONAL" ],
+				[ "SigningPubKey", "REQUIRED" ],
+				[ "TxnSignature", "OPTIONAL" ],
+				[ "Signers", "OPTIONAL" ],
+				[ "CheckID", "REQUIRED" ],
+				[ "Amount", "OPTIONAL" ],
+				[ "DeliverMin", "OPTIONAL" ]
+			],
+			"name" : "CheckCash",
+			"ordinal" : 17
+		},
+		
+		{
+			"fields" : 
+			[
+				[ "TransactionType", "REQUIRED" ],
+				[ "Flags", "OPTIONAL" ],
+				[ "SourceTag", "OPTIONAL" ],
+				[ "Account", "REQUIRED" ],
+				[ "Sequence", "REQUIRED" ],
+				[ "PreviousTxnID", "OPTIONAL" ],
+				[ "LastLedgerSequence", "OPTIONAL" ],
+				[ "AccountTxnID", "OPTIONAL" ],
+				[ "Fee", "REQUIRED" ],
+				[ "OperationLimit", "OPTIONAL" ],
+				[ "Memos", "OPTIONAL" ],
+				[ "SigningPubKey", "REQUIRED" ],
+				[ "TxnSignature", "OPTIONAL" ],
+				[ "Signers", "OPTIONAL" ],
+				[ "CheckID", "REQUIRED" ]
+			],
+			"name" : "CheckCancel",
+			"ordinal" : 18
 		},
 		
 		{

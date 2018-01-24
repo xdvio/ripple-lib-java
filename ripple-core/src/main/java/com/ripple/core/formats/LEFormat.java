@@ -46,6 +46,13 @@ public class LEFormat extends Format<LEFormat> {
         formats.put(type, this);
     }
 
+    public LEFormat(LedgerEntryType type) {
+        super();
+        ledgerEntryType = type;
+        addCommonFields();
+        formats.put(type, this);
+    }
+
     @Override
     protected void addCommonFields() {
         requirementEnumMap.putAll(common);
@@ -195,4 +202,20 @@ public class LEFormat extends Format<LEFormat> {
             Field.PreviousTxnID, Requirement.REQUIRED,
             Field.PreviousTxnLgrSeq, Requirement.REQUIRED
     );
+
+    public static LEFormat Check = new LEFormat(LedgerEntryType.Check)
+            .required(Field.PreviousTxnID)
+            .required(Field.PreviousTxnLgrSeq)
+            .required(Field.Account)
+            .required(Field.Destination)
+            .required(Field.SendMax)
+            .required(Field.Sequence)
+            .required(Field.OwnerNode)
+            .required(Field.DestinationNode)
+            .optional(Field.Expiration)
+            .optional(Field.InvoiceID)
+            .optional(Field.SourceTag)
+            .optional(Field.DestinationTag)
+
+            ;
 }

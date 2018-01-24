@@ -41,6 +41,7 @@ public class FieldSymbolicsTest {
         les.put(LedgerEntryType.AccountRoot, AccountRoot.class);
         les.put(LedgerEntryType.DirectoryNode, DirectoryNode.class);
         les.put(LedgerEntryType.RippleState, RippleState.class);
+        les.put(LedgerEntryType.Check, Check.class);
         les.put(LedgerEntryType.Escrow, Escrow.class);
         les.put(LedgerEntryType.Offer, Offer.class);
         les.put(LedgerEntryType.LedgerHashes, LedgerHashes.class);
@@ -50,8 +51,10 @@ public class FieldSymbolicsTest {
         les.put(LedgerEntryType.SignerList, SignerList.class);
         les.put(LedgerEntryType.PayChannel, PayChannel.class);
 
-
         txns.put(TransactionType.Payment, Payment.class);
+        txns.put(TransactionType.CheckCreate, CheckCreate.class);
+        txns.put(TransactionType.CheckCash, CheckCash.class);
+        txns.put(TransactionType.CheckCancel, CheckCancel.class);
         txns.put(TransactionType.AccountSet, AccountSet.class);
         txns.put(TransactionType.SetRegularKey, SetRegularKey.class);
         txns.put(TransactionType.TrustSet, TrustSet.class);
@@ -124,12 +127,11 @@ public class FieldSymbolicsTest {
     }
 
     private void checkTransactionTypes(JSONArray txns) {
-        assertEquals(txns.length(),
-                TransactionType.values().length);
-
         for (int i = 0; i < txns.length(); i++) {
             JSONObject tx = txns.getJSONObject(i);
             String txName = tx.getString("name");
+            int ordinal = tx.getInt("ordinal");
+
             try {
                 java.lang.reflect.Field f = TxFormat.class.getField(txName);
                 assertTrue(java.lang.reflect.Modifier.isStatic(f.getModifiers()));
@@ -141,7 +143,14 @@ public class FieldSymbolicsTest {
 
             if (!txName.isEmpty()) {
                 try {
-                    TransactionType.valueOf(txName);
+                    TransactionType txType = TransactionType.valueOf(txName);
+                    if (txType.asInteger() != ordinal) {
+                        fail("incorrect ordinal for " +
+                                txType + ", expected=" +
+                                ordinal + " actual=" +
+                                txType.asInteger());
+                    }
+
                 } catch (IllegalArgumentException e) {
                     fail("missing TransactionType " +
                             txName);
@@ -154,16 +163,21 @@ public class FieldSymbolicsTest {
                         requirements = txFormat.requirements();
 
                 TransactionType key = TransactionType.valueOf(txName);
-                assertTrue(FieldSymbolicsTest.txns.containsKey(key));
+                assertTrue("FieldSymbolicsTest.txns missing " + key, FieldSymbolicsTest.txns.containsKey(key));
                 Class<?> kls = FieldSymbolicsTest.txns.get(key);
 
                 checkMethods(txFormat, requirements, kls);
             }
 
+
             assertTrue(
                     txName,
                     FieldSymbolicsTest.txns.containsKey(TransactionType.valueOf(txName)));
         }
+
+        assertEquals(txns.length(),
+                TransactionType.values().length);
+
     }
 
     private void checkMethods(Format txFormat, EnumMap<Field, Format.Requirement> requirements, Class<?> kls) {
@@ -269,10 +283,10 @@ public class FieldSymbolicsTest {
     }
 
     private void checkLedgerEntries(JSONArray entries) {
-        assertEquals(entries.length(), LedgerEntryType.values().length);
         for (int i = 0; i < entries.length(); i++) {
             JSONObject entryJson = entries.getJSONObject(i);
             String name = entryJson.getString("name");
+            int ordinal = entryJson.getInt("ordinal");
 
             try {
                 java.lang.reflect.Field f = LEFormat.class.getField(name);
@@ -285,7 +299,13 @@ public class FieldSymbolicsTest {
 
             if (!name.isEmpty()) {
                 try {
-                    LedgerEntryType.valueOf(name);
+                    LedgerEntryType let = LedgerEntryType.valueOf(name);
+                    if (let.asInteger() != ordinal) {
+                        fail("incorrect ordinal for " +
+                                let + ", expected=" +
+                                (char) ordinal + " actual=" +
+                                (char) ((int) let.asInteger()));
+                    }
                 } catch (IllegalArgumentException e) {
                     fail("missing LedgerEntryType for " +
                             entryJson);
@@ -307,6 +327,7 @@ public class FieldSymbolicsTest {
             }
 
         }
+        assertEquals(entries.length(), LedgerEntryType.values().length);
     }
 
     private void checkFields(JSONArray fields) {

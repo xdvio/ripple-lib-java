@@ -27,6 +27,9 @@ public enum TransactionType implements SerializedType {
     PaymentChannelCreate(13),
     PaymentChannelFund(14),
     PaymentChannelClaim(15),
+    CheckCreate(16),
+    CheckCash(17),
+    CheckCancel(18),
     TrustSet (20),
     EnableAmendment(100),
     SetFee(101);

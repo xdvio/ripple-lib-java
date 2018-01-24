@@ -83,6 +83,7 @@ public enum Field {
     Digest(21, Type.Hash256),
     Channel(22, Type.Hash256),
     ConsensusHash(23, Type.Hash256),
+    CheckID(24, Type.Hash256),
 
     hash(257, Type.Hash256),
     index(258, Type.Hash256),

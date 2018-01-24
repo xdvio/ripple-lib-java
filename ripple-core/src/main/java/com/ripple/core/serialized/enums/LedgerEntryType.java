@@ -24,7 +24,8 @@ public enum LedgerEntryType implements SerializedType {
     FeeSettings('s'),
     Ticket('T'),
     SignerList('S'),
-    PayChannel('x');
+    PayChannel('x'),
+    Check('C');
 
     final int ord;
 

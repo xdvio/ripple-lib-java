@@ -128,7 +128,8 @@ public enum EngineResult implements SerializedType {
     tecINTERNAL(144, "An internal error has occurred during processing."),
     tecOVERSIZE(145, "Object exceeded serialization limits."),
     tecCRYPTOCONDITION_ERROR(146, "Malformed, invalid, or mismatched conditional or fulfillment."),
-    tecINVARIANT_FAILED(147, "One or more invariants for the transaction were not satisfied.");
+    tecINVARIANT_FAILED(147, "One or more invariants for the transaction were not satisfied."),
+    tecEXPIRED(148, "Expiration time is passed.");
 
 
     public int asInteger() {
