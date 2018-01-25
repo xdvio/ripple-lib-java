@@ -7,6 +7,8 @@ import com.ripple.core.serialized.SerializedType;
 import com.ripple.core.serialized.TypeTranslator;
 import com.ripple.encodings.common.B16;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeMap;
 
 public enum TransactionType implements SerializedType {
@@ -48,7 +50,7 @@ public enum TransactionType implements SerializedType {
         return Type.UInt16;
     }
 
-    static private TreeMap<Integer, TransactionType> byCode = new TreeMap<Integer, TransactionType>();
+    static private Map<Integer, TransactionType> byCode = new TreeMap<>();
     static {
         for (Object a : TransactionType.values()) {
             TransactionType f = (TransactionType) a;
@@ -81,8 +83,7 @@ public enum TransactionType implements SerializedType {
     public static class Translator extends TypeTranslator<TransactionType> {
         @Override
         public TransactionType fromParser(BinaryParser parser, Integer hint) {
-            byte[] read = parser.read(2);
-            return fromNumber((read[0] << 8) | read[1]);
+            return fromNumber(parser.readOneInt() << 8 | parser.readOneInt());
         }
 
         @Override
@@ -95,6 +96,7 @@ public enum TransactionType implements SerializedType {
             return TransactionType.valueOf(value);
         }
     }
-    public static Translator translate = new Translator();
 
+    @SuppressWarnings("unused")
+    public static Translator translate = new Translator();
 }
