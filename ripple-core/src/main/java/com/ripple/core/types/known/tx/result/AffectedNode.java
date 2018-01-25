@@ -131,9 +131,7 @@ public class AffectedNode extends STObject {
 
             }
         }
-        LedgerEntry formatted = (LedgerEntry) STObject.formatted(mixed);
-        formatted.setDefaults();
-        return formatted;
+        return STObject.formatted(mixed);
     }
 
     public static boolean isAffectedNode(STObject source) {
