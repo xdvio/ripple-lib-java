@@ -33,51 +33,51 @@ public class STReader {
     }
 
     public UInt8 uInt8() {
-        return UInt8.translate.fromParser(parser);
+        return UInt8.fromParser(parser);
     }
     public UInt16 uInt16() {
-        return UInt16.translate.fromParser(parser);
+        return UInt16.fromParser(parser);
     }
     public UInt32 uInt32() {
-        return UInt32.translate.fromParser(parser);
+        return UInt32.fromParser(parser);
     }
     public UInt64 uInt64() {
-        return UInt64.translate.fromParser(parser);
+        return UInt64.fromParser(parser);
     }
     public Hash128 hash128() {
-        return Hash128.translate.fromParser(parser);
+        return Hash128.fromParser(parser);
     }
     public Hash160 hash160() {
-        return Hash160.translate.fromParser(parser);
+        return Hash160.fromParser(parser);
     }
     public Currency currency() {
-        return Currency.translate.fromParser(parser);
+        return Currency.fromParser(parser);
     }
     public Hash256 hash256() {
-        return Hash256.translate.fromParser(parser);
+        return Hash256.fromParser(parser);
     }
     public Vector256 vector256() {
-        return Vector256.translate.fromParser(parser);
+        return Vector256.fromParser(parser);
     }
     public AccountID accountID() {
-        return AccountID.translate.fromParser(parser);
+        return AccountID.fromParser(parser);
     }
     public Blob variableLength() {
         int hint = parser.readVLLength();
-        return Blob.translate.fromParser(parser, hint);
+        return Blob.fromParser(parser, hint);
     }
     public Amount amount() {
-        return Amount.translate.fromParser(parser);
+        return Amount.fromParser(parser);
     }
     public PathSet pathSet() {
-        return PathSet.translate.fromParser(parser);
+        return PathSet.fromParser(parser);
     }
 
     public STObject stObject() {
-        return STObject.translate.fromParser(parser);
+        return STObject.fromParser(parser);
     }
     public STObject vlStObject() {
-        return STObject.translate.fromParser(parser, parser.readVLLength());
+        return STObject.fromParser(parser, parser.readVLLength());
     }
 
     public HashPrefix hashPrefix() {
@@ -91,7 +91,7 @@ public class STReader {
     }
 
     public STArray stArray() {
-        return STArray.translate.fromParser(parser);
+        return STArray.fromParser(parser);
     }
     public Date rippleDate() {
         return RippleDate.fromParser(parser);

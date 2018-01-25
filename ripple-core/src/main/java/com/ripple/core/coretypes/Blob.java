@@ -51,6 +51,13 @@ public class Blob implements SerializedType {
         return fromBytes(B16.decode(hex));
     }
 
+    public static Blob fromParser(BinaryParser parser, int hint) {
+        return translate.fromParser(parser, hint);
+    }
+    public static Blob fromParser(BinaryParser parser) {
+        return translate.fromParser(parser, null);
+    }
+
     public static class Translator extends TypeTranslator<Blob> {
         @Override
         public Blob fromParser(BinaryParser parser, Integer hint) {
@@ -83,7 +90,7 @@ public class Blob implements SerializedType {
 
     static public Translator translate = new Translator();
 
-    public static BlobField blobField(final Field f) {
+    private static BlobField blobField(final Field f) {
         return new BlobField() {
             @Override
             public Field getField() {
@@ -96,6 +103,7 @@ public class Blob implements SerializedType {
     static public BlobField MessageKey = blobField(Field.MessageKey);
     static public BlobField SigningPubKey = blobField(Field.SigningPubKey);
     static public BlobField TxnSignature = blobField(Field.TxnSignature);
+    static public BlobField MasterSignature = blobField(Field.MasterSignature);
     static public BlobField Signature = blobField(Field.Signature);
     static public BlobField Domain = blobField(Field.Domain);
     static public BlobField FundCode = blobField(Field.FundCode);

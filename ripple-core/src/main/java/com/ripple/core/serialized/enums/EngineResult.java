@@ -163,7 +163,7 @@ public enum EngineResult implements SerializedType {
     private static TreeMap<Integer, EngineResult> byCode;
 
     static {
-        byCode = new TreeMap<Integer, EngineResult>();
+        byCode = new TreeMap<>();
         for (EngineResult ter : EngineResult.values()) {
             byCode.put(ter.ord, ter);
         }
@@ -212,6 +212,7 @@ public enum EngineResult implements SerializedType {
         }
     }
 
+    @SuppressWarnings("unused")
     public static Translator translate = new Translator();
 
     // Result Classes

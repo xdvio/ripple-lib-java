@@ -3,6 +3,7 @@ package com.ripple.core.coretypes.uint;
 import com.ripple.core.fields.Field;
 import com.ripple.core.fields.Type;
 import com.ripple.core.fields.UInt16Field;
+import com.ripple.core.serialized.BinaryParser;
 import com.ripple.core.serialized.BytesSink;
 import com.ripple.core.serialized.TypeTranslator;
 
@@ -43,6 +44,18 @@ public class UInt16 extends UInt<UInt16> {
         super(s, radix);
     }
 
+    public static UInt16 fromParser(BinaryParser parser) {
+        return translate.fromParser(parser);
+    }
+
+    public static UInt16 fromHex(String string) {
+        return translate.fromHex(string);
+    }
+
+    public static UInt16 fromBytes(byte[] bytes) {
+        return translate.fromBytes(bytes);
+    }
+
     @Override
     public int getByteWidth() {
         return 2;
@@ -58,7 +71,7 @@ public class UInt16 extends UInt<UInt16> {
         return intValue();
     }
 
-    public static UInt16Field int16Field(final Field f) {
+    private static UInt16Field int16Field(final Field f) {
         return new UInt16Field(){ @Override public Field getField() {return f;}};
     }
 

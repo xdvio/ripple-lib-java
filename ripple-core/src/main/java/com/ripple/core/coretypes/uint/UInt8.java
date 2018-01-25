@@ -3,6 +3,7 @@ package com.ripple.core.coretypes.uint;
 import com.ripple.core.fields.Field;
 import com.ripple.core.fields.Type;
 import com.ripple.core.fields.UInt8Field;
+import com.ripple.core.serialized.BinaryParser;
 import com.ripple.core.serialized.BytesSink;
 import com.ripple.core.serialized.TypeTranslator;
 
@@ -41,6 +42,16 @@ public class UInt8 extends UInt<UInt8> {
 
     public UInt8(String s, int radix) {
         super(s, radix);
+    }
+
+    public static UInt8 fromParser(BinaryParser parser) {
+        return translate.fromParser(parser);
+    }
+    public static UInt8 fromHex(String hex) {
+        return translate.fromHex(hex);
+    }
+    public static UInt8 fromBytes(byte[] bytes) {
+        return translate.fromBytes(bytes);
     }
 
     @Override

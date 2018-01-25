@@ -19,7 +19,7 @@ import java.util.Arrays;
 public class SignedTransaction {
     private SignedTransaction(Transaction of) {
         // TODO: is this just over kill ?
-        txn = (Transaction) STObject.translate.fromBytes(of.toBytes());
+        txn = (Transaction) STObject.fromBytes(of.toBytes());
     }
 
     protected SignedTransaction() {}

@@ -113,7 +113,7 @@ public class PaymentFlow extends Publisher<PaymentFlow.events> {
             public void called(Response response) {
                 if (response.succeeded) {
                     JSONObject accountJSON = response.result.optJSONObject("account_data");
-                    STObject accountData = STObject.translate.fromJSONObject(accountJSON);
+                    STObject accountData = STObject.fromJSONObject(accountJSON);
                     if (PaymentFlow.this.src == id) {
                         srcInfo = accountData;
                     } else if (PaymentFlow.this.dest == id) {

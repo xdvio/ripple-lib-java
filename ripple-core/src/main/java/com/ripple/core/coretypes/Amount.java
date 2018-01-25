@@ -26,6 +26,7 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
 {
 
     private static BigDecimal TAKER_PAYS_FOR_THAT_DAMN_OFFER = new BigDecimal("1000000000000.000100");
+
 //    public static final Amount NEUTRAL_ZERO = new Amount(Currency.NEUTRAL, AccountID.NEUTRAL);
 
     /**
@@ -476,8 +477,8 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
 
             if (isIOU) {
                 mantissa[0] = 0;
-                Currency curr = Currency.translate.fromParser(parser);
-                AccountID issuer = AccountID.translate.fromParser(parser);
+                Currency curr = Currency.fromParser(parser);
+                AccountID issuer = AccountID.fromParser(parser);
                 int exponent = ((b1 & 0x3F) << 2) + ((b2 & 0xff) >> 6) - 97;
                 mantissa[1] &= 0x3F;
 
@@ -574,6 +575,30 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
         } else {
             return fromDropString(val);
         }
+
+    }
+
+    public static Amount fromParser(BinaryParser parser) {
+        return translate.fromParser(parser);
+    }
+
+    public static Amount fromHex(String hex) {
+        return translate.fromHex(hex);
+    }
+    public static Amount fromBytes(byte[] bytes) {
+        return translate.fromBytes(bytes);
+    }
+
+    public static Amount fromJSONObject(JSONObject jsonObject) {
+        return translate.fromJSONObject(jsonObject);
+    }
+
+    public static Amount fromJacksonObject(ObjectNode object) {
+        return translate.fromJacksonObject(object);
+    }
+
+    public static Amount fromValue(Object amount) {
+        return translate.fromValue(amount);
     }
 
     public static Amount fromDropString(String val) {

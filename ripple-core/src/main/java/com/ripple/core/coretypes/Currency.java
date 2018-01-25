@@ -101,7 +101,7 @@ public class Currency extends Hash160 {
             parser.skip(1); // The type
             isoCode = isoCodeFromBytesAndOffset(parser.read(3), 0);// The isoCode
             interestStart = RippleDate.fromParser(parser);
-            long l = UInt64.translate.fromParser(parser).longValue();
+            long l = UInt64.fromParser(parser).longValue();
             interestRate = Double.longBitsToDouble(l);
         }
     }
@@ -118,7 +118,7 @@ public class Currency extends Hash160 {
      * It's better to extend HashTranslator than the Hash160.Translator directly
      * That way the generics can still vibe with the @Override
      */
-    public static class CurrencyTranslator extends HashTranslator<Currency> {
+    private static class CurrencyTranslator extends HashTranslator<Currency> {
         @Override
         public int byteWidth() {
             return 20;
@@ -152,6 +152,10 @@ public class Currency extends Hash160 {
 
     public static Currency fromString(String currency) {
         return translate.fromString(currency);
+    }
+
+    public static Currency fromParser(BinaryParser parser) {
+        return translate.fromParser(parser);
     }
 
     @Override
@@ -202,7 +206,7 @@ public class Currency extends Hash160 {
         return super.equals(obj); // Full comparison
     }
 
-    public static CurrencyTranslator translate = new CurrencyTranslator();
+    private static CurrencyTranslator translate = new CurrencyTranslator();
 
     /*
     * The following are static methods, legacy from when there was no

@@ -106,6 +106,7 @@ public abstract class TypeTranslator<T extends SerializedType> {
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings("WeakerAccess")
     protected T fromBoolean(boolean aBoolean) {
         throw new UnsupportedOperationException();
     }
@@ -118,6 +119,7 @@ public abstract class TypeTranslator<T extends SerializedType> {
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings("WeakerAccess")
     protected T fromDouble(double aDouble) {
         throw new UnsupportedOperationException();
     }

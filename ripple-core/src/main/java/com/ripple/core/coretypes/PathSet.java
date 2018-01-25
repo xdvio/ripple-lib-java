@@ -20,6 +20,14 @@ public class PathSet extends ArrayList<PathSet.Path> implements SerializedType {
 
     public PathSet(){}
 
+    public static PathSet fromJSONArray(JSONArray array) {
+        return translate.fromJSONArray(array);
+    }
+
+    public static PathSet fromHex(String hex) {
+        return translate.fromHex(hex);
+    }
+
     public static class Hop {
         public static byte TYPE_ACCOUNT  = (byte) 0x01;
         public static byte TYPE_CURRENCY = (byte) 0x10;
@@ -208,13 +216,13 @@ public class PathSet extends ArrayList<PathSet.Path> implements SerializedType {
                 PathSet.Hop hop = new PathSet.Hop();
                 path.add(hop);
                 if ((type & Hop.TYPE_ACCOUNT) != 0) {
-                    hop.account = AccountID.translate.fromParser(parser);
+                    hop.account = AccountID.fromParser(parser);
                 }
                 if ((type & Hop.TYPE_CURRENCY) != 0) {
-                    hop.currency = Currency.translate.fromParser(parser);
+                    hop.currency = Currency.fromParser(parser);
                 }
                 if ((type & Hop.TYPE_ISSUER) != 0) {
-                    hop.issuer = AccountID.translate.fromParser(parser);
+                    hop.issuer = AccountID.fromParser(parser);
                 }
             }
 
@@ -251,7 +259,14 @@ public class PathSet extends ArrayList<PathSet.Path> implements SerializedType {
     }
     static public Translator translate = new Translator();
 
-    public static PathSetField pathsetField(final Field f) {
+    public static PathSet fromParser(BinaryParser parser) {
+        return translate.fromParser(parser);
+    }
+    public static PathSet fromBytes(byte[] bytes) {
+        return translate.fromBytes(bytes);
+    }
+
+    private static PathSetField pathsetField(final Field f) {
         return new PathSetField(){ @Override public Field getField() {return f;}};
     }
     static public PathSetField Paths = pathsetField(Field.Paths);

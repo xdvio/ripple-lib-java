@@ -22,17 +22,17 @@ public class Vector256Test {
 //        System.out.println(offset);
         BinaryParser parser = new BinaryParser(hex);
 
-        UInt32 ledgerIndex = UInt32.translate.fromParser(parser),
-               ledgerIndex2 = UInt32.translate.fromParser(parser);
+        UInt32 ledgerIndex = UInt32.fromParser(parser),
+               ledgerIndex2 = UInt32.fromParser(parser);
         char type = (char) parser.readOne();
 
         System.out.println((int) type);
-        UInt32 prefix = UInt32.translate.fromParser(parser);
+        UInt32 prefix = UInt32.fromParser(parser);
         UInt32 innerNode = HashPrefix.innerNode.uInt32;
 
 //        System.out.println(prefix.equals(innerNode));
 
-        Vector256 hashes = Vector256.translate.fromParser(parser);
+        Vector256 hashes = Vector256.fromParser(parser);
         for (Hash256 hash : hashes) {
 //            System.out.println("0x" + hash);
         }

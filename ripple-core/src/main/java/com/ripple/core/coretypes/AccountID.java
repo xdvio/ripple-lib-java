@@ -16,17 +16,14 @@ import com.ripple.encodings.addresses.Addresses;
 import com.ripple.encodings.common.B16;
 import com.ripple.utils.Utils;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * Originally it was intended that AccountIDs would be variable length so that's
  * why they are variable length encoded as top level field objects.
- * <p>
+ *
  * Note however, that in practice, all account ids are just 160 bit hashes.
  * Consider the fields TakerPaysIssuer and fixed length encoding of issuers in
  * amount serializations.
- * <p>
+ *
  * Thus, we extend Hash160 which affords us some functionality.
  */
 public class AccountID extends Hash160 {
@@ -56,6 +53,14 @@ public class AccountID extends Hash160 {
     static public AccountID fromAddress(String address) {
         byte[] bytes = Addresses.decodeAccountID(address);
         return new AccountID(bytes, address);
+    }
+
+    static public AccountID fromParser(BinaryParser parser) {
+        return translate.fromParser(parser);
+    }
+
+    static public AccountID fromHex(String hex) {
+        return translate.fromHex(hex);
     }
 
     public static AccountID fromKeyPair(IKeyPair kp) {

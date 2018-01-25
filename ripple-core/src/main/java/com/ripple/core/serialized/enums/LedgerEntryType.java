@@ -7,6 +7,8 @@ import com.ripple.core.serialized.SerializedType;
 import com.ripple.core.serialized.TypeTranslator;
 import com.ripple.encodings.common.B16;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeMap;
 
 public enum LedgerEntryType implements SerializedType {
@@ -33,7 +35,7 @@ public enum LedgerEntryType implements SerializedType {
         ord = i;
     }
 
-    static private TreeMap<Integer, LedgerEntryType> byCode = new TreeMap<Integer, LedgerEntryType>();
+    static private Map<Integer, LedgerEntryType> byCode = new TreeMap<>();
 
     static {
         for (Object a : LedgerEntryType.values()) {
@@ -93,5 +95,6 @@ public enum LedgerEntryType implements SerializedType {
         }
     }
 
+    @SuppressWarnings("unused")
     public static Translator translate = new Translator();
 }

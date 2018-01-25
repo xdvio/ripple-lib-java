@@ -57,7 +57,7 @@ public class TrackedAccountRoot extends Publisher<TrackedAccountRoot.events> {
     public TrackedAccountRoot()   {}
 
     public void setFromJSON(JSONObject jsonObject) {
-        setFromSTObject(STObject.translate.fromJSONObject(jsonObject));
+        setFromSTObject(STObject.fromJSONObject(jsonObject));
     }
 
     public void setUnfundedAccount(AccountID account) {

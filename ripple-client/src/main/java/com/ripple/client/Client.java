@@ -881,7 +881,7 @@ public class Client extends Publisher<Client.events> {
             @Override
             public LedgerEntry buildTypedResponse(Response response) {
                 String node_binary = response.result.optString("node_binary");
-                STObject node = STObject.translate.fromHex(node_binary);
+                STObject node = STObject.fromHex(node_binary);
                 node.put(Hash256.index, index);
                 return (LedgerEntry) node;
             }

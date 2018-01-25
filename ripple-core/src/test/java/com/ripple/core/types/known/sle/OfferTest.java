@@ -11,8 +11,7 @@ import static junit.framework.TestCase.assertEquals;
 public class OfferTest {
 
     @Test
-    public void testHarness() throws Exception {
-        // TODO: ...
+    public void testHarness(){
         JSONObject offerJson = new JSONObject("{\"Account\": \"rEssC7sBh8ZCytFXBW4jpGfcb8XMRTgUmT\"," +
                 " \"BookDirectory\": \"4627DFFCFF8B5A265EDBD8AE8C14A52325DBFEDAF4F5C32E5D05540F663BF000\"," +
                 " \"BookNode\": \"0000000000000000\"," +

@@ -4,6 +4,7 @@ import com.ripple.core.coretypes.AccountID;
 import com.ripple.core.fields.Field;
 import com.ripple.core.fields.Hash160Field;
 import com.ripple.core.fields.Type;
+import com.ripple.core.serialized.BinaryParser;
 import com.ripple.core.serialized.BytesSink;
 
 public class Hash160 extends Hash<Hash160> {
@@ -36,6 +37,18 @@ public class Hash160 extends Hash<Hash160> {
         return Type.Hash160;
     }
 
+    public static Hash160 fromParser(BinaryParser parser) {
+        return translate.fromParser(parser);
+    }
+
+    public static Hash160 fromHex(String string) {
+        return translate.fromHex(string);
+    }
+
+    public static Hash160 fromBytes(byte[] bytes) {
+        return translate.fromBytes(bytes);
+    }
+
     public static class Translator extends HashTranslator<Hash160> {
         @Override
         public Hash160 newInstance(byte[] b) {
@@ -57,7 +70,7 @@ public class Hash160 extends Hash<Hash160> {
     }
     public static Translator translate = new Translator();
 
-    public static Hash160Field hash160Field(final Field f) {
+    private static Hash160Field hash160Field(final Field f) {
         return new Hash160Field(){ @Override public Field getField() {return f;}};
     }
 

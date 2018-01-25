@@ -254,13 +254,7 @@ public enum Field {
         isSerialized = isSerialized(this);
     }
 
-    static private HashMap<Integer, Field> byCode = new HashMap<>();
-
-    public static Iterator<Field> sorted(Collection<Field> fields) {
-        ArrayList<Field> fieldList = new ArrayList<>(fields);
-        fieldList.sort(comparator);
-        return fieldList.iterator();
-    }
+    static private Map<Integer, Field> byCode = new TreeMap<>();
 
     static public Field fromCode(Integer integer) {
         return byCode.get(integer);

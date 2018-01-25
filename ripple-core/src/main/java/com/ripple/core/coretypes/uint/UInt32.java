@@ -3,6 +3,7 @@ package com.ripple.core.coretypes.uint;
 import com.ripple.core.fields.Field;
 import com.ripple.core.fields.Type;
 import com.ripple.core.fields.UInt32Field;
+import com.ripple.core.serialized.BinaryParser;
 import com.ripple.core.serialized.BytesSink;
 import com.ripple.core.serialized.TypeTranslator;
 
@@ -40,6 +41,16 @@ public class UInt32 extends UInt<UInt32> {
 
     public UInt32(String s, int radix) {
         super(s, radix);
+    }
+
+    public static UInt32 fromParser(BinaryParser binaryParser) {
+        return translate.fromParser(binaryParser);
+    }
+    public static UInt32 fromHex(String string) {
+        return translate.fromHex(string);
+    }
+    public static UInt32 fromBytes(byte[] bytes) {
+        return translate.fromBytes(bytes);
     }
 
     @Override

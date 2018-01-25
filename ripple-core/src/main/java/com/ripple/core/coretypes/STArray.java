@@ -54,8 +54,17 @@ public class STArray extends ArrayList<STObject> implements SerializedType {
         return Type.STArray;
     }
 
-    public static class Translator extends TypeTranslator<STArray> {
+    public static STArray fromParser(BinaryParser parser) {
+        return translate.fromParser(parser);
+    }
+    public static STArray fromBytes(byte[] bytes) {
+        return translate.fromBytes(bytes);
+    }
+    public static STArray fromHex(String hex) {
+        return translate.fromHex(hex);
+    }
 
+    public static class Translator extends TypeTranslator<STArray> {
         @Override
         public STArray fromParser(BinaryParser parser, Integer hint) {
             STArray stArray = new STArray();
@@ -66,7 +75,7 @@ public class STArray extends ArrayList<STObject> implements SerializedType {
                 }
                 STObject outer = new STObject();
                 // assert field.getType() == Type.STObject;
-                outer.put(field, STObject.translate.fromParser(parser));
+                outer.put(field, STObject.fromParser(parser));
                 stArray.add(STObject.formatted(outer));
             }
             return stArray;
@@ -94,7 +103,7 @@ public class STArray extends ArrayList<STObject> implements SerializedType {
 
             for (int i = 0; i < jsonArray.size(); i++) {
                 ObjectNode object = (ObjectNode) jsonArray.get(i);
-                arr.add(STObject.translate.fromJacksonObject(object));
+                arr.add(STObject.fromJacksonObject(object));
             }
 
             return arr;
@@ -104,7 +113,7 @@ public class STArray extends ArrayList<STObject> implements SerializedType {
 
     public STArray(){}
 
-    public static STArrayField starrayField(final Field f) {
+    private static STArrayField starrayField(final Field f) {
         return new STArrayField(){ @Override public Field getField() {return f;}};
     }
 
@@ -117,4 +126,5 @@ public class STArray extends ArrayList<STObject> implements SerializedType {
     static public STArrayField Sufficient = starrayField(Field.Sufficient);
     static public STArrayField Majorities = starrayField(Field.Majorities);
     static public STArrayField Memos = starrayField(Field.Memos);
+    static public STArrayField ArrayEndMarker = starrayField(Field.ArrayEndMarker);
 }

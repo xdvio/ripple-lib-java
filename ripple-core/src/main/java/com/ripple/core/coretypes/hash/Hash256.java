@@ -5,6 +5,7 @@ import com.ripple.core.coretypes.hash.prefixes.Prefix;
 import com.ripple.core.fields.Field;
 import com.ripple.core.fields.Hash256Field;
 import com.ripple.core.fields.Type;
+import com.ripple.core.serialized.BinaryParser;
 import com.ripple.core.serialized.BytesSink;
 
 import java.math.BigInteger;
@@ -72,6 +73,12 @@ public class Hash256 extends Hash<Hash256> {
     public static Hash256 fromHex(String s) {
         return translate.fromHex(s);
     }
+    public static Hash256 fromParser(BinaryParser parser) {
+        return translate.fromParser(parser);
+    }
+    public static Hash256 fromBytes(byte[] bytes) {
+        return translate.fromBytes(bytes);
+    }
 
     public Hash256(byte[] bytes) {
         super(bytes, 32);
@@ -131,6 +138,8 @@ public class Hash256 extends Hash<Hash256> {
     static public Hash256Field TicketID = hash256Field(Field.TicketID);
     static public Hash256Field Channel = hash256Field(Field.Channel);
     static public Hash256Field CheckID = hash256Field(Field.CheckID);
+    static public Hash256Field Digest = hash256Field(Field.Digest);
+    static public Hash256Field ConsensusHash = hash256Field(Field.ConsensusHash);
 
     static public Hash256Field hash = hash256Field(Field.hash);
     static public Hash256Field index = hash256Field(Field.index);

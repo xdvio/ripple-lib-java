@@ -22,16 +22,14 @@ import com.ripple.core.serialized.enums.TransactionType;
 import org.json.JSONObject;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 
 public class STObject implements SerializedType, Iterable<Field> {
     // Internally the fields are stored in a TreeMap
     public static class FieldsMap extends TreeMap<Field, SerializedType> {}
-    // There's no nice predicates
-    public static interface FieldFilter {
-        boolean evaluate(Field a);
-    }
 
     protected FieldsMap fields;
     public Format format;
@@ -55,6 +53,15 @@ public class STObject implements SerializedType, Iterable<Field> {
     public static STObject fromHex(String hex) {
         return STObject.translate.fromHex(hex);
     }
+    public static STObject fromBytes(byte[] bytes) {
+        return translate.fromBytes(bytes);
+    }
+    public static STObject fromParser(BinaryParser parser) {
+        return translate.fromParser(parser);
+    }
+    public static STObject fromParser(BinaryParser parser, Integer hint) {
+        return translate.fromParser(parser, hint);
+    }
 
     @Override
     public Iterator<Field> iterator() {
@@ -62,7 +69,7 @@ public class STObject implements SerializedType, Iterable<Field> {
     }
 
     public String prettyJSON() {
-        return translate.toJSONObject(this).toString(4);
+        return translate.toJSONObject(this).toString(2);
     }
 
     /**
@@ -83,7 +90,7 @@ public class STObject implements SerializedType, Iterable<Field> {
     }
 
     public static class FormatException extends RuntimeException {
-        public FormatException(String s) {
+        FormatException(String s) {
             super(s);
         }
     }
@@ -292,11 +299,11 @@ public class STObject implements SerializedType, Iterable<Field> {
         return translate.toHex(this);
     }
 
-    public void toBytesSink(BytesSink to, FieldFilter p) {
+    public void toBytesSink(BytesSink to, Predicate<Field> p) {
         BinarySerializer serializer = new BinarySerializer(to);
 
         for (Field field : this) {
-            if (p.evaluate(field)) {
+            if (p.test(field)) {
                 SerializedType value = fields.get(field);
                 serializer.add(field, value);
             }
@@ -312,7 +319,7 @@ public class STObject implements SerializedType, Iterable<Field> {
         return Type.STObject;
     }
 
-    public static class Translator extends TypeTranslator<STObject> {
+    private static class Translator extends TypeTranslator<STObject> {
 
         @Override
         public STObject fromParser(BinaryParser parser, Integer hint) {
@@ -402,9 +409,9 @@ public class STObject implements SerializedType, Iterable<Field> {
         return fields.size();
     }
 
-    static public Translator translate = new Translator();
+    static private Translator translate = new Translator();
 
-    public static STObjectField stobjectField(final Field f) {
+    private static STObjectField stobjectField(final Field f) {
         return new STObjectField() {@Override public Field getField() {return f; } };
     }
 
@@ -418,41 +425,52 @@ public class STObject implements SerializedType, Iterable<Field> {
     static public STObjectField TemplateEntry = stobjectField(Field.TemplateEntry);
     static public STObjectField Signer = stobjectField(Field.Signer);
     static public STObjectField SignerEntry = stobjectField(Field.SignerEntry);
+    static public STObjectField ObjectEndMarker = stobjectField(Field.ObjectEndMarker);
+    static public STObjectField Memo = stobjectField(Field.Memo);
+    static public STObjectField Majority = stobjectField(Field.Majority);
 
-    public static class Translators {
-        private static TypeTranslator forType(Type type) {
-            switch (type) {
-
-                case STObject:      return translate;
-                case Amount:        return Amount.translate;
-                case UInt16:        return UInt16.translate;
-                case UInt32:        return UInt32.translate;
-                case UInt64:        return UInt64.translate;
-                case Hash128:       return Hash128.translate;
-                case Hash256:       return Hash256.translate;
-                case Blob:          return Blob.translate;
-                case AccountID:     return AccountID.translate;
-                case STArray:       return STArray.translate;
-                case UInt8:         return UInt8.translate;
-                case Hash160:       return Hash160.translate;
-                case PathSet:       return PathSet.translate;
-                case Vector256:     return Vector256.translate;
-
-                default:            throw new RuntimeException("Unknown type");
+    private static class Translators {
+        private static TypeTranslator get(Class<? extends SerializedType> kls) {
+            try {
+                java.lang.reflect.Field translate = kls.getDeclaredField("translate");
+                translate.setAccessible(true);
+                return (TypeTranslator) translate.get(kls);
+            } catch (Exception e) {
+                throw new RuntimeException("for kls: " + kls.getSimpleName(), e);
             }
         }
 
-        public static TypeTranslator<SerializedType> forField(Field field) {
+        private static TypeTranslator forType(Type type) {
+            switch (type) {
+                case STObject:      return STObject.translate; // get(STObject.class);
+                case Amount:        return Amount.translate; // get(Amount.class);
+                case UInt16:        return UInt16.translate; // get(UInt16.class);
+                case UInt32:        return UInt32.translate; // get(UInt32.class);
+                case UInt64:        return UInt64.translate; // get(UInt64.class);
+                case Hash128:       return Hash128.translate; // get(Hash128.class);
+                case Hash256:       return Hash256.translate; // get(Hash256.class);
+                case Blob:          return Blob.translate; // get(Blob.class);
+                case AccountID:     return AccountID.translate; // get(AccountID.class);
+                case STArray:       return STArray.translate; // get(STArray.class);
+                case UInt8:         return UInt8.translate; // get(UInt8.class);
+                case Hash160:       return Hash160.translate; // get(Hash160.class);
+                case PathSet:       return PathSet.translate; // get(PathSet.class);
+                case Vector256:     return Vector256.translate; // get(Vector256.class);
+                default:            throw new IllegalStateException("Unknown type");
+            }
+        }
+
+        private static TypeTranslator<SerializedType> forField(Field field) {
             if (field.tag == null) {
                 switch (field) {
                     case LedgerEntryType:
-                        field.tag = LedgerEntryType.translate;
+                        field.tag = LedgerEntryType.translate; //get(LedgerEntryType.class);
                         break;
                     case TransactionType:
-                        field.tag = TransactionType.translate;
+                        field.tag = TransactionType.translate;// get(TransactionType.class);
                         break;
                     case TransactionResult:
-                        field.tag = EngineResult.translate;
+                        field.tag = EngineResult.translate; // get(EngineResult.class);
                         break;
                     default:
                         field.tag = forType(field.getType());

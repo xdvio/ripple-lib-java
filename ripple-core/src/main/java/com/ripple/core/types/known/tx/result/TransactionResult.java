@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class TransactionResult implements Comparable<TransactionResult>{
+public class TransactionResult implements Comparable<TransactionResult> {
     // The json formatting of transaction results is a MESS
     public enum Source {
         request_tx_result,
@@ -57,7 +57,7 @@ public class TransactionResult implements Comparable<TransactionResult>{
 
     // This is deprecated because it's not always set.
     @Deprecated
-    public JSONObject       message;
+    public JSONObject message;
 
     public boolean isPayment() {
         return transactionType() == TransactionType.Payment;
@@ -185,10 +185,10 @@ public class TransactionResult implements Comparable<TransactionResult>{
 
     private static STObject parseObject(JSONObject json, String key, boolean binary) {
         if (binary) {
-            return STObject.translate.fromHex(json.getString(key));
+            return STObject.fromHex(json.getString(key));
         } else {
             JSONObject tx_json = json.getJSONObject(key);
-            return STObject.translate.fromJSONObject(tx_json);
+            return STObject.fromJSONObject(tx_json);
         }
     }
 
@@ -199,7 +199,7 @@ public class TransactionResult implements Comparable<TransactionResult>{
 
             engineResult = EngineResult.valueOf(json.getString("engine_result"));
             validated = json.getBoolean("validated");
-            ledgerHash = Hash256.translate.fromString(json.getString("ledger_hash"));
+            ledgerHash = Hash256.fromHex(json.getString("ledger_hash"));
             ledgerIndex = new UInt32(json.getLong("ledger_index"));
 
             if (json.has("transaction")) {
@@ -213,8 +213,8 @@ public class TransactionResult implements Comparable<TransactionResult>{
         }
         else if (resultMessageSource == Source.ledger_transactions_expanded_with_ledger_index_injected) {
             validated = true;
-            meta = (TransactionMeta) STObject.translate.fromJSONObject(json.getJSONObject("metaData"));
-            txn = (Transaction) STObject.translate.fromJSONObject(json);
+            meta = (TransactionMeta) STObject.fromJSONObject(json.getJSONObject("metaData"));
+            txn = (Transaction) STObject.fromJSONObject(json);
             hash = txn.get(Hash256.hash);
             engineResult = meta.engineResult();
             ledgerIndex = new UInt32(json.getLong("ledger_index"));
@@ -266,13 +266,13 @@ public class TransactionResult implements Comparable<TransactionResult>{
 
                 String tx = json.getString(account_tx ? "tx_blob" : "tx");
                 byte[] decodedTx = B16.decode(tx);
-                meta = (TransactionMeta) STObject.translate.fromHex(json.getString("meta"));
-                this.txn = (Transaction) STObject.translate.fromBytes(decodedTx);
+                meta = (TransactionMeta) STObject.fromHex(json.getString("meta"));
+                this.txn = (Transaction) STObject.fromBytes(decodedTx);
 
                 if (account_tx) {
                     hash = Index.transactionID(decodedTx);
                 } else {
-                    hash = Hash256.translate.fromHex(json.getString("hash"));
+                    hash = Hash256.fromHex(json.getString("hash"));
                 }
                 this.txn.put(Field.hash, hash);
 
@@ -305,8 +305,8 @@ public class TransactionResult implements Comparable<TransactionResult>{
     }
 
     public TransactionResult copy() {
-        TransactionMeta metaCopy = (TransactionMeta) STObject.translate.fromBytes(meta.toBytes());
-        Transaction txnCopy = (Transaction) STObject.translate.fromBytes(txn.toBytes());
+        TransactionMeta metaCopy = (TransactionMeta) STObject.fromBytes(meta.toBytes());
+        Transaction txnCopy = (Transaction) STObject.fromBytes(txn.toBytes());
         return new TransactionResult(ledgerIndex.longValue(), hash, txnCopy, metaCopy);
     }
 

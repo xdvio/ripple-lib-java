@@ -15,8 +15,8 @@ public class Alternatives extends ArrayList<Alternative> {
     public Alternatives(JSONArray array, Alternatives prior) {
         for (int i = 0; i < array.length(); i++) {
             JSONObject alternativeJson = array.getJSONObject(i);
-            Amount sourceAmount = Amount.translate.fromValue(alternativeJson.get("source_amount"));
-            PathSet paths = PathSet.translate.fromJSONArray(alternativeJson.getJSONArray("paths_computed"));
+            Amount sourceAmount = Amount.fromValue(alternativeJson.get("source_amount"));
+            PathSet paths = PathSet.fromJSONArray(alternativeJson.getJSONArray("paths_computed"));
             addRecyclingPrior(new Alternative(paths, sourceAmount), prior);
         }
     }

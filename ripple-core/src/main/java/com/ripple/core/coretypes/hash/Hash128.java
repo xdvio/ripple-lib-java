@@ -3,6 +3,7 @@ package com.ripple.core.coretypes.hash;
 import com.ripple.core.fields.Field;
 import com.ripple.core.fields.Hash128Field;
 import com.ripple.core.fields.Type;
+import com.ripple.core.serialized.BinaryParser;
 import com.ripple.core.serialized.BytesSink;
 
 public class Hash128 extends Hash<Hash128> {
@@ -35,6 +36,17 @@ public class Hash128 extends Hash<Hash128> {
         return Type.Hash128;
     }
 
+    public static Hash128 fromParser(BinaryParser parser) {
+        return translate.fromParser(parser);
+    }
+
+    public static Hash128 fromHex(String string) {
+        return translate.fromHex(string);
+    }
+    public static Hash128 fromBytes(byte[] bytes) {
+        return translate.fromBytes(bytes);
+    }
+
     public static class Translator extends HashTranslator<Hash128> {
         @Override
         public Hash128 newInstance(byte[] b) {
@@ -46,9 +58,10 @@ public class Hash128 extends Hash<Hash128> {
             return 16;
         }
     }
+
     public static Translator translate = new Translator();
 
-    public static Hash128Field hash128Field(final Field f) {
+    private static Hash128Field hash128Field(final Field f) {
         return new Hash128Field(){ @Override public Field getField() {return f;}};
     }
 

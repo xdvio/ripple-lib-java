@@ -107,7 +107,7 @@ public class JacksonTest {
     @Test
     public void testAmount() {
         ObjectNode parse = JSON.parseObject(amount);
-        Amount amount = Amount.translate.fromJacksonObject(parse);
+        Amount amount = Amount.fromJacksonObject(parse);
         assertEquals("1000.1/USD/rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B",
                 amount.toTextFull());
     }
@@ -125,7 +125,7 @@ public class JacksonTest {
     public void testTransactionMeta() {
         ObjectNode parse = JSON.parseObject(transaction);
         ObjectNode meta = (ObjectNode) parse.remove("metaData");
-        STObject fields = STObject.translate.fromJacksonObject(meta);
+        STObject fields = STObject.fromJacksonObject(meta);
         assertEquals(transactionMetaHex, fields.toHex());
     }
 }

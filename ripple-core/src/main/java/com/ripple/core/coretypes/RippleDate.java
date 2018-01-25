@@ -46,7 +46,7 @@ public class RippleDate extends Date {
         return new RippleDate((seconds.longValue() + RIPPLE_EPOCH_SECONDS_OFFSET) * 1000);
     }
     public static RippleDate fromParser(BinaryParser parser) {
-        UInt32 uInt32 = UInt32.translate.fromParser(parser);
+        UInt32 uInt32 = UInt32.fromParser(parser);
         return fromSecondsSinceRippleEpoch(uInt32);
     }
     public static RippleDate now() {

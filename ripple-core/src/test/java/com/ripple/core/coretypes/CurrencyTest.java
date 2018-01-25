@@ -15,7 +15,7 @@ public class CurrencyTest {
         Currency currency = Currency.fromString(code);
         String hex = currency.toHex();
         assertEquals("0000000000000000000000005553440000000000", hex);
-        assertEquals("USD", Currency.translate.toString(Currency.fromString(hex)));
+        assertEquals("USD", Currency.fromString(hex).toString());
     }
 
 
@@ -24,7 +24,7 @@ public class CurrencyTest {
         String demureHex = "015841551A748AD23FEFFFFFFFEA028000000000";
         Currency currency = Currency.fromString(demureHex);
         Currency.Demurrage demurrage = currency.demurrage;
-        assertEquals(demureHex, Currency.translate.toString(currency));
+        assertEquals(demureHex, currency.toString());
         assertEquals("XAU", demurrage.isoCode);
         assertEquals(0.99999999984D, demurrage.interestRate);
         assertEquals("24 Jan 2014 02:22:10 GMT", demurrage.interestStart.toGMTString());

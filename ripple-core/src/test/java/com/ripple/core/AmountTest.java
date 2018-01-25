@@ -20,7 +20,6 @@ import static org.junit.Assert.*;
 public class AmountTest {
 
     private String rootAddress = TestFixtures.master_seed_address;
-    private Amount.Translator amounts = Amount.translate;
 
     static private HashMap<String, AccountID> aliases = new HashMap<>();
     {
@@ -66,8 +65,7 @@ public class AmountTest {
     }
 
     private Amount driedWet(Amount amt) {
-        String hex = amounts.toHex(amt);
-        return amounts.fromHex(hex);
+        return Amount.fromHex(amt.toHex());
     }
 
     @Test
@@ -76,7 +74,7 @@ public class AmountTest {
                 "\"issuer\": \"rM1oqKtfh1zgjdAgbFmaRm3btfGBX25xVo\"," +
                 "\"value\": \"1000\"}";
 
-        Amount amt = amounts.fromJSONObject(new JSONObject(amtJSON));
+        Amount amt = Amount.fromJSONObject(new JSONObject(amtJSON));
         String expected = "D5438D7EA4C68000015841551A748AD23FEFFFFFFFEA028000000000E4FE687C90257D3D2D694C8531CDEECBE84F3367";
         String hex = amt.toHex();
         assertEquals(expected, hex);
@@ -96,7 +94,7 @@ public class AmountTest {
     @Test
     public void testSerializing0XRP() throws Exception {
         Amount amt = Amount.fromDropString("0");
-        String s = amounts.toHex(amt);
+        String s = amt.toHex();
         assertEquals("4000000000000000", s);
         assertEquals(Amount.BINARY_FLAG_IS_NON_NEGATIVE_NATIVE.toString(16), s);
     }
@@ -105,8 +103,8 @@ public class AmountTest {
     public void testSerializingNegativeIOU() throws Exception {
         String json = "{\"currency\": \"USD\", \"issuer\": \"rrrrrrrrrrrrrrrrrrrrBZbvji\", \"value\": \"-99.2643419677474\"}";
 
-        Amount amount = amounts.fromJSONObject(new JSONObject(json));
-        String hex = amounts.toHex(amount);
+        Amount amount = Amount.fromJSONObject(new JSONObject(json));
+        String hex = amount.toHex();
 
         int offset = amount.exponent();
         assertEquals(-14, offset);
@@ -127,15 +125,15 @@ public class AmountTest {
                         "  \"value\": \"0\"\n" +
                         "}";
 
-        Amount amount = amounts.fromJSONObject(new JSONObject(json));
+        Amount amount = Amount.fromJSONObject(new JSONObject(json));
         assertFalse(amount.isNative());
 
-        JSONObject jsonObject = amounts.toJSONObject(amount);
-        Amount rebuilt = amounts.fromJSONObject(jsonObject);
+        JSONObject jsonObject = amount.toJSONObject();
+        Amount rebuilt = Amount.fromJSONObject(jsonObject);
         assertEquals(amount, rebuilt);
 
-        byte[] a1bytes = amounts.toBytes(amount);
-        byte[] a2bytes = amounts.toBytes(rebuilt);
+        byte[] a1bytes = amount.toBytes();
+        byte[] a2bytes = rebuilt.toBytes();
 
         boolean equals = Arrays.equals(a1bytes, a2bytes);
         assertTrue(equals);
@@ -151,8 +149,8 @@ public class AmountTest {
                 "";
         String expected_hex = "800000000000000000000000000000000000000058525000000000000000000000000000000000000000000000000001";
 
-        Amount legacyAmount = amounts.fromJSONObject(new JSONObject(legacy));
-        assertEquals(expected_hex, amounts.toHex(legacyAmount));
+        Amount legacyAmount = Amount.fromJSONObject(new JSONObject(legacy));
+        assertEquals(expected_hex, legacyAmount.toHex());
 
     }
 

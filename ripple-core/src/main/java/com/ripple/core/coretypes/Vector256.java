@@ -75,6 +75,17 @@ public class Vector256 extends ArrayList<Hash256> implements SerializedType {
         return true;
     }
 
+    public static Vector256 fromParser(BinaryParser parser) {
+        return translate.fromParser(parser);
+    }
+
+    public static Vector256 fromHex(String hex) {
+        return translate.fromHex(hex);
+    }
+    public static Vector256 fromBytes(byte[] bytes) {
+        return translate.fromBytes(bytes);
+    }
+
     public static class Translator extends TypeTranslator<Vector256> {
         @Override
         public Vector256 fromParser(BinaryParser parser, Integer hint) {
@@ -83,7 +94,7 @@ public class Vector256 extends ArrayList<Hash256> implements SerializedType {
                 hint = parser.size() - parser.pos();
             }
             for (int i = 0; i < hint / 32; i++) {
-                vector256.add(Hash256.translate.fromParser(parser));
+                vector256.add(Hash256.fromParser(parser));
             }
 
             return vector256;

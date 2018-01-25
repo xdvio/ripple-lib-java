@@ -522,19 +522,19 @@ public class STObjectTest {
         field = binaryParser.readField();
         assertEquals(Field.TransactionType, field);
         assertEquals(Field.TransactionType, UInt16.TransactionType.getField());
-        UInt16 uInt16 = UInt16.translate.fromParser(binaryParser);
+        UInt16 uInt16 = UInt16.fromParser(binaryParser);
         assertEquals(0, uInt16.intValue());
 
         field = binaryParser.readField();
         assertEquals(Field.Sequence, field);
-        UInt32 sequence = UInt32.translate.fromParser(binaryParser);
+        UInt32 sequence = UInt32.fromParser(binaryParser);
         assertEquals(5, sequence.intValue());
 
         field = binaryParser.readField();
         assertEquals(Field.Amount, field);
 
         binaryParser = new BinaryParser(expectedSerialization);
-        STObject so = STObject.translate.fromParser(binaryParser);
+        STObject so = STObject.fromParser(binaryParser);
         assertEquals(expectedSerialization, so.toHex());
     }
 

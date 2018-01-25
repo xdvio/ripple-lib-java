@@ -3,6 +3,7 @@ package com.ripple.core.coretypes.uint;
 import com.ripple.core.fields.Field;
 import com.ripple.core.fields.Type;
 import com.ripple.core.fields.UInt64Field;
+import com.ripple.core.serialized.BinaryParser;
 import com.ripple.core.serialized.BytesSink;
 import com.ripple.core.serialized.TypeTranslator;
 
@@ -23,7 +24,6 @@ public class UInt64 extends UInt<UInt64> {
         }
     };
 
-
     public UInt64(byte[] bytes) {
         super(bytes);
     }
@@ -42,6 +42,17 @@ public class UInt64 extends UInt<UInt64> {
 
     public UInt64(String s, int radix) {
         super(s, radix);
+    }
+
+    public static UInt64 fromParser(BinaryParser parser) {
+        return translate.fromParser(parser);
+    }
+
+    public static UInt64 fromHex(String string) {
+        return translate.fromHex(string);
+    }
+    public static UInt64 fromBytes(byte[] bytes) {
+        return translate.fromBytes(bytes);
     }
 
     @Override

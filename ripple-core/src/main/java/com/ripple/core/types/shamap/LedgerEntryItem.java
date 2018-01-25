@@ -26,7 +26,7 @@ public class LedgerEntryItem extends ShaMapItem<LedgerEntry> {
 
     @Override
     public ShaMapItem<LedgerEntry> copy() {
-        STObject object = STObject.translate.fromBytes(entry.toBytes());
+        STObject object = STObject.fromBytes(entry.toBytes());
         LedgerEntry le = (LedgerEntry) object;
         // TODO: what about other auxiliary (non serialized) fields
         le.index(entry.index());
