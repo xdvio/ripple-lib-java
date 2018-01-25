@@ -30,6 +30,7 @@ import java.util.function.Predicate;
 public class STObject implements SerializedType, Iterable<Field> {
     // Internally the fields are stored in a TreeMap
     public static class FieldsMap extends TreeMap<Field, SerializedType> {}
+//    public static class FieldsMap extends HashMap<Field, SerializedType> {}
 
     protected FieldsMap fields;
     public Format format;
@@ -41,8 +42,8 @@ public class STObject implements SerializedType, Iterable<Field> {
         fields = fieldsMap;
     }
 
-    public static STObject fromJSON(String offerJson) {
-        return fromJSONObject(new JSONObject(offerJson));
+    public static STObject fromJSON(String json) {
+        return fromJSONObject(new JSONObject(json));
     }
     public static STObject fromJSONObject(JSONObject json) {
         return translate.fromJSONObject(json);
@@ -65,6 +66,7 @@ public class STObject implements SerializedType, Iterable<Field> {
 
     @Override
     public Iterator<Field> iterator() {
+//        return fields.keySet().stream().sorted().iterator();
         return fields.keySet().iterator();
     }
 

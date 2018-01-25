@@ -59,6 +59,7 @@ public class AccountStateBuilder {
         for (AffectedNode an : sortedAffectedNodes(tr)) {
             Hash256 id = an.ledgerIndex();
             LedgerEntry le = an.nodeAsFinal();
+
             if (an.isCreatedNode()) {
                 ledgerModifiedEntries.add(id);
                 ledgerDeletedEntries.remove(id);
@@ -141,11 +142,13 @@ public class AccountStateBuilder {
                     tle.previousTxnLgrSeq(tr.ledgerIndex);
                 }
                 for (Field field : le) {
+                    // Already have the `index`
                     if (field == Field.LedgerIndex) {
                         continue;
                     }
                     leModded.put(field, le.get(field));
                 }
+                // Find all removed fields
                 ArrayList<Field> removed = new ArrayList<>();
                 for (Field field : leModded) {
                     if (an.removedField(field)) {
@@ -187,8 +190,7 @@ public class AccountStateBuilder {
         DirectoryNode cursor = dn;
 
         if (!b) {
-            cursor = dn;
-            while (cursor.indexPrevious() != null) {
+            while (cursor.hasIndexPrevious()) {
                 cursor = getDirectoryForUpdating(cursor.prevIndex());
                 b  = directoryRemoveStable(cursor, b4.index());
                 if (b) {

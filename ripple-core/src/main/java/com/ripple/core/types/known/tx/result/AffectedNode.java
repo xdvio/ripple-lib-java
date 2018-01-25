@@ -2,6 +2,7 @@ package com.ripple.core.types.known.tx.result;
 
 import com.ripple.core.coretypes.STObject;
 import com.ripple.core.coretypes.hash.Hash256;
+import com.ripple.core.coretypes.uint.UInt16;
 import com.ripple.core.fields.Field;
 import com.ripple.core.serialized.SerializedType;
 import com.ripple.core.serialized.enums.LedgerEntryType;
@@ -55,7 +56,8 @@ public class AffectedNode extends STObject {
     }
 
     public Field getField() {
-        return fields.firstKey();
+//        return iterator().next();
+         return fields.firstKey();
     }
 
     public Hash256 ledgerIndex() {
@@ -70,6 +72,10 @@ public class AffectedNode extends STObject {
         return (STObject) get(getField());
     }
 
+    /**
+     * @return - LedgerEntry before the transaction (or after in the case of
+     *           a CreatedNode)
+     */
     public LedgerEntry nodeAsPrevious() {
         return (LedgerEntry) rebuildFromMeta(true);
     }
@@ -78,10 +84,11 @@ public class AffectedNode extends STObject {
         return (LedgerEntry) rebuildFromMeta(false);
     }
 
-    private STObject rebuildFromMeta(boolean layerPrevious) {
-        STObject mixed = new STObject();
+    private STObject rebuildFromMeta(boolean asPrevious) {
         boolean created = isCreatedNode();
+        STObject mixed = new STObject();
 
+        // The first object has only a single key
         Field wrapperField = created ? Field.CreatedNode :
                 isDeletedNode() ? Field.DeletedNode :
                         Field.ModifiedNode;
@@ -91,30 +98,30 @@ public class AffectedNode extends STObject {
         Field finalFields = created ? Field.NewFields :
                 Field.FinalFields;
 
+        // You may get some AccountRoot objects like this
         if (!wrapped.has(finalFields)) {
             STObject source = new STObject(wrapped.getFields());
             source.put(Hash256.index, wrapped.get(Hash256.LedgerIndex));
+            source.remove(Field.LedgerIndex);
             return STObject.formatted(source);
         }
 
+        // Get all the final fields
         STObject finals = (STObject) wrapped.get(finalFields);
         for (Field field : finals) {
             mixed.put(field, finals.get(field));
         }
 
+        // Then layer over the previous fields if desired as previous
         // DirectoryNode LedgerEntryType won't have `PreviousFields`
-        if (layerPrevious && wrapped.has(Field.PreviousFields)) {
+        if (asPrevious && wrapped.has(Field.PreviousFields)) {
             STObject previous = wrapped.get(STObject.PreviousFields);
-            STObject changed = new STObject();
-            // TODO: use an auxiliary non serialized field
-            // mixed.put(Field.FinalFields, changed);
-
             for (Field field : previous) {
                 mixed.put(field, previous.get(field));
-                changed.put(field, finals.get(field));
             }
         }
 
+        // Keep the inner most fields
         for (Field field : wrapped) {
             switch (field) {
                 case NewFields:
@@ -123,7 +130,6 @@ public class AffectedNode extends STObject {
                     continue;
                 default:
                     SerializedType value = wrapped.get(field);
-
                     if (field == Field.LedgerIndex) {
                         field = Field.index;
                     }
