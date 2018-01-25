@@ -32,15 +32,15 @@ public abstract class TypeTranslator<T extends SerializedType> {
             case JACKSON_NULL:
                 throw new IllegalStateException("cant create from null");
             case JACKSON_NUMBER:
-                JsonNode object1 = (JsonNode) object;
-                if (object1.isLong()) {
-                    return fromLong(object1.asLong());
-                } else if (object1.isInt()) {
-                    return fromInteger(object1.asInt());
-                } else if (object1.isDouble()) {
-                    return fromDouble(object1.asDouble());
-                } else if (object1.isFloat()) {
-                    return fromDouble(object1.floatValue());
+                JsonNode node = (JsonNode) object;
+                if (node.isLong()) {
+                    return fromLong(node.asLong());
+                } else if (node.isInt()) {
+                    return fromInteger(node.asInt());
+                } else if (node.isDouble()) {
+                    return fromDouble(node.asDouble());
+                } else if (node.isFloat()) {
+                    return fromDouble(node.floatValue());
                 }
                 throw new IllegalStateException("cant create from null");
             case JACKSON_OBJECT:
@@ -75,22 +75,6 @@ public abstract class TypeTranslator<T extends SerializedType> {
     }
 
     protected T fromJacksonArray(ArrayNode node) {
-        throw new UnsupportedOperationException();
-    }
-
-    protected boolean toBoolean(T obj) {
-        throw new UnsupportedOperationException();
-    }
-
-    protected long toLong(T obj) {
-        throw new UnsupportedOperationException();
-    }
-
-    protected int toInteger(T obj) {
-        throw new UnsupportedOperationException();
-    }
-
-    protected double toDouble(T obj) {
         throw new UnsupportedOperationException();
     }
 
@@ -145,13 +129,6 @@ public abstract class TypeTranslator<T extends SerializedType> {
         return fromBytes(B16.decode(hex));
     }
 
-    protected JSONObject toJSONObject(T obj) {
-        throw new UnsupportedOperationException();
-    }
-
-    protected JSONArray toJSONArray(T obj) {
-        throw new UnsupportedOperationException();
-    }
     public Object toJSON(T obj) {
         return obj.toJSON();
     }

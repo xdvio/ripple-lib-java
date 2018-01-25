@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.ripple.encodings.json.JSON;
 import org.junit.Test;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class ValueTest {
 

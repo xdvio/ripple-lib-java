@@ -81,7 +81,6 @@ public class STArray extends ArrayList<STObject> implements SerializedType {
             return stArray;
         }
 
-        @Override
         public JSONArray toJSONArray(STArray obj) {
             return obj.toJSONArray();
         }

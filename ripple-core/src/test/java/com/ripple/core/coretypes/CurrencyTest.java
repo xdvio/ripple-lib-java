@@ -5,7 +5,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class CurrencyTest {
 
@@ -26,11 +26,11 @@ public class CurrencyTest {
         Currency.Demurrage demurrage = currency.demurrage;
         assertEquals(demureHex, currency.toString());
         assertEquals("XAU", demurrage.isoCode);
-        assertEquals(0.99999999984D, demurrage.interestRate);
-        assertEquals("24 Jan 2014 02:22:10 GMT", demurrage.interestStart.toGMTString());
+        assertEquals(0.99999999984D, demurrage.interestRate, 0);
+        assertEquals("24 Jan 2014 02:22:10 GMT", RippleDate.gmtString(demurrage.interestStart));
     }
 
-//    @Test
+    // @Test
     public void testDemurragingRate() throws Exception {
         BigDecimal amount = new BigDecimal("100");
         BigDecimal factor = new BigDecimal("0.995");

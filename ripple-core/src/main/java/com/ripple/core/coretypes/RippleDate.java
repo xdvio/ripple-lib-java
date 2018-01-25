@@ -3,15 +3,18 @@ package com.ripple.core.coretypes;
 import com.ripple.core.coretypes.uint.UInt32;
 import com.ripple.core.serialized.BinaryParser;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 //public class RippleDate extends Date implements SerializedType {
 public class RippleDate extends Date {
+    private static final SimpleDateFormat sdf = new SimpleDateFormat();
+
     public static long RIPPLE_EPOCH_SECONDS_OFFSET = 0x386D4380;
     static {
+        sdf.setTimeZone(new SimpleTimeZone(0, "GMT"));
+        sdf.applyPattern("dd MMM yyyy HH:mm:ss z");
+
         /**
          * Magic constant tested and documented.
          *
@@ -21,8 +24,12 @@ public class RippleDate extends Date {
         GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         cal.set(2000, Calendar.JANUARY, 1, 0, 0, 0);
         long computed = cal.getTimeInMillis() / 1000;
-        assertEquals("1 Jan 2000 00:00:00 GMT", cal.getTime().toGMTString()); // TODO
+        assertEquals("01 Jan 2000 00:00:00 GMT", sdf.format(cal.getTime())); // TODO
         assertEquals(RippleDate.RIPPLE_EPOCH_SECONDS_OFFSET, computed);
+    }
+
+    static public String gmtString(Date date) {
+        return sdf.format(date);
     }
 
     private static void assertEquals(String s, String s1) {

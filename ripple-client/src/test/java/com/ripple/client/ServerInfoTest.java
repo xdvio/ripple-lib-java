@@ -4,7 +4,7 @@ import com.ripple.client.subscriptions.ServerInfo;
 import com.ripple.core.coretypes.Amount;
 import org.junit.Test;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class ServerInfoTest {
     @Test(expected = IllegalStateException.class)

@@ -8,7 +8,7 @@ import com.ripple.core.types.known.tx.Transaction;
 import com.ripple.encodings.json.JSON;
 import org.junit.Test;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class JacksonTest {
 

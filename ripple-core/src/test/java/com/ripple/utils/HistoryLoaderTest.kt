@@ -2,16 +2,13 @@ package com.ripple.utils
 
 import com.ripple.core.binary.STReader
 import com.ripple.core.coretypes.hash.Hash256
-import com.ripple.core.coretypes.uint.UInt32
 import com.ripple.core.fields.Field
 import com.ripple.core.types.known.sle.entries.DirectoryNode
 import com.ripple.core.types.known.sle.entries.OfferDirectory
-import com.ripple.core.types.ledger.LedgerHeader
 import com.ripple.core.types.shamap.AccountState
 import com.ripple.core.types.shamap.AccountStateBuilder
 import com.ripple.core.types.shamap.ShaMapDiff
-import com.ripple.core.types.shamap.TransactionTree
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.File
 import java.util.*
@@ -28,7 +25,6 @@ class HistoryLoaderTest {
 
         val reader = STReader.fromFile(pack)
         val loader = HistoryLoader(reader)
-        val lookup = TreeMap<UInt32, Triple<LedgerHeader, AccountState, TransactionTree>>()
         var stateBuilder: AccountStateBuilder? = null
 
         loader.Parse { header, state, transactions ->
@@ -50,7 +46,6 @@ class HistoryLoaderTest {
                 builder.onLedgerClose(header.sequence.toLong(),
                         header.stateHash,
                         header.previousLedger)
-
 
                 val diff = ShaMapDiff(state, builder.state()).find()
 

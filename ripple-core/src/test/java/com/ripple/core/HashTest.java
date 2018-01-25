@@ -8,9 +8,8 @@ import com.ripple.utils.Utils;
 import org.junit.Test;
 
 import static com.ripple.core.coretypes.hash.Hash256.Hash256Map;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 public class HashTest{
 
@@ -45,8 +44,8 @@ public class HashTest{
         tree.put(b, objectB);
         tree.put(c, objectC);
 
-        assertTrue(tree.get(a) == objectA);
-        assertTrue(tree.get(b) == objectB);
-        assertTrue(tree.get(c) == objectC);
+        assertSame(tree.get(a), objectA);
+        assertSame(tree.get(b), objectB);
+        assertSame(tree.get(c), objectC);
     }
 }

@@ -7,8 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.ripple.core.types.shamap.TestHelpers.H256;
 import static com.ripple.core.types.shamap.TestHelpers.Leaf;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.*;
 
 public class ShaMapTest {
     /*
@@ -34,7 +33,7 @@ public class ShaMapTest {
         ShaMapLeaf l = Leaf(index);
         sm.addLeaf(l);
         ShaMapLeaf retrieved = sm.getLeaf(H256(index));
-        assertTrue(retrieved == l);
+        assertSame(retrieved, l);
     }
 
     @Test
@@ -95,7 +94,7 @@ public class ShaMapTest {
         removeLeafTestHelper(sm);
     }
 
-    public void removeLeafTestHelper(ShaMap sm) {
+    private void removeLeafTestHelper(ShaMap sm) {
         sm.addLeaf(Leaf("000"));
         Hash256 afterOne = sm.hash();
 
@@ -176,32 +175,32 @@ public class ShaMapTest {
         copyOnWriteTestHelper(sm, Leaf("0"));
     }
 
-    public void copyOnWriteTestHelper(ShaMap sm, ShaMapLeaf leaf) {
+    private void copyOnWriteTestHelper(ShaMap sm, ShaMapLeaf leaf) {
         sm.addLeaf(leaf);
 
         // At this point the shamap doesn't do any copy on write
-        assertTrue(leaf == sm.getLeaf(leaf.index));
+        assertSame(leaf, sm.getLeaf(leaf.index));
         // We can update the leaf in place
-        assertTrue(leaf == sm.getLeafForUpdating(leaf.index));
+        assertSame(leaf, sm.getLeafForUpdating(leaf.index));
         // It's still the same
-        assertTrue(leaf == sm.getLeaf(leaf.index));
+        assertSame(leaf, sm.getLeaf(leaf.index));
 
         // We make a copy, which means any changes to either
         // induce a copy on write
         ShaMap copy = sm.copy();
 
         // The leaf is still the same
-        assertTrue(leaf == sm.getLeaf(leaf.index));
+        assertSame(leaf, sm.getLeaf(leaf.index));
         // because we need to make sure we don't mess with our clones ;)
-        assertTrue(leaf != sm.getLeafForUpdating(leaf.index));
+        assertNotSame(leaf, sm.getLeafForUpdating(leaf.index));
         // now this has been updated via getLeafForUpdating
         // there is no `commit`
-        assertTrue(leaf != sm.getLeaf(leaf.index));
+        assertNotSame(leaf, sm.getLeaf(leaf.index));
 
         // And wow, we didn't mess with the original leaf in the copy ;)
-        assertTrue(leaf == copy.getLeaf(leaf.index));
+        assertSame(leaf, copy.getLeaf(leaf.index));
         // But now it's different after updating
-        assertTrue(leaf != copy.getLeafForUpdating(leaf.index));
+        assertNotSame(leaf, copy.getLeafForUpdating(leaf.index));
 
         // We haven't actually caused any substantive changes
         assertEquals(sm.hash(), copy.hash());
@@ -212,7 +211,7 @@ public class ShaMapTest {
         private AtomicInteger inners;
         private AtomicInteger leaves;
 
-        public NodeCount(ShaMap sm) {
+        NodeCount(ShaMap sm) {
             this.sm = sm;
         }
 
@@ -220,15 +219,15 @@ public class ShaMapTest {
             return new NodeCount(sm).invoke();
         }
 
-        public int inners() {
+        int inners() {
             return inners.get();
         }
 
-        public int leaves() {
+        int leaves() {
             return leaves.get();
         }
 
-        public NodeCount invoke() {
+        NodeCount invoke() {
             inners = new AtomicInteger();
             leaves = new AtomicInteger();
 
@@ -246,7 +245,7 @@ public class ShaMapTest {
             return this;
         }
 
-        public NodeCount update() {
+        NodeCount update() {
             this.invoke();
             return this;
         }

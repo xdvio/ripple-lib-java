@@ -63,7 +63,7 @@ class WS extends WebSocketClient {
     }
 
     private String getTime() {
-        return " @  " + new Date().toGMTString();
+        return " @  " + new Date();
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.ripple.core.coretypes.AccountID;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class SubscriptionManagerTest {
 

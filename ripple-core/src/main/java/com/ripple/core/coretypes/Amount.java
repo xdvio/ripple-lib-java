@@ -496,7 +496,6 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
             return obj.stringRepr();
         }
 
-        @Override
         public JSONObject toJSONObject(Amount obj) {
             return obj.toJSONObject();
         }

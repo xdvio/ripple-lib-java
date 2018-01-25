@@ -1,7 +1,7 @@
 package com.ripple.utils
 
 import com.ripple.encodings.common.B16
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 @Suppress("MemberVisibilityCanPrivate")

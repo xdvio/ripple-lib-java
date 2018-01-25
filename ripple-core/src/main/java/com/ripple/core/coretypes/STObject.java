@@ -215,11 +215,11 @@ public class STObject implements SerializedType, Iterable<Field> {
 
     public void putTranslated(Field f, Object value) {
         TypeTranslator typeTranslator = Translators.forField(f);
-        SerializedType st = null;
+        SerializedType st;
         try {
             st = typeTranslator.fromValue(value);
         } catch (Exception e) {
-            throw new RuntimeException("Couldn't put `" +value+ "` into field `" + f + "`\n" + e.toString());
+            throw new RuntimeException("Couldn't put `" +value+ "` into field `" + f + "`", e);
         }
         fields.put(f, st);
     }
@@ -357,7 +357,6 @@ public class STObject implements SerializedType, Iterable<Field> {
             return toJSONObject(obj);
         }
 
-        @Override
         public JSONObject toJSONObject(STObject obj) {
             JSONObject json = new JSONObject();
 
@@ -430,6 +429,7 @@ public class STObject implements SerializedType, Iterable<Field> {
     static public STObjectField Majority = stobjectField(Field.Majority);
 
     private static class Translators {
+        @SuppressWarnings("unused")
         private static TypeTranslator get(Class<? extends SerializedType> kls) {
             try {
                 java.lang.reflect.Field translate = kls.getDeclaredField("translate");

@@ -89,7 +89,7 @@ public class LedgerHeader {
         writer.value(closeTime.toJSON());
         writer.key("close_time_human");
         // TODO
-        writer.value(RippleDate.fromSecondsSinceRippleEpoch(closeTime).toGMTString());
+        writer.value(RippleDate.gmtString(RippleDate.fromSecondsSinceRippleEpoch(closeTime)));
         writer.key("parent_close_time");
         writer.value(parentCloseTime.toJSON());
         writer.key("close_time_resolution");

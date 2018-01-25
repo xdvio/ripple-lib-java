@@ -100,7 +100,6 @@ public class Vector256 extends ArrayList<Hash256> implements SerializedType {
             return vector256;
         }
 
-        @Override
         public JSONArray toJSONArray(Vector256 obj) {
             return obj.toJSONArray();
         }

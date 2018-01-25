@@ -34,15 +34,20 @@ abstract public class Format<Subclass extends Format> {
         requirementEnumMap.put(f, r);
     }
 
-    protected Subclass required(Field f) {
+    @SuppressWarnings("unchecked")
+    Subclass required(Field f) {
         put(f, Requirement.REQUIRED);
         return (Subclass) this;
     }
-    protected Subclass optional(Field f) {
+
+    @SuppressWarnings("unchecked")
+    Subclass optional(Field f) {
         put(f, Requirement.OPTIONAL);
         return (Subclass) this;
     }
-    protected Subclass nonDefault(Field f) {
+
+    @SuppressWarnings("unchecked")
+    Subclass nonDefault(Field f) {
         put(f, Requirement.DEFAULT);
         return (Subclass) this;
     }
