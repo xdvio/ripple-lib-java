@@ -26,8 +26,6 @@ public class LedgerEntry extends STObject {
     public UInt32 flags() {return get(UInt32.Flags);}
     public Hash256 ledgerIndex() {return get(Hash256.LedgerIndex);}
 
-//    public void ledgerEntryType(UInt16 val) {put(Field.LedgerEntryType, val);}
-//    public void ledgerEntryType(LedgerEntryType val) {put(Field.LedgerEntryType, val);}
     public void flags(UInt32 val) {put(Field.Flags, val);}
     public void ledgerIndex(Hash256 val) {put(Field.LedgerIndex, val);}
 
@@ -56,27 +54,6 @@ public class LedgerEntry extends STObject {
     public void setDefaults() {
         if (flags() == null) {
             flags(UInt32.ZERO);
-        }
-    }
-
-    public static abstract class OnLedgerEntry {
-        public abstract void onOffer(Offer of);
-        public abstract void onDirectoryNode(DirectoryNode dn);
-        public abstract void onRippleState(RippleState rs);
-        public abstract void onAccountRoot(AccountRoot ar);
-        public abstract void onAll(LedgerEntry le);
-
-        public void onObject(STObject object) {
-            if (object instanceof Offer) {
-                onOffer(((Offer) object));
-            } else if (object instanceof AccountRoot) {
-                onAccountRoot((AccountRoot) object);
-            } else if (object instanceof DirectoryNode) {
-                onDirectoryNode((DirectoryNode) object);
-            } else if (object instanceof RippleState) {
-                onRippleState((RippleState) object);
-            }
-            onAll((LedgerEntry) object);
         }
     }
 }

@@ -22,29 +22,10 @@ public class TransactionMeta extends STObject {
     public Iterable<AffectedNode> affectedNodes() {
         STArray nodes = get(STArray.AffectedNodes);
         final Iterator<STObject> iterator = nodes.iterator();
-        return new Iterable<AffectedNode>() {
-            @Override
-            public Iterator<AffectedNode> iterator() {
-                return iterateAffectedNodes(iterator);
-            }
-        };
+        return () -> iterateAffectedNodes(iterator);
     }
 
-    public void walkPrevious(LedgerEntry.OnLedgerEntry cb) {
-        for (AffectedNode affectedNode : affectedNodes()) {
-            if (affectedNode.wasPreviousNode()) {
-                cb.onObject(affectedNode.nodeAsPrevious());
-            }
-        }
-    }
-    public void walkFinal(LedgerEntry.OnLedgerEntry cb) {
-        for (AffectedNode affectedNode : affectedNodes()) {
-            if (affectedNode.isFinalNode()) {
-                cb.onObject(affectedNode.nodeAsFinal());
-            }
-        }
-    }
-    public static Iterator<AffectedNode> iterateAffectedNodes(final Iterator<STObject> iterator) {
+    private static Iterator<AffectedNode> iterateAffectedNodes(final Iterator<STObject> iterator) {
         return new Iterator<AffectedNode>() {
             @Override
             public boolean hasNext() {

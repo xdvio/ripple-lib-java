@@ -2,12 +2,15 @@ package com.ripple.utils
 
 import com.ripple.core.binary.STReader
 import com.ripple.core.coretypes.hash.Hash256
+import com.ripple.core.coretypes.uint.UInt32
 import com.ripple.core.fields.Field
 import com.ripple.core.types.known.sle.entries.DirectoryNode
 import com.ripple.core.types.known.sle.entries.OfferDirectory
+import com.ripple.core.types.ledger.LedgerHeader
 import com.ripple.core.types.shamap.AccountState
 import com.ripple.core.types.shamap.AccountStateBuilder
 import com.ripple.core.types.shamap.ShaMapDiff
+import com.ripple.core.types.shamap.TransactionTree
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.File
