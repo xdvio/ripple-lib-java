@@ -11,7 +11,7 @@ import com.ripple.core.types.known.tx.txns.pseudo.EnableAmendment;
 import com.ripple.core.types.known.tx.txns.pseudo.SetFee;
 
 public class STObjectFormatter {
-    public static STObject doFormatted(STObject source) {
+    public static STObject format(STObject source) {
         // This would need to go before the test that just checks
         // for ledgerEntryType
         if (AffectedNode.isAffectedNode(source)) {
@@ -82,6 +82,15 @@ public class STObjectFormatter {
             case PaymentChannelClaim:
                 constructed = new PaymentChannelClaim();
                 break;
+            case CheckCreate:
+                constructed = new CheckCreate();
+                break;
+            case CheckCash:
+                constructed = new CheckCash();
+                break;
+            case CheckCancel:
+                constructed = new CheckCancel();
+                break;
             case TrustSet:
                 constructed = new TrustSet();
                 break;
@@ -137,6 +146,9 @@ public class STObjectFormatter {
                 break;
             case PayChannel:
                 constructed = new PayChannel();
+                break;
+            case Check:
+                constructed = new Check();
                 break;
         }
         constructed.fields = source.fields;

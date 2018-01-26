@@ -22,7 +22,6 @@ import com.ripple.core.serialized.enums.TransactionType;
 import org.json.JSONObject;
 
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.function.Predicate;
@@ -82,7 +81,7 @@ public class STObject implements SerializedType, Iterable<Field> {
      * helper methods, and we can use `instanceof` to great effect.
      */
     public static STObject formatted(STObject source) {
-        return STObjectFormatter.doFormatted(source);
+        return STObjectFormatter.format(source);
 
     }
 

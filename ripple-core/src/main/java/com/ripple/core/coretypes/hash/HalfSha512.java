@@ -47,10 +47,6 @@ public class HalfSha512 implements BytesSink {
         return half;
     }
 
-    private Hash256 makeHash(byte[] half) {
-        return new Hash256(half);
-    }
-
     @Override
     public void add(byte aByte) {
         messageDigest.update(aByte);
