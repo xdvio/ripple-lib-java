@@ -98,13 +98,13 @@ But how is this used? You can only query values by `hash` in the NodeStore. The
 hash, as a function of a value would obviously change along with it.
 
 The identifier is used as an `index` into a ShaMap tree, which in ripple, is
-representative of a point in time. In fact a shamap can be hashed
+representative of a point in time. In fact a ShaMap can be hashed
 deterministically, thus a point in time can be identified by a `hash`. Where is
 a ShaMap actually stored? In the NodeStore, of course.
 
 But the NodeStore only stores binary content you protest! But the ShaMap has a
 binary representation! So what are the `contents` of a ShaMap, to be hashed to
-be stored in the nodestore?
+be stored in the NodeStore?
 
 Glad you asked. A tree, has a root, and many children, either more branches, or
 terminal leaves. The root, and any of its children that have children
@@ -146,13 +146,13 @@ First you need a known point in time, which we learned could be defined by a
 * shamap hash: 2F049AEE51C7C96AB911AF86E3278F4F90A38D196422A832617FF0C6F29C3704
 * value index: FEEE5CC92B64375C8FEE56D54A82B9965E44FE0DCF673DBF27D0AA93F8AFF4FB
 
-Imagine we have those above. First we query the nodestore with `2F049A...`
+Imagine we have those above. First we query the NodeStore with `2F049A...`
 
 What do we expect back? A ShaMap hash is the hash of the binary representation
 of the root node (which is an `inner node`) of the tree, so we'd expect
 something in the form shown earlier, with 16 256 bit hashes.
 
-From the nodestore we retrieve:
+From the NodeStore we retrieve:
 
   ```
   4D494E00
@@ -202,7 +202,7 @@ We select the 16th hash
 
   `4E8C0CE75693B85A4CAC5516B77702E660A55281CF17DBE09552941F3078D81C`
 
-From the nodestore we retrieve:
+From the NodeStore we retrieve:
 
   ```
   4D494E00
@@ -248,7 +248,7 @@ We select the 15th hash:
 
   `5568E7032EE018CA484C181CD68411B623229D0666AE0038708500C59402A282`
 
-From the nodestore we retrieve:
+From the NodeStore we retrieve:
 
   ```
   534E4400
@@ -307,10 +307,10 @@ the object and recreating it)
 Takeaways
 ---------
 
-* A `hash` keys the nodestore
+* A `hash` keys the NodeStore
 * An `index` is a path to an item in a ShaMap
 * For communication purposes
-  - Always use `hash` when referring to a key for the nodestore
+  - Always use `hash` when referring to a key for the NodeStore
   - Always use `index` when referring to a key for a ShaMap
 
 Links

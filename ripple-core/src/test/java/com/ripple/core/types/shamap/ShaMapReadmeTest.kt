@@ -19,9 +19,8 @@ fun ShaMapNode.repr(): String {
     toBytesSink {
         strings.add(B16.encode(it))
     }
-    val type = javaClass
-                        .simpleName
-                        .replace("ShaMap", "")
+
+    val typeName = javaClass.simpleName
 
     if (this is ShaMapLeaf) {
         val ix = strings.size - 1
@@ -34,7 +33,15 @@ fun ShaMapNode.repr(): String {
         strings.add(all)
         strings.add(index)
     }
-    return "$type(hash=${hash()})\n" +
+    val depth = when (this) {
+        is ShaMapInner -> {
+            depth
+        } else -> {
+            null
+        }
+    }
+
+    return "$typeName(depth=$depth hash=${hash()})\n" +
             "\t${B16.encode(hashPrefix().bytes())}\n\t" +
             strings.joinToString("\n\t")
 }
