@@ -66,7 +66,7 @@ public class NodeStore {
 ```
 
 See also:
-* [serialized types](../../README.md)
+* [serialized types](../../../../../../../../README.md)
 * [BinaryFormats.txt (historical)](https://github.com/ripple/rippled/blob/07df5f1f81b0ee1ab641d134ba8e940a90f5297e/BinaryFormats.txt#L2-L6)
 
 Excerpt from BinaryFormats.txt (historical): 
@@ -79,7 +79,7 @@ Excerpt from BinaryFormats.txt (historical):
   or hashed object. Otherwise, the signatures or hashes cannot be validated.
   </blockquote>
 
-Note that currently (2/Feb/2014) the NodeStore stores it in the hashing form.
+Note that currently (26/Jan/2018) the NodeStore stores it in the hashing form.
 
 What is a ShaMap?
 -----------------
