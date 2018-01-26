@@ -66,7 +66,7 @@ public class NodeStore {
 ```
 
 See also:
-* [serialized types](../../../../../../../../README.md)
+* [Serialized Types](../../../../../../../../README.md)
 * [BinaryFormats.txt (historical)](https://github.com/ripple/rippled/blob/07df5f1f81b0ee1ab641d134ba8e940a90f5297e/BinaryFormats.txt#L2-L6)
 
 Excerpt from BinaryFormats.txt (historical): 
@@ -146,7 +146,7 @@ First you need a known point in time, which we learned could be defined by a
 * shamap hash: 2F049AEE51C7C96AB911AF86E3278F4F90A38D196422A832617FF0C6F29C3704
 * value index: FEEE5CC92B64375C8FEE56D54A82B9965E44FE0DCF673DBF27D0AA93F8AFF4FB
 
-Imagine we have those above. First we query the nodestore with `E49843...`
+Imagine we have those above. First we query the nodestore with `2F049A...`
 
 What do we expect back? A ShaMap hash is the hash of the binary representation
 of the root node (which is an `inner node`) of the tree, so we'd expect
@@ -197,8 +197,6 @@ To use the `index` we take the first nibble, `F` (yes, we go left to right)
 
 The letter `F` in hex has the ordinal value 15, so we take the 16th branch (0
 based indexing)
-
-  (If this is unclear, see `annoyingly verbose` ascii art @ bottom of section)
 
 We select the 16th hash
 
@@ -299,7 +297,7 @@ hex decodes as `MLN\x00`, meaning sham)ap l)eaf n)ode.
 
 And what's that at the end? Is that our index? It is!!
 
-Why does it need to be stored? We have only used `DF` to traverse to this
+Why does it need to be stored? We have only used `FE` to traverse to this
 node. Without storing the `index` identifier in the leaf node contents,
 there would be no way to be certain that this leaf held the item you wanted.
 More importantly, it acts as further name-spacing, to prevent collisions. 
@@ -319,38 +317,3 @@ Links
 -----
 
 * [Rippled Hash Prefix declarations](../../coretypes/hash/prefixes/HashPrefix.java)
-
-Annoyingly verbose ascii art
-----------------------------
-
-```
-  DF68EE71EE9141E24B87E630976C1F9071F74AD073BD03578083FDD9098B4BD9
-  || \_____
-  \ \____  \
-   \___  \  \
-       D  F  6  8   E  E  7  1   E  E  9  1   4  1  E  2   4  B  8  7   E  6
-^ <----                 nibble (depth of inner node)                       ---->
-|     01 02 03 04  05 06 07 08  09 10 11 12  13 14 15 16  17 18 19 20  21 22 ...
-
-s      !  !  !  !   !  !  !  !   !  !  !  !   !  !  !  !   !  !  !  !   !  !
-l
-o  00  |  |  |  |   |  |  |  |   |  |  |  |   |  |  |  |   |  |  |  |   |  |
-t  01  |  |  |  |   |  |  |  1   |  |  |  1   |  1  |  |   |  |  |  |   |  |
-   02  |  |  |  |   |  |  |  |   |  |  |  |   |  |  |  2   |  |  |  |   |  |
-i  03  |  |  |  |   |  |  |  |   |  |  |  |   |  |  |  |   |  |  |  |   |  |
-n
-   04  |  |  |  |   |  |  |  |   |  |  |  |   4  |  |  |   4  |  |  |   |  |
-i  05  |  |  |  |   |  |  |  |   |  |  |  |   |  |  |  |   |  |  |  |   |  |
-n  06  |  |  6  |   |  |  |  |   |  |  |  |   |  |  |  |   |  |  |  |   |  6
-n  07  |  |  |  |   |  |  7  |   |  |  |  |   |  |  |  |   |  |  |  7   |  |
-e
-r  08  |  |  |  8   |  |  |  |   |  |  |  |   |  |  |  |   |  |  8  |   |  |
-   09  |  |  |  |   |  |  |  |   |  |  9  |   |  |  |  |   |  |  |  |   |  |
-n  10  |  |  |  |   |  |  |  |   |  |  |  |   |  |  |  |   |  |  |  |   |  |
-o  11  |  |  |  |   |  |  |  |   |  |  |  |   |  |  |  |   |  B  |  |   |  |
-d
-e  12  |  |  |  |   |  |  |  |   |  |  |  |   |  |  |  |   |  |  |  |   |  |
-   13 [D] |  |  |   |  |  |  |   |  |  |  |   |  |  |  |   |  |  |  |   |  |
-|  14  |  |  |  |   E  E  |  |   E  E  |  |   |  |  *  |   |  |  |  |   E  |
-V  15  |  F  |  |   |  |  |  |   |  |  |  |   |  |  |  |   |  |  |  |   |  |
-```

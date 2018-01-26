@@ -239,10 +239,10 @@ can be used as a concrete example and will be referenced later.
 ```
 
 * Note that ALL field names are, by convention, upper case (in fact field names (index, hash) may be
-lower cased but aren't serialized)
+lower cased but are not serialized)
 
 * The `AffectedNodes` is an STArray. As stated, the immediate
-children each contain only a single key (or [Field](src/main/java/com/ripple/core/fields/Field.java#L120-L121))
+children each contain only a single key (or [Field](src/main/java/com/ripple/core/fields/Field.java#L138-L140))
 
   * CreatedNode
   * ModifiedNode
@@ -261,7 +261,7 @@ com
             │   └── TransactionType
 ```
 
-* In the json above look at the [TransactionResult](src/main/java/com/ripple/core/fields/Field.java#L141) field.
+* In the json above look at the [TransactionResult](src/main/java/com/ripple/core/fields/Field.java#L164) field.
   Note that it has a Type of of UINT8, yet clearly it's represented in json as a string.
 
 #### com.ripple.core.fields.Type
@@ -338,13 +338,14 @@ public interface SerializedType {
     byte[] toBytes();
     String toHex();
     void toBytesSink(BytesSink to);
+    Type type();
 }
 ```
 
 #### com.ripple.core.serialized.BytesList
 
 A dynamic array of byte[]. Used by TypeTranslators to avoid needless 
-copying (see fromParser(paser, hint)).
+copying (see fromParser(parser, hint)).
 
 #### com.ripple.core.serialized.BinaryParser
 
