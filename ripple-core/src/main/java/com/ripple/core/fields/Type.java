@@ -1,9 +1,6 @@
 /* DO NOT EDIT, AUTO GENERATED */
 package com.ripple.core.fields;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 public enum Type {
     Unknown(-2),
     Done(-1),
@@ -25,18 +22,6 @@ public enum Type {
     Transaction(10001),
     LedgerEntry(10002),
     Validation(10003);
-
-    static private Map<Integer, Type> byInt = new TreeMap<Integer, Type>();
-    static {
-        for (Object a : Type.values()) {
-           Type t = (Type) a;
-            byInt.put(t.id, t);
-        }
-    }
-
-    static public Type valueOf(Integer integer) {
-        return byInt.get(integer);
-    }
 
     final int id;
 

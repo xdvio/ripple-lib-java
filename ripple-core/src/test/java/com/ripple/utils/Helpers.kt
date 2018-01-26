@@ -1,7 +1,12 @@
 package com.ripple.utils
 
+import com.ripple.core.coretypes.STObject
 import org.json.JSONArray
 import org.json.JSONObject
+
+fun String.normalizeJSON() = JSONObject(this).toString(2)!!
+fun STObject.normalizedJSON() = toJSONObject().toString(2)!!
+fun String.noSpace() = this.replace(Regex("\\s+"), "")
 
 fun JSONArray.isEqual(other: JSONArray): Boolean {
     var failed = false

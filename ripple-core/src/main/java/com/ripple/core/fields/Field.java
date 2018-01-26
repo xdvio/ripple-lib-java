@@ -196,7 +196,7 @@ public enum Field {
         return f;
     }
 
-    public static byte[] asBytes(Field field) {
+    private static byte[] asBytes(Field field) {
         int name = field.getId(), type = field.getType().getId();
         ArrayList<Byte> header = new ArrayList<>(3);
 
@@ -246,12 +246,13 @@ public enum Field {
         id = fid;
         type = tid;
         code = (type.id << 16) | fid;
+        isSerialized = isSerialized(this);
+
         if (isSerialized()) {
             bytes = asBytes(this);
         } else {
             bytes = null;
         }
-        isSerialized = isSerialized(this);
     }
 
     static private Map<Integer, Field> byCode = new TreeMap<>();

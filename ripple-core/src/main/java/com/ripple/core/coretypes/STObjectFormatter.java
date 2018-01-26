@@ -2,6 +2,7 @@ package com.ripple.core.coretypes;
 
 import com.ripple.core.serialized.enums.LedgerEntryType;
 import com.ripple.core.serialized.enums.TransactionType;
+import com.ripple.core.types.known.generic.Validation;
 import com.ripple.core.types.known.sle.LedgerHashes;
 import com.ripple.core.types.known.sle.entries.*;
 import com.ripple.core.types.known.tx.result.AffectedNode;
@@ -32,6 +33,12 @@ public class STObjectFormatter {
         TransactionType transactionType = STObject.transactionType(source);
         if (transactionType != null) {
             return transactionFormatted(source, transactionType);
+        }
+
+        if (Validation.isValidation(source)) {
+            Validation validation = new Validation();
+            validation.fields = source.fields;
+            return validation;
         }
 
         return source;

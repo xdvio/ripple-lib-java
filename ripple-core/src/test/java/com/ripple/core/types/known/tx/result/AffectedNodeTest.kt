@@ -2,14 +2,12 @@ package com.ripple.core.types.known.tx.result
 
 import com.ripple.core.coretypes.STObject
 import com.ripple.core.fields.Field
+import com.ripple.utils.normalizeJSON
+import com.ripple.utils.normalizedJSON
 import org.intellij.lang.annotations.Language
-import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-
-fun String.normalizeJSON() = JSONObject(this).toString(2)!!
-fun STObject.normalizedJSON() = toJSONObject().toString(2)!!
 
 class AffectedNodeTest {
     @Test
