@@ -2,22 +2,23 @@ package com.ripple.core.coretypes.hash.prefixes;
 
 import com.ripple.core.coretypes.uint.UInt32;
 
+/**
+ * The prefix codes are part of the Ripple protocol
+ * and existing codes cannot be arbitrarily changed.
+ */
 public enum HashPrefix implements Prefix {
-    transactionID(0x54584E00L),
-    // transaction plus metadata
-    txNode(0x534E4400L),
-    // account state
-    leafNode(0x4D4C4E00L),
-    // inner node in tree
-    innerNode(0x4D494E00L),
-    // ledger master data for signing
-    ledgerMaster(0x4C575200L),
-    // inner transaction to sign
-    txSign(0x53545800L),
-    // validation for signing
-    validation(0x56414C00L),
-    // proposal for signing
-    proposal(0x50525000L);
+    transactionID               ('T', 'X', 'N'),
+    txNode                      ('S', 'N', 'D'),
+    leafNode                    ('M', 'L', 'N'),
+    innerNode                   ('M', 'I', 'N'),
+    innerNodeV2                 ('I', 'N', 'R'),
+    ledgerMaster                ('L', 'W', 'R'),
+    txSign                      ('S', 'T', 'X'),
+    txMultiSign                 ('S', 'M', 'T'),
+    validation                  ('V', 'A', 'L'),
+    proposal                    ('P', 'R', 'P'),
+    manifest                    ('M', 'A', 'N'),
+    paymentChannelClaim         ('C', 'L', 'M');
 
     public UInt32 uInt32;
     public byte[] bytes;
@@ -27,8 +28,14 @@ public enum HashPrefix implements Prefix {
         return bytes;
     }
 
-    HashPrefix(long i) {
-        uInt32 = new UInt32(i);
-        bytes = uInt32.toByteArray();
+    HashPrefix(char... chars) {
+        byte[] bytes = {
+                (byte) chars[0],
+                (byte) chars[1],
+                (byte) chars[2],
+                (byte) 0,
+        };
+        uInt32 = UInt32.fromBytes(bytes);
+        this.bytes = bytes;
     }
 }
