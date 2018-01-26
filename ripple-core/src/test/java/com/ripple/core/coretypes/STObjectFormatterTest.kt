@@ -4,6 +4,7 @@ import com.ripple.core.fields.Field
 import com.ripple.core.serialized.enums.LedgerEntryType
 import com.ripple.core.serialized.enums.TransactionType
 import com.ripple.core.types.known.sle.LedgerEntry
+import com.ripple.core.types.known.sle.entries.DirectoryNode
 import com.ripple.core.types.known.tx.Transaction
 import com.ripple.core.types.known.tx.result.AffectedNode
 import com.ripple.core.types.known.tx.result.TransactionMeta
@@ -20,6 +21,12 @@ class STObjectFormatterTest {
             so.put(Field.LedgerEntryType, let)
             val leSo = STObjectFormatter.format(so)
             assertTrue(leSo is LedgerEntry)
+            val klassName = leSo.javaClass.simpleName
+            if (leSo !is DirectoryNode) {
+                assertEquals(let.toString(), klassName)
+            } else {
+                assertTrue(klassName.endsWith("Directory"))
+            }
             val le = leSo as LedgerEntry
             assertEquals(let, le.ledgerEntryType())
         }
@@ -32,6 +39,7 @@ class STObjectFormatterTest {
             so.put(Field.TransactionType, tt)
             val txSo = STObjectFormatter.format(so)
             assertTrue(txSo is Transaction)
+            assertEquals(tt.toString(), txSo.javaClass.simpleName)
             val tx = txSo as Transaction
             assertEquals(tt, tx.transactionType())
         }
