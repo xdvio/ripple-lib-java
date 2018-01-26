@@ -1,0 +1,4 @@
+ignore:
+  - "ripple-examples/*"  # ignore folders and all its contents
+  - "ripple-client/*"  # ignore folders and all its contents
+  - "ripple-client-transports/*"  # ignore folders and all its contents
