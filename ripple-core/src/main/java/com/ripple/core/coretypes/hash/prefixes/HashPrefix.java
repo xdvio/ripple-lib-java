@@ -1,6 +1,7 @@
 package com.ripple.core.coretypes.hash.prefixes;
 
 import com.ripple.core.coretypes.uint.UInt32;
+import com.ripple.encodings.common.B16;
 
 /**
  * The prefix codes are part of the Ripple protocol
@@ -20,15 +21,21 @@ public enum HashPrefix implements Prefix {
     manifest                    ('M', 'A', 'N'),
     paymentChannelClaim         ('C', 'L', 'M');
 
-    public UInt32 uInt32;
-    public byte[] bytes;
+    private UInt32 uInt32;
+    private byte[] bytes;
+    private String chars;
 
     @Override
     public byte[] bytes() {
         return bytes;
     }
 
+    public String toHex() {
+        return B16.encode(bytes);
+    }
+
     HashPrefix(char... chars) {
+        this.chars = new String(chars);
         byte[] bytes = {
                 (byte) chars[0],
                 (byte) chars[1],
@@ -37,5 +44,13 @@ public enum HashPrefix implements Prefix {
         };
         uInt32 = UInt32.fromBytes(bytes);
         this.bytes = bytes;
+    }
+
+    public UInt32 uInt32() {
+        return uInt32;
+    }
+
+    public String chars() {
+        return chars;
     }
 }

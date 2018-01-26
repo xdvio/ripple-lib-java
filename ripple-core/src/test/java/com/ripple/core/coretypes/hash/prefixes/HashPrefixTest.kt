@@ -2,6 +2,7 @@ package com.ripple.core.coretypes.hash.prefixes
 
 import com.ripple.core.coretypes.uint.UInt32
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class HashPrefixTest {
@@ -30,6 +31,8 @@ class HashPrefixTest {
 
     private fun testSame(prefix: HashPrefix, chars: CharArray) {
         val fromChars = charToUint32(chars)
-        assertEquals(0, fromChars.compareTo(prefix.uInt32))
+        assertEquals(String(chars), prefix.chars())
+        assertEquals(0, fromChars.compareTo(prefix.uInt32()))
+        assertTrue(prefix.bytes() is ByteArray)
     }
 }

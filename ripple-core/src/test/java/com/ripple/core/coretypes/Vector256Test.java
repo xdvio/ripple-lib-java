@@ -28,7 +28,7 @@ public class Vector256Test {
 
         System.out.println((int) type);
         UInt32 prefix = UInt32.fromParser(parser);
-        UInt32 innerNode = HashPrefix.innerNode.uInt32;
+        UInt32 innerNode = HashPrefix.innerNode.uInt32();
 
 //        System.out.println(prefix.equals(innerNode));
 

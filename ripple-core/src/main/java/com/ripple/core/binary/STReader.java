@@ -83,7 +83,7 @@ public class STReader {
     public HashPrefix hashPrefix() {
         byte[] read = parser.read(4);
         for (HashPrefix hashPrefix : HashPrefix.values()) {
-            if (Arrays.equals(read, hashPrefix.bytes)) {
+            if (Arrays.equals(read, hashPrefix.bytes())) {
                 return hashPrefix;
             }
         }

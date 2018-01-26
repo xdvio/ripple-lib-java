@@ -17,7 +17,7 @@ import java.util.Date;
 
 public class LedgerHeader {
     // Always 0x4C475200 (LWR) (Secures signed objects)
-    public UInt32  version = HashPrefix.ledgerMaster.uInt32;
+    public UInt32  version = HashPrefix.ledgerMaster.uInt32();
 
     public UInt32  sequence;        // Ledger Sequence (0 for genesis ledger)
     public UInt64  totalXRP;        //

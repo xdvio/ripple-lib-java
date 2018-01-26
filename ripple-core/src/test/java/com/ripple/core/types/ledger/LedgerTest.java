@@ -29,7 +29,7 @@ public class LedgerTest {
         assertEquals(4403788, reader.uInt32().longValue()); //
         assertEquals(3, parser.readOne()); //
 
-        assertEquals(HashPrefix.innerNode.uInt32, reader.uInt32());
+        assertEquals(HashPrefix.innerNode.uInt32(), reader.uInt32());
         assertEquals(16, reader.vector256().size());
         assertTrue(parser.end());
     }

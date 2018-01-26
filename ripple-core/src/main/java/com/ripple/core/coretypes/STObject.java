@@ -157,7 +157,7 @@ public class STObject implements SerializedType, Iterable<Field> {
 
     protected byte[] signingData(HashPrefix txSign) {
         BytesList bl = new BytesList();
-        bl.add(txSign.bytes);
+        bl.add(txSign.bytes());
         toBytesSink(bl, Field::isSigningField);
         return bl.bytes();
     }

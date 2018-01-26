@@ -42,7 +42,6 @@ public class BinaryParser {
             throw new IllegalStateException("Couldn't parse field from " +
                     Integer.toHexString(fieldCode));
         }
-
         return field;
     }
 

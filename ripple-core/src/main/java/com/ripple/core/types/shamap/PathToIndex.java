@@ -3,6 +3,7 @@ package com.ripple.core.types.shamap;
 import com.ripple.core.coretypes.hash.Hash256;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 public class PathToIndex {
@@ -111,7 +112,7 @@ public class PathToIndex {
     }
 
     private void makeStack(ShaMapInner root, Hash256 index) {
-        inners = new ArrayDeque<ShaMapInner>();
+        inners = new ArrayDeque<>();
         ShaMapInner top = root;
 
         while (true) {
@@ -143,5 +144,13 @@ public class PathToIndex {
         }
         theLeaf.invalidate();
         return theLeaf;
+    }
+
+    public ArrayList<ShaMapNode> topDownList() {
+        ArrayList<ShaMapNode> path = new ArrayList<>();
+        Iterator<ShaMapInner> shaMapInnerIterator = inners.descendingIterator();
+        shaMapInnerIterator.forEachRemaining(path::add);
+        path.add(leaf);
+        return path;
     }
 }
