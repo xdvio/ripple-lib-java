@@ -29,7 +29,7 @@ public class TrackedAccountRoot extends Publisher<TrackedAccountRoot.events> {
         // If transactionLedgerIndex is higher than current also apply it
         // If we have a direct transaction chain, apply it
         if (!updated  || PreviousTxnID.equals(rootUpdates.get(Hash256.PreviousTxnID))) {
-            setFromSTObject(rootUpdates.get(STObject.FinalFields));
+            setFromSTObject(rootUpdates/*.get(STObject.FinalFields)*/);
             PreviousTxnID = transactionHash;
             PreviousTxnLgrSeq = transactionLedgerIndex;
         } else {
