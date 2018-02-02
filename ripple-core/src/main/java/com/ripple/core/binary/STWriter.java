@@ -18,16 +18,17 @@ public class STWriter implements BytesSink, Closeable {
         sink = bytesSink;
     }
 
-    private FileOutputStream stream;
-    private STWriter(BytesSink sink, FileOutputStream stream) {
+    private OutputStream stream;
+    private STWriter(BytesSink sink, OutputStream stream) {
         this(sink);
         this.stream = stream;
     }
 
     public static STWriter toFile(String path) {
         try {
-            FileOutputStream stream = new FileOutputStream(path);
-            return new STWriter(new StreamSink(stream), stream);
+            FileOutputStream fos = new FileOutputStream(path);
+            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            return new STWriter(new StreamSink(bos), bos);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
