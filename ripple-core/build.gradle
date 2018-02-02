@@ -15,6 +15,7 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
     testCompile 'junit:junit:4.12'
     testCompile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    testCompile "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22"
 }
 buildscript {
     ext.kotlin_version = '1.2.21'
@@ -42,4 +43,10 @@ compileTestKotlin {
 task getDeps(type: Copy) {
     from configurations.compile
     into "$rootDir/jars/"
+}
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
 }

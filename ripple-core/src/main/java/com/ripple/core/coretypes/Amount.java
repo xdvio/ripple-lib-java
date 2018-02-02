@@ -97,6 +97,12 @@ public class Amount extends Number implements SerializedType, Comparable<Amount>
         this.setAndCheckValue(xrpScaleValue);
     }
 
+    public Amount(Number xrpScaleValue) {
+        isNative = true;
+        currency = Currency.XRP;
+        this.setAndCheckValue(BigDecimal.valueOf(xrpScaleValue.doubleValue()));
+    }
+
     public Amount(BigDecimal value, Currency currency, AccountID issuer, boolean isNative, boolean unbounded) {
         this.isNative = isNative;
         this.currency = currency;
