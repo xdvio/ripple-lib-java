@@ -11,13 +11,11 @@ import com.ripple.core.fields.Field;
 import com.ripple.core.serialized.enums.EngineResult;
 import com.ripple.core.serialized.enums.LedgerEntryType;
 import com.ripple.core.serialized.enums.TransactionType;
-import com.ripple.core.types.known.sle.LedgerEntry;
 import com.ripple.core.types.known.sle.entries.AccountRoot;
 import com.ripple.core.types.known.tx.Transaction;
 import com.ripple.encodings.common.B16;
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -151,7 +149,7 @@ public class TransactionResult implements Comparable<TransactionResult> {
                        json.has("tx_blob") ? "tx_blob" : null;
 
         if (txKey == null && !json.has("TransactionType")) {
-            throw new RuntimeException("This json isn't a transaction " + json);
+            throw new IllegalArgumentException("This json isn't a transaction " + json);
         }
 
         binary = txKey != null && json.get(txKey) instanceof String;
