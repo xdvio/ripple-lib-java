@@ -87,7 +87,7 @@ What is a ShaMap?
 A ShaMap is a special type of tree, used as a way to index values stored in a
 `NodeStore`
 
-Recall that values in the nodestore are keyed by the hash of their contents.
+Recall that values in the NodeStore are keyed by the hash of their contents.
 
 But what about identities that change over time? How can you retrieve a certain
 version of something? What could be used as an enduring identifier? The value
