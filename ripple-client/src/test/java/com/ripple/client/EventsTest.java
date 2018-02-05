@@ -18,7 +18,7 @@ public class EventsTest {
 
      @Test
     public void testFluentBinders() throws Exception {
-        Class<?> rootKlass = ManagedTxn.class;
+        Class<?> rootKlass = Client.class;
         String canonicalName = rootKlass.getCanonicalName();
         Class<?> eventsKlass = classLoader.loadClass(canonicalName + "$events");
 
