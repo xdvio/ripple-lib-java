@@ -34,11 +34,9 @@ public class TransactionResult implements Comparable<TransactionResult> {
     public UInt32 ledgerIndex;
     public Hash256 hash;
 
-    // TODO, consider just killing this field, as not all have them
-    @Deprecated
-    public Hash256 ledgerHash;
-    // TODO, in practice this class is only for validated results so ...
-    @Deprecated
+    // TODO: in practice this class is GENERALLY only for validated results.
+    // NOT strictly true as you can get results from closed but not validated
+    // ledgers! Though you would want to beyond testing ...
     public boolean validated;
 
     public TransactionResult(long ledgerIndex, Hash256 hash, Transaction txn, TransactionMeta meta) {
@@ -52,14 +50,6 @@ public class TransactionResult implements Comparable<TransactionResult> {
 
     public Transaction txn;
     public TransactionMeta  meta;
-
-    // This is deprecated because it's not always set.
-    @Deprecated
-    public JSONObject message;
-
-    public boolean isPayment() {
-        return transactionType() == TransactionType.Payment;
-    }
 
     public TransactionType transactionType() {
         return txn.transactionType();
@@ -175,9 +165,9 @@ public class TransactionResult implements Comparable<TransactionResult> {
         }
 
         TransactionResult tr = new TransactionResult(ledger_index, txn.get(Hash256.hash), txn, meta);
-        if (json.has("ledger_hash")) {
-            tr.ledgerHash = Hash256.fromHex(json.getString("ledger_hash"));
-        }
+//        if (json.has("ledger_hash")) {
+//             tr.ledgerHash = Hash256.fromHex(json.getString("ledger_hash"));
+//        }
         return tr;
     }
 
@@ -191,13 +181,11 @@ public class TransactionResult implements Comparable<TransactionResult> {
     }
 
     public TransactionResult(JSONObject json, Source resultMessageSource) {
-        message = json;
-
         if (resultMessageSource == Source.transaction_subscription_notification) {
 
             engineResult = EngineResult.valueOf(json.getString("engine_result"));
             validated = json.getBoolean("validated");
-            ledgerHash = Hash256.fromHex(json.getString("ledger_hash"));
+//            ledgerHash = Hash256.fromHex(json.getString("ledger_hash"));
             ledgerIndex = new UInt32(json.getLong("ledger_index"));
 
             if (json.has("transaction")) {
@@ -216,7 +204,6 @@ public class TransactionResult implements Comparable<TransactionResult> {
             hash = txn.get(Hash256.hash);
             engineResult = meta.engineResult();
             ledgerIndex = new UInt32(json.getLong("ledger_index"));
-            ledgerHash = null;
 
         } else if (resultMessageSource == Source.request_tx_result) {
             validated = json.optBoolean("validated", false);
@@ -228,7 +215,6 @@ public class TransactionResult implements Comparable<TransactionResult> {
                 engineResult = meta.engineResult();
                 txn = (Transaction) STObject.fromJSONObject(json);
                 hash = txn.get(Hash256.hash);
-                ledgerHash = null; // XXXXXX
                 ledgerIndex = new UInt32(json.getLong("ledger_index"));
 
             }
@@ -244,7 +230,6 @@ public class TransactionResult implements Comparable<TransactionResult> {
                 this.txn = (Transaction) STObject.fromJSONObject(tx);
                 hash = this.txn.get(Hash256.hash);
                 ledgerIndex = new UInt32(tx.getLong("ledger_index"));
-                ledgerHash = null;
             }
         } else if (resultMessageSource == Source.request_account_tx_binary || resultMessageSource == Source.request_tx_binary) {
             validated = json.optBoolean("validated", false);
@@ -276,21 +261,14 @@ public class TransactionResult implements Comparable<TransactionResult> {
 
                 engineResult = meta.engineResult();
                 ledgerIndex = new UInt32(json.getLong("ledger_index"));
-                ledgerHash = null;
             }
         }
     }
 
     @Override
     public String toString() {
-        // message is deprecated
-        if (message != null) {
-            return message.toString();
-        }
-        else {
-            JSONObject object = toJSON();
-            return object.toString();
-        }
+        JSONObject object = toJSON();
+        return object.toString();
     }
 
     public JSONObject toJSON() {

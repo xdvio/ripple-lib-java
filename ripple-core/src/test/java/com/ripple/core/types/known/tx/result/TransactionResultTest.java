@@ -398,7 +398,7 @@ public class TransactionResultTest {
     @Test
     public void testTransactionNotificationMessage() {
         TransactionResult tr = TransactionResult.fromJSON(transaction_notification_message);
-        assertHelper(tr, true);
+        assertHelper(tr);
 
         tr = new TransactionResult(transaction_notification_message,
                                    Source.transaction_subscription_notification);
@@ -460,10 +460,6 @@ public class TransactionResultTest {
     }
 
     public void assertHelper(TransactionResult tr) {
-        assertHelper(tr, false);
-    }
-
-    public void assertHelper(TransactionResult tr, boolean checkLedgerHash) {
         assertEquals(true, tr.validated);
         assertEquals("rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh", tr.initiatingAccount().address);
         assertEquals(EngineResult.tesSUCCESS, tr.engineResult);
@@ -476,10 +472,6 @@ public class TransactionResultTest {
         assertEquals("1000000000", payment.amount().toDropsString());
         TransactionMeta meta = tr.meta;
         assertEquals(0, meta.transactionIndex().longValue());
-
-        if (checkLedgerHash) {
-            assertEquals("B885C2935021E6BD64C4F7BA79B838797BC2D1AD2883DFC811B1D80D9E5E890D", tr.ledgerHash.toHex());
-        }
     }
 
 }

@@ -19,11 +19,11 @@ abstract class IntegrationTestBase {
         rippled = Rippled(rippledPath, rippledWorkingDirectory)
 
         val waitWs = rippled.waiter(".*Opened 'port_ws.*")
-        rippled.spawn()
         waitWs()
 
         client = Client(JavaWebSocketTransportImpl())
         val waitConnected = Waiter()
+        // TODO: configurable ws port[s
         client.connect("ws://localhost:6006", { waitConnected.ok() })
         waitConnected()
         setTestAccounts()
