@@ -16,11 +16,11 @@ public class Publisher<CompatHack extends Publisher.Callback> {
     }
 
     public interface Callback<T> {
-        public void called(T args);
+        void called(T args);
     }
 
     public interface ErrBack<T> extends Callback<T> {
-        public void erred(RuntimeException args);
+        void erred(RuntimeException args);
     }
 
     public <A, T extends Callback<A>> void on(Class<T> key, T cb) {
@@ -102,11 +102,6 @@ public class Publisher<CompatHack extends Publisher.Callback> {
             super(callbacks);
         }
 
-        @Override
-        public ContextedCallback get(int index) {
-            return super.get(index);
-        }
-
         public boolean remove(Callback t) {
             Iterator<ContextedCallback> iter = iterator();
             while (iter.hasNext()) {
@@ -160,8 +155,9 @@ public class Publisher<CompatHack extends Publisher.Callback> {
     }
 
     public int clearAllListeners() {
-        int size = cbs.size();
+        int[] n = new int[1];
+        cbs.forEach((key, val) -> n[0] += val.size());
         cbs.clear();
-        return size;
+        return n[0];
     }
 }

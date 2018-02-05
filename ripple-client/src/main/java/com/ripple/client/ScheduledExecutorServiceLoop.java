@@ -1,5 +1,7 @@
 package com.ripple.client;
 
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +39,19 @@ public class ScheduledExecutorServiceLoop implements IClientLoop {
     }
 
     @Override
+    public void runAndWait(Runnable runnable) {
+        if (runningOnClientThread()) {
+            runnable.run();
+        } else {
+            try {
+                service.submit(runnable).get();
+            } catch (ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
     public void schedule(long ms, Runnable runnable) {
         if (service == null) {
             throw new IllegalStateException("Must start executor");
@@ -53,7 +68,6 @@ public class ScheduledExecutorServiceLoop implements IClientLoop {
     @Override
     public void stop() {
         try {
-            // TODO: Consider service.stop() ?
             service.shutdownNow();
         } catch (Exception e) {
             throw new RuntimeException(e);

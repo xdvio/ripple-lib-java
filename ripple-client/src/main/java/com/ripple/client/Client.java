@@ -189,6 +189,15 @@ public class Client extends Publisher<Client.events> {
         return this;
     }
 
+    public Client onError(OnError onError) {
+        on(OnError.class, onError);
+        return this;
+    }
+    public Client onceError(OnError onError) {
+        once(OnError.class, onError);
+        return this;
+    }
+
     // ### Members
     // The implementation of the WebSocket
     private WebSocketTransport ws;
@@ -328,19 +337,20 @@ public class Client extends Publisher<Client.events> {
 
     @SuppressWarnings("WeakerAccess")
     public void disconnect() {
-        // If we put this method in the run block then the dispose method, if
-        // called from another thread will mean that it never runs. People
+        // If we put this method in just a `run()` block then the dispose method,
+        // if called from another thread will mean that it never runs. People
         // SHOULD only use the client object inside event handlers and run
         // blocks, however it's seen that's not always the case.
-
-        if (!connected) {
-            log(Level.WARNING,
-                    "called disconnect when not connected");
-        }
-        manuallyDisconnected = true;
-        // Emit events, maybe reschedule connects etc
-        ws.disconnect();
-        doOnDisconnected();
+        loop.runAndWait(() -> {
+            if (!connected) {
+                log(Level.WARNING,
+                        "called disconnect when not connected");
+            }
+            manuallyDisconnected = true;
+            // Emit events, maybe reschedule connects etc
+            ws.disconnect();
+            doOnDisconnected();
+        });
     }
 
     private void emitOnDisconnected() {
@@ -498,7 +508,7 @@ public class Client extends Publisher<Client.events> {
 
     /* ----------------------- CLIENT THREAD EVENT HANDLER ---------------------- */
 
-    void onMessageInClientThread(JSONObject msg) {
+    private void onMessageInClientThread(JSONObject msg) {
         Message type = Message.valueOf(msg.optString("type", null));
 
         try {

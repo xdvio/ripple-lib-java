@@ -9,6 +9,10 @@ public interface IClientLoop {
      * @param runnable - the block of code to run
      */
     void run(Runnable runnable);
+    default void runAndWait(Runnable runnable) {
+        run(runnable);
+    }
+
     void schedule(long ms, Runnable runnable);
 
     void start(String clientName);
