@@ -552,8 +552,6 @@ public class Client extends Publisher<Client.events> {
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-            // This seems to be swallowed higher up, (at least by the
-            // Java-WebSocket transport implementation)
             throw new RuntimeException(e);
         } finally {
             emit(OnStateChange.class, this);
@@ -998,6 +996,20 @@ public class Client extends Publisher<Client.events> {
             @Override
             public void beforeRequest(Request request) {
                 request.json("ledger_index", ledgerIndex(ledger_index));
+            }
+
+            @Override
+            public JSONObject buildTypedResponse(Response response) {
+                return response.result.optJSONObject("ledger");
+            }
+        });
+    }
+
+    public void requestLedger(final String ledgerHash, final Manager<JSONObject> cb) {
+        makeManagedRequest(Command.ledger, cb, new Request.Builder<JSONObject>() {
+            @Override
+            public void beforeRequest(Request request) {
+                request.json("ledger_hash", ledgerHash);
             }
 
             @Override

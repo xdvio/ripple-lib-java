@@ -20,9 +20,5 @@ fun Client.requestLedgerAccept(cb: Request.Manager<JSONObject>) {
 }
 
 fun Client.requestLedgerAccept(cb: (Response?, JSONObject?) -> Unit) {
-    requestLedgerAccept(object : Request.Manager<JSONObject>() {
-        override fun cb(response: Response?, jsonObject: JSONObject?) {
-            cb(response, jsonObject)
-        }
-    })
+    requestLedgerAccept(makeManager<JSONObject>(cb))
 }

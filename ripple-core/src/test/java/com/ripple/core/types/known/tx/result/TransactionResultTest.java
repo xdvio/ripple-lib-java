@@ -1,6 +1,9 @@
 package com.ripple.core.types.known.tx.result;
 
+import com.ripple.core.coretypes.STObject;
+import com.ripple.core.coretypes.hash.Hash256;
 import com.ripple.core.serialized.enums.EngineResult;
+import com.ripple.core.types.known.tx.Transaction;
 import com.ripple.core.types.known.tx.txns.Payment;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,7 +14,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TransactionResultTest {
-
     /*
         DONE:
             transaction_subscription_notification

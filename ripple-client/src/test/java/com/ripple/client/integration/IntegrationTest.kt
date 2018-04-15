@@ -3,7 +3,7 @@ package com.ripple.client.integration
 import com.ripple.core.coretypes.Amount
 import com.ripple.core.types.known.tx.result.TransactionResult
 import com.ripple.core.types.known.tx.txns.Payment
-import org.junit.Assert
+import org.junit.Assert.assertTrue
 import org.junit.Ignore
 import org.junit.Test
 
@@ -49,7 +49,7 @@ class IntegrationTest : IntegrationTestBase() {
             return@clientThreaded managed
         }
 
-        Assert.assertTrue(submitTx())
+        assertTrue(submitTx())
         val getTx = Waiter()
 
         clientThreaded {
@@ -63,7 +63,7 @@ class IntegrationTest : IntegrationTestBase() {
                     }
             }))
         }
-        Assert.assertTrue(getTx())
+        assertTrue(getTx())
     }
 
 }

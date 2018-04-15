@@ -1,6 +1,7 @@
 package com.ripple.client.integration
 
 import com.ripple.core.coretypes.AccountID
+import com.ripple.core.types.known.sle.entries.AccountRoot
 import com.ripple.crypto.Seed
 
 class TestAccount(name: String) {
