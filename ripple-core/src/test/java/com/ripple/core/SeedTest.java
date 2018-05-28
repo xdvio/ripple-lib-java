@@ -1,10 +1,13 @@
 package com.ripple.core;
 
+import com.ripple.core.coretypes.AccountID;
 import com.ripple.crypto.ed25519.EDKeyPair;
 import com.ripple.crypto.keys.IKeyPair;
 import com.ripple.crypto.Seed;
 import com.ripple.encodings.addresses.Addresses;
 import org.junit.Test;
+
+import java.security.SecureRandom;
 
 import static org.junit.Assert.*;
 
@@ -55,6 +58,21 @@ public class SeedTest {
         assertEquals(16, fromBase58.bytes().length);
         IKeyPair iKeyPair = seed.keyPair();
         assertTrue(iKeyPair instanceof EDKeyPair);
+    }
+
+    @Test
+    public void testSeedFromRandom() {
+        SecureRandom random = new SecureRandom();
+        byte[] seedBytes = new byte[16];
+        random.nextBytes(seedBytes);
+        Seed seed = new Seed(seedBytes);
+        IKeyPair keyPair = seed.keyPair();
+        AccountID id = AccountID.fromKeyPair(keyPair);
+        String secretOrSeedBase58 = seed.toString();
+        String addressOrAccountID = id.toString();
+        System.out.println("secret = " + secretOrSeedBase58 +
+                "\n" +
+                "address="+addressOrAccountID);
     }
 
     @Test
