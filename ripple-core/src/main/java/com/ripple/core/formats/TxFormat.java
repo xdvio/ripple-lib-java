@@ -204,4 +204,9 @@ public class TxFormat extends Format<TxFormat> {
     static public TxFormat CheckCancel = new TxFormat(TransactionType.CheckCancel)
             .required(Field.CheckID)
             ;
+
+    static public TxFormat DepositPreauth = new TxFormat(TransactionType.DepositPreauth)
+            .optional(Field.Authorize)
+            .optional(Field.Unauthorize)
+            ;
 }

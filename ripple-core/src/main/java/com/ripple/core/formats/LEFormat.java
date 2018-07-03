@@ -218,4 +218,13 @@ public class LEFormat extends Format<LEFormat> {
             .optional(Field.DestinationTag)
 
             ;
+
+    public static LEFormat DepositPreauth = new LEFormat(LedgerEntryType.DepositPreauth)
+            .required(Field.Account)
+            .required(Field.Authorize)
+            .required(Field.OwnerNode)
+            .required(Field.PreviousTxnID)
+            .required(Field.PreviousTxnLgrSeq)
+            ;
+
 }

@@ -22,6 +22,11 @@
 			"description" : "A destination tag is required.",
 			"ordinal" : 143
 		},
+		"tecDUPLICATE" : 
+		{
+			"description" : "Ledger object already exists.",
+			"ordinal" : 149
+		},
 		"tecEXPIRED" : 
 		{
 			"description" : "Expiration time is passed.",
@@ -437,6 +442,11 @@
 			"description" : "Malformed: Weight must be a positive value.",
 			"ordinal" : -271
 		},
+		"temCANNOT_PREAUTH_SELF" : 
+		{
+			"description" : "Malformed: An account may not preauthorize itself.",
+			"ordinal" : -268
+		},
 		"temDISABLED" : 
 		{
 			"description" : "The transaction requires logic that is currently disabled.",
@@ -456,6 +466,11 @@
 		{
 			"description" : "The transaction is ill-formed.",
 			"ordinal" : -278
+		},
+		"temINVALID_ACCOUNT_ID" : 
+		{
+			"description" : "Malformed: A field contains an invalid account ID.",
+			"ordinal" : -269
 		},
 		"temINVALID_FLAG" : 
 		{
@@ -480,12 +495,12 @@
 		"temUNCERTAIN" : 
 		{
 			"description" : "In process of determining result. Never returned.",
-			"ordinal" : -269
+			"ordinal" : -267
 		},
 		"temUNKNOWN" : 
 		{
 			"description" : "The transaction requires logic that is not implemented yet.",
-			"ordinal" : -268
+			"ordinal" : -266
 		},
 		"terFUNDS_SPENT" : 
 		{
@@ -962,6 +977,14 @@
 		{
 			"isBinary" : true,
 			"isSigningField" : true,
+			"name" : "Cookie",
+			"ordinal" : 10,
+			"type" : "UInt64"
+		},
+		
+		{
+			"isBinary" : true,
+			"isSigningField" : true,
 			"name" : "EmailHash",
 			"ordinal" : 1,
 			"type" : "Hash128"
@@ -1372,6 +1395,22 @@
 			"isSigningField" : true,
 			"name" : "Issuer",
 			"ordinal" : 4,
+			"type" : "AccountID"
+		},
+		
+		{
+			"isBinary" : true,
+			"isSigningField" : true,
+			"name" : "Authorize",
+			"ordinal" : 5,
+			"type" : "AccountID"
+		},
+		
+		{
+			"isBinary" : true,
+			"isSigningField" : true,
+			"name" : "Unauthorize",
+			"ordinal" : 6,
 			"type" : "AccountID"
 		},
 		
@@ -1799,6 +1838,22 @@
 			],
 			"name" : "Offer",
 			"ordinal" : 111
+		},
+		
+		{
+			"fields" : 
+			[
+				[ "LedgerIndex", "OPTIONAL" ],
+				[ "LedgerEntryType", "REQUIRED" ],
+				[ "Flags", "REQUIRED" ],
+				[ "Account", "REQUIRED" ],
+				[ "Authorize", "REQUIRED" ],
+				[ "OwnerNode", "REQUIRED" ],
+				[ "PreviousTxnID", "REQUIRED" ],
+				[ "PreviousTxnLgrSeq", "REQUIRED" ]
+			],
+			"name" : "DepositPreauth",
+			"ordinal" : 112
 		},
 		
 		{
@@ -2322,6 +2377,30 @@
 			],
 			"name" : "CheckCancel",
 			"ordinal" : 18
+		},
+		
+		{
+			"fields" : 
+			[
+				[ "TransactionType", "REQUIRED" ],
+				[ "Flags", "OPTIONAL" ],
+				[ "SourceTag", "OPTIONAL" ],
+				[ "Account", "REQUIRED" ],
+				[ "Sequence", "REQUIRED" ],
+				[ "PreviousTxnID", "OPTIONAL" ],
+				[ "LastLedgerSequence", "OPTIONAL" ],
+				[ "AccountTxnID", "OPTIONAL" ],
+				[ "Fee", "REQUIRED" ],
+				[ "OperationLimit", "OPTIONAL" ],
+				[ "Memos", "OPTIONAL" ],
+				[ "SigningPubKey", "REQUIRED" ],
+				[ "TxnSignature", "OPTIONAL" ],
+				[ "Signers", "OPTIONAL" ],
+				[ "Authorize", "OPTIONAL" ],
+				[ "Unauthorize", "OPTIONAL" ]
+			],
+			"name" : "DepositPreauth",
+			"ordinal" : 19
 		},
 		
 		{

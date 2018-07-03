@@ -41,6 +41,7 @@ class FieldSymbolicsTest {
             les[LedgerEntryType.Ticket] = Ticket::class.java
             les[LedgerEntryType.SignerList] = SignerList::class.java
             les[LedgerEntryType.PayChannel] = PayChannel::class.java
+            les[LedgerEntryType.DepositPreauth] = DepositPreauthLe::class.java
 
             txs[TransactionType.Payment] = Payment::class.java
             txs[TransactionType.CheckCreate] = CheckCreate::class.java
@@ -62,13 +63,19 @@ class FieldSymbolicsTest {
             txs[TransactionType.PaymentChannelClaim] = PaymentChannelClaim::class.java
             txs[TransactionType.EnableAmendment] = EnableAmendment::class.java
             txs[TransactionType.SetFee] = SetFee::class.java
+            txs[TransactionType.DepositPreauth] = DepositPreauth::class.java
 
             for (tt in txs.keys) {
                 val aClass = txs[tt]!!
                 assertEquals(aClass.simpleName, tt.name)
             }
             for (let in les.keys) {
-                assertEquals(les[let]!!.simpleName, let.name)
+                val simpleName = les[let]!!.simpleName
+                if (simpleName == "DepositPreauthLe") {
+                    assertEquals("DepositPreauth", let.name)
+                } else {
+                    assertEquals(simpleName, let.name)
+                }
             }
         }
     }
@@ -181,7 +188,7 @@ class FieldSymbolicsTest {
             }
 
             val txFormat = TxFormat.fromString(txName)
-            assertNotNull(txFormat)
+            assertNotNull("missing txName $txName", txFormat)
             checkFormat(tx, txFormat)
 
             val requirements = txFormat.requirements()

@@ -98,6 +98,9 @@ public class STObjectFormatter {
             case CheckCancel:
                 constructed = new CheckCancel();
                 break;
+            case DepositPreauth:
+                constructed = new DepositPreauth();
+                break;
             case TrustSet:
                 constructed = new TrustSet();
                 break;
@@ -156,6 +159,9 @@ public class STObjectFormatter {
                 break;
             case Check:
                 constructed = new Check();
+                break;
+            case DepositPreauth:
+                constructed = new DepositPreauthLe();
                 break;
         }
         constructed.fields = source.fields;

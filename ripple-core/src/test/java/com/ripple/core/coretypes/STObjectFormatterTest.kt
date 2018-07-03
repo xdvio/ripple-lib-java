@@ -4,6 +4,7 @@ import com.ripple.core.fields.Field
 import com.ripple.core.serialized.enums.LedgerEntryType
 import com.ripple.core.serialized.enums.TransactionType
 import com.ripple.core.types.known.sle.LedgerEntry
+import com.ripple.core.types.known.sle.entries.DepositPreauthLe
 import com.ripple.core.types.known.sle.entries.DirectoryNode
 import com.ripple.core.types.known.tx.Transaction
 import com.ripple.core.types.known.tx.result.AffectedNode
@@ -22,10 +23,10 @@ class STObjectFormatterTest {
             val leSo = STObjectFormatter.format(so)
             assertTrue(leSo is LedgerEntry)
             val klassName = leSo.javaClass.simpleName
-            if (leSo !is DirectoryNode) {
-                assertEquals(let.toString(), klassName)
-            } else {
-                assertTrue(klassName.endsWith("Directory"))
+            when (leSo) {
+                is DirectoryNode -> assertTrue(klassName.endsWith("Directory"))
+                is DepositPreauthLe -> assertEquals(let.toString() + "Le", klassName)
+                else -> assertEquals(let.toString(), klassName)
             }
             val le = leSo as LedgerEntry
             assertEquals(let, le.ledgerEntryType())

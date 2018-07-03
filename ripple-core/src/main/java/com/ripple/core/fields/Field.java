@@ -62,6 +62,7 @@ public enum Field {
     LowNode(7, Type.UInt64),
     HighNode(8, Type.UInt64),
     DestinationNode(9, Type.UInt64),
+    Cookie(10, Type.UInt64),
 
     EmailHash(1, Type.Hash128),
 
@@ -129,6 +130,8 @@ public enum Field {
     Owner(2, Type.AccountID),
     Destination(3, Type.AccountID),
     Issuer(4, Type.AccountID),
+    Authorize(5, Type.AccountID),
+    Unauthorize(6, Type.AccountID),
     Target(7, Type.AccountID),
     RegularKey(8, Type.AccountID),
 

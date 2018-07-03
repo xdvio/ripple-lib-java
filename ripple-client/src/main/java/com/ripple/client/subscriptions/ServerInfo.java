@@ -34,8 +34,8 @@ public class ServerInfo {
             throw new IllegalStateException("No information from the server yet");
         }
 
-        double fee_unit = fee_base / fee_ref, fee;
-        fee_unit *= load_factor / load_base;
+        double fee_unit = (double) fee_base / fee_ref, fee;
+        fee_unit *= (double) load_factor / load_base;
         fee = units * fee_unit;
         String s = String.valueOf((long) Math.ceil(fee));
         return Amount.fromString(s);

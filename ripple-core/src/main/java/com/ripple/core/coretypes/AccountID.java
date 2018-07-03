@@ -183,4 +183,6 @@ public class AccountID extends Hash160 {
     static public AccountIDField Issuer = accountField(Field.Issuer);
     static public AccountIDField Target = accountField(Field.Target);
     static public AccountIDField RegularKey = accountField(Field.RegularKey);
+    static public AccountIDField Authorize = accountField(Field.Authorize);
+    static public AccountIDField Unauthorize = accountField(Field.Unauthorize);
 }

@@ -83,6 +83,7 @@ public class UInt64 extends UInt<UInt64> {
     static public UInt64Field LowNode = int64Field(Field.LowNode);
     static public UInt64Field HighNode = int64Field(Field.HighNode);
     public static UInt64Field DestinationNode = int64Field(Field.DestinationNode);
+    public static UInt64Field Cookie = int64Field(Field.Cookie);
 
     @Override
     public Object toJSON() {

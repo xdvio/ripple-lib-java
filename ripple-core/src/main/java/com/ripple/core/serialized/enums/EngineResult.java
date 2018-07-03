@@ -60,8 +60,10 @@ public enum EngineResult implements SerializedType {
     temBAD_QUORUM("Malformed: Quorum is unreachable."),
     temBAD_WEIGHT("Malformed: Weight must be a positive value."),
     temBAD_TICK_SIZE("Malformed: Tick size out of range."),
+    temINVALID_ACCOUNT_ID("Malformed: A field contains an invalid account ID."),
+    temCANNOT_PREAUTH_SELF("Malformed: An account may not preauthorize itself."),
     temUNCERTAIN("In process of determining result. Never returned."),
-    temUNKNOWN("The transaction requires logic that is not implemented yet."),
+    temUNKNOWN(-266, "The transaction requires logic that is not implemented yet."),
 
     tefFAILURE(-199, "Failed to apply."),
     tefALREADY("The exact transaction was already in this ledger."),
@@ -81,6 +83,9 @@ public enum EngineResult implements SerializedType {
     tefNOT_MULTI_SIGNING("Account has no appropriate list of multi-signers."),
     tefBAD_AUTH_MASTER("Auth for unclaimed account needs correct master key."),
     tefINVARIANT_FAILED("Fee claim violated invariants for the transaction."),
+
+
+
 
     terRETRY(-99, "Retry transaction."),
     terFUNDS_SPENT("Can't set password, password set funds already spent."),
@@ -129,7 +134,9 @@ public enum EngineResult implements SerializedType {
     tecOVERSIZE(145, "Object exceeded serialization limits."),
     tecCRYPTOCONDITION_ERROR(146, "Malformed, invalid, or mismatched conditional or fulfillment."),
     tecINVARIANT_FAILED(147, "One or more invariants for the transaction were not satisfied."),
-    tecEXPIRED(148, "Expiration time is passed.");
+    tecEXPIRED(148, "Expiration time is passed."),
+    tecDUPLICATE(149, "Ledger object already exists.")
+    ;
 
 
     public int asInteger() {
