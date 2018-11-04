@@ -135,7 +135,8 @@ public enum EngineResult implements SerializedType {
     tecCRYPTOCONDITION_ERROR(146, "Malformed, invalid, or mismatched conditional or fulfillment."),
     tecINVARIANT_FAILED(147, "One or more invariants for the transaction were not satisfied."),
     tecEXPIRED(148, "Expiration time is passed."),
-    tecDUPLICATE(149, "Ledger object already exists.")
+    tecDUPLICATE(149, "Ledger object already exists."),
+    tecKILLED(150, "FillOrKill offer killed."),
     ;
 
 
